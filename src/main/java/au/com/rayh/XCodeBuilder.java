@@ -92,7 +92,7 @@ public class XCodeBuilder extends Builder {
     /**
      * @since 1.3
      */
-    private String xcodebuildArguments;
+    public final String xcodebuildArguments;
     /**
      * @since 1.2
      */
