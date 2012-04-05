@@ -105,7 +105,7 @@
     </f:entry>
 
     <f:entry title="${%Code Signing Identity}" field="codeSigningIdentity"
-      description="Override the code signing identity for the project">
+      description="Override the code signing identity specified in the project">
         <f:textbox />
     </f:entry>
 
