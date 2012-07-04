@@ -263,7 +263,7 @@ public class XCodeBuilder extends Builder {
         listener.getLogger().println(Messages.XCodeBuilder_CFBundleVersionValue(cfBundleVersion));
         
         String buildDescription = cfBundleShortVersionString + " (" + cfBundleVersion + ")";
-        XCodeAction a = new XCodeAction("","","",buildDescription);
+        XCodeAction a = new XCodeAction(buildDescription);
         build.addAction(a);
 
         // Update the Marketing version (CFBundleShortVersionString)
