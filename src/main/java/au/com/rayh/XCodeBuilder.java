@@ -425,17 +425,23 @@ public class XCodeBuilder extends Builder {
         // Package IPA
         if (buildIpa) {
 
-            if (buildDirectory.exists()) {
-                listener.getLogger().println(Messages.XCodeBuilder_cleaningIPA());
-                for (FilePath path : buildDirectory.list("*.ipa")) {
-                    path.delete();
-                }
-            } else {
-                listener.getLogger().println(Messages.XCodeBuilder_NotExistingDirToCleanIPA(buildDirectory.absolutize().getRemote()));
+            if (!buildDirectory.exists() || !buildDirectory.isDirectory()) {
+                listener.fatalError(Messages.XCodeBuilder_NotExistingBuildDirectory(buildDirectory.absolutize().getRemote()));
+                return false;                
             }
-
+            // clean IPA
+            listener.getLogger().println(Messages.XCodeBuilder_cleaningIPA());
+            for (FilePath path : buildDirectory.list("*.ipa")) {
+                path.delete();
+            }
+            // packaging IPA
             listener.getLogger().println(Messages.XCodeBuilder_packagingIPA());
             List<FilePath> apps = buildDirectory.list(new AppFileFilter());
+            // FilePath is based on File.listFiles() which can randomly fail | http://stackoverflow.com/questions/3228147/retrieving-the-underlying-error-when-file-listfiles-return-null
+            if (apps == null) {
+                listener.fatalError(Messages.XCodeBuilder_NoAppsInBuildDirectory(buildDirectory.absolutize().getRemote()));
+                return false;                
+            }
 
             for (FilePath app : apps) {
                 String version;
