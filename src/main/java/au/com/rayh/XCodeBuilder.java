@@ -333,6 +333,36 @@ public class XCodeBuilder extends Builder {
             }
         }
 
+        // display useful setup information
+        listener.getLogger().println(Messages.XCodeBuilder_DebugInfoLineDelimiter());
+        listener.getLogger().println(Messages.XCodeBuilder_DebugInfoAvailablePProfiles());
+        /*returnCode =*/ launcher.launch().envs(envs).cmds("/usr/bin/security", "find-identity", "-p", "codesigning", "-v").stdout(listener).pwd(projectRoot).join();
+
+        if (!StringUtils.isEmpty(codeSigningIdentity)) {
+            listener.getLogger().println(Messages.XCodeBuilder_DebugInfoCanFindPProfile());
+            /*returnCode =*/ launcher.launch().envs(envs).cmds("/usr/bin/security", "find-certificate", "-a", "-c", codeSigningIdentity, "-Z", "|", "grep", "^SHA-1").stdout(listener).pwd(projectRoot).join();
+            // We could fail here, but this doesn't seem to work as it should right now (output not properly redirected. We might need a parser)
+        }
+
+        listener.getLogger().println(Messages.XCodeBuilder_DebugInfoAvailableSDKs());
+        /*returnCode =*/ launcher.launch().envs(envs).cmds(getDescriptor().getXcodebuildPath(), "-showsdks").stdout(listener).pwd(projectRoot).join();
+        {
+            List<String> commandLine = Lists.newArrayList(getDescriptor().getXcodebuildPath());
+            commandLine.add("-list");
+            // xcodebuild -list -workspace $workspace
+        listener.getLogger().println(Messages.XCodeBuilder_DebugInfoAvailableSchemes());
+            if (!StringUtils.isEmpty(xcodeWorkspaceFile)) {
+                commandLine.add("-workspace");
+                commandLine.add(xcodeWorkspaceFile + ".xcworkspace");
+            } else if (!StringUtils.isEmpty(xcodeProjectFile)) {
+                commandLine.add("-project");
+                commandLine.add(xcodeProjectFile);
+            }
+            returnCode = launcher.launch().envs(envs).cmds(commandLine).stdout(listener).pwd(projectRoot).join();
+            if (returnCode > 0) return false;
+        }
+        listener.getLogger().println(Messages.XCodeBuilder_DebugInfoLineDelimiter());
+
         // Build
         StringBuilder xcodeReport = new StringBuilder(Messages.XCodeBuilder_invokeXcodebuild());
         XCodeBuildOutputParser reportGenerator = new XCodeBuildOutputParser(projectRoot, listener);
