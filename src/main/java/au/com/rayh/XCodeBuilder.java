@@ -464,6 +464,10 @@ public class XCodeBuilder extends Builder {
             for (FilePath path : buildDirectory.list("*.ipa")) {
                 path.delete();
             }
+            listener.getLogger().println(Messages.XCodeBuilder_cleaningDSYM());
+            for (FilePath path : buildDirectory.list("*-dSYM.zip")) {
+                path.delete();
+            }
             // packaging IPA
             listener.getLogger().println(Messages.XCodeBuilder_packagingIPA());
             List<FilePath> apps = buildDirectory.list(new AppFileFilter());
