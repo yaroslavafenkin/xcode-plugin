@@ -47,6 +47,7 @@ import javax.servlet.ServletException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -440,10 +441,7 @@ public class XCodeBuilder extends Builder {
 
         // Additional (custom) xcodebuild arguments
         if (!StringUtils.isEmpty(xcodebuildArguments)) {
-            String[] parts = xcodebuildArguments.split("[ ]");
-            for (String arg : parts) {
-                commandLine.add(arg);
-            }
+            commandLine.addAll(splitXcodeBuildArguments(xcodebuildArguments));
         }
 
         listener.getLogger().println(xcodeReport.toString());
@@ -533,6 +531,10 @@ public class XCodeBuilder extends Builder {
         }
 
         return true;
+    }
+
+    static List<String> splitXcodeBuildArguments(String xcodebuildArguments) {
+        return Arrays.asList(xcodebuildArguments.split("[ ]"));
     }
 
     @Override
