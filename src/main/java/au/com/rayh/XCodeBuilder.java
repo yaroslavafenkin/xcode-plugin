@@ -534,7 +534,12 @@ public class XCodeBuilder extends Builder {
     }
 
     static List<String> splitXcodeBuildArguments(String xcodebuildArguments) {
-        return Arrays.asList(xcodebuildArguments.split("[ ]"));
+        String[] parts = xcodebuildArguments.split("(?<!\\\\)\\s+");
+        List<String> result = new ArrayList<String>(parts.length);
+        for(String arg : parts) {
+            result.add(arg.replaceAll("\\\\ ", " "));
+        }
+        return result;
     }
 
     @Override

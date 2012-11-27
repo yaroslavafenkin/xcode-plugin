@@ -52,4 +52,12 @@ public class XCodeBuilderTest {
         assertEquals(asList("GCC_SYMBOLS_PRIVATE_EXTERN=NO", "COPY_PHASE_STRIP=NO"),
             XCodeBuilder.splitXcodeBuildArguments("GCC_SYMBOLS_PRIVATE_EXTERN=NO COPY_PHASE_STRIP=NO"));
     }
+
+    @Test
+    public void shouldSplitXcodeBuildArgumentsWithEscapedSpaces() throws Exception {
+        assertEquals(asList("CODE_SIGN_IDENTITY=iPhone Developer: Todd Kirby"),
+            XCodeBuilder.splitXcodeBuildArguments("CODE_SIGN_IDENTITY=iPhone\\ Developer:\\ Todd\\ Kirby"));
+        assertEquals(asList("A=B", "CODE_SIGN_IDENTITY=iPhone Developer: Todd Kirby"),
+            XCodeBuilder.splitXcodeBuildArguments("A=B CODE_SIGN_IDENTITY=iPhone\\ Developer:\\ Todd\\ Kirby"));
+    }
 }
