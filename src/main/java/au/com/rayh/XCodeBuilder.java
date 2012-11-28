@@ -351,7 +351,7 @@ public class XCodeBuilder extends Builder {
             List<String> commandLine = Lists.newArrayList(getDescriptor().getXcodebuildPath());
             commandLine.add("-list");
             // xcodebuild -list -workspace $workspace
-        listener.getLogger().println(Messages.XCodeBuilder_DebugInfoAvailableSchemes());
+            listener.getLogger().println(Messages.XCodeBuilder_DebugInfoAvailableSchemes());
             if (!StringUtils.isEmpty(xcodeWorkspaceFile)) {
                 commandLine.add("-workspace");
                 commandLine.add(xcodeWorkspaceFile + ".xcworkspace");
