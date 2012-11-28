@@ -175,6 +175,26 @@ public class XCodeBuilder extends Builder {
             return false;
         }
 
+        // Start expanding all string variables in parameters
+        // NOTE: we currently use variable shadowing to avoid having to rewrite all code (and break pull requests), this will be cleaned up at later stage.
+        String configuration = envs.expand(this.configuration);
+        String target = envs.expand(this.target);
+        String sdk = envs.expand(this.sdk);
+        String symRoot = envs.expand(this.symRoot);
+        String configurationBuildDir = envs.expand(this.configurationBuildDir);
+        String xcodeProjectPath = envs.expand(this.xcodeProjectPath);
+        String xcodeProjectFile = envs.expand(this.xcodeProjectFile);
+        String xcodebuildArguments = envs.expand(this.xcodebuildArguments);
+        String xcodeSchema = envs.expand(this.xcodeSchema);
+        String xcodeWorkspaceFile = envs.expand(this.xcodeWorkspaceFile);
+        String embeddedProfileFile = envs.expand(this.embeddedProfileFile);
+        String cfBundleVersionValue = envs.expand(this.cfBundleVersionValue);
+        String cfBundleShortVersionStringValue = envs.expand(this.cfBundleShortVersionStringValue);
+        String keychainPath = envs.expand(this.keychainPath);
+        String keychainPwd = envs.expand(this.keychainPwd);
+        String codeSigningIdentity = envs.expand(this.codeSigningIdentity);
+        // End expanding all string variables in parameters  
+
         // Set the working directory
         if (!StringUtils.isEmpty(xcodeProjectPath)) {
             projectRoot = projectRoot.child(xcodeProjectPath);
