@@ -47,6 +47,7 @@ import javax.servlet.ServletException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -92,7 +93,7 @@ public class XCodeBuilder extends Builder {
     /**
      * @since 1.3
      */
-    private String xcodebuildArguments;
+    public final String xcodebuildArguments;
     /**
      * @since 1.2
      */
@@ -129,10 +130,14 @@ public class XCodeBuilder extends Builder {
      * @since 1.0
      */
     public final String keychainPwd;
+    /**
+     * @since 1.3.2
+     */
+    public final String codeSigningIdentity;
 
     // Fields in config.jelly must match the parameter names in the "DataBoundConstructor"
     @DataBoundConstructor
-    public XCodeBuilder(Boolean buildIpa, Boolean cleanBeforeBuild, Boolean cleanTestReports, String configuration, String target, String sdk, String xcodeProjectPath, String xcodeProjectFile, String xcodebuildArguments, String embeddedProfileFile, String cfBundleVersionValue, String cfBundleShortVersionStringValue, Boolean unlockKeychain, String keychainPath, String keychainPwd, String symRoot, String xcodeWorkspaceFile, String xcodeSchema, String configurationBuildDir) {
+    public XCodeBuilder(Boolean buildIpa, Boolean cleanBeforeBuild, Boolean cleanTestReports, String configuration, String target, String sdk, String xcodeProjectPath, String xcodeProjectFile, String xcodebuildArguments, String embeddedProfileFile, String cfBundleVersionValue, String cfBundleShortVersionStringValue, Boolean unlockKeychain, String keychainPath, String keychainPwd, String symRoot, String xcodeWorkspaceFile, String xcodeSchema, String configurationBuildDir, String codeSigningIdentity) {
         this.buildIpa = buildIpa;
         this.sdk = sdk;
         this.target = target;
@@ -145,6 +150,7 @@ public class XCodeBuilder extends Builder {
         this.xcodeWorkspaceFile = xcodeWorkspaceFile;
         this.xcodeSchema = xcodeSchema;
         this.embeddedProfileFile = embeddedProfileFile;
+        this.codeSigningIdentity = codeSigningIdentity;
         this.cfBundleVersionValue = cfBundleVersionValue;
         this.cfBundleShortVersionStringValue = cfBundleShortVersionStringValue;
         this.unlockKeychain = unlockKeychain;
@@ -168,6 +174,26 @@ public class XCodeBuilder extends Builder {
             listener.fatalError(Messages.XCodeBuilder_avgtoolNotFound(getDescriptor().getAgvtoolPath()));
             return false;
         }
+
+        // Start expanding all string variables in parameters
+        // NOTE: we currently use variable shadowing to avoid having to rewrite all code (and break pull requests), this will be cleaned up at later stage.
+        String configuration = envs.expand(this.configuration);
+        String target = envs.expand(this.target);
+        String sdk = envs.expand(this.sdk);
+        String symRoot = envs.expand(this.symRoot);
+        String configurationBuildDir = envs.expand(this.configurationBuildDir);
+        String xcodeProjectPath = envs.expand(this.xcodeProjectPath);
+        String xcodeProjectFile = envs.expand(this.xcodeProjectFile);
+        String xcodebuildArguments = envs.expand(this.xcodebuildArguments);
+        String xcodeSchema = envs.expand(this.xcodeSchema);
+        String xcodeWorkspaceFile = envs.expand(this.xcodeWorkspaceFile);
+        String embeddedProfileFile = envs.expand(this.embeddedProfileFile);
+        String cfBundleVersionValue = envs.expand(this.cfBundleVersionValue);
+        String cfBundleShortVersionStringValue = envs.expand(this.cfBundleShortVersionStringValue);
+        String keychainPath = envs.expand(this.keychainPath);
+        String keychainPwd = envs.expand(this.keychainPwd);
+        String codeSigningIdentity = envs.expand(this.codeSigningIdentity);
+        // End expanding all string variables in parameters  
 
         // Set the working directory
         if (!StringUtils.isEmpty(xcodeProjectPath)) {
@@ -242,6 +268,8 @@ public class XCodeBuilder extends Builder {
             listener.getLogger().println(Messages.XCodeBuilder_CFBundleShortVersionStringFound(cfBundleShortVersionString));
         listener.getLogger().println(Messages.XCodeBuilder_CFBundleShortVersionStringValue(cfBundleShortVersionString));
 
+        output.reset();
+
         // Try to read CFBundleVersion from project
         listener.getLogger().println(Messages.XCodeBuilder_fetchingCFBundleVersion());
         String cfBundleVersion = "";
@@ -254,6 +282,10 @@ public class XCodeBuilder extends Builder {
         else
             listener.getLogger().println(Messages.XCodeBuilder_CFBundleVersionFound(cfBundleShortVersionString));
         listener.getLogger().println(Messages.XCodeBuilder_CFBundleVersionValue(cfBundleVersion));
+        
+        String buildDescription = cfBundleShortVersionString + " (" + cfBundleVersion + ")";
+        XCodeAction a = new XCodeAction(buildDescription);
+        build.addAction(a);
 
         // Update the Marketing version (CFBundleShortVersionString)
         if (!StringUtils.isEmpty(cfBundleShortVersionStringValue)) {
@@ -322,6 +354,36 @@ public class XCodeBuilder extends Builder {
             }
         }
 
+        // display useful setup information
+        listener.getLogger().println(Messages.XCodeBuilder_DebugInfoLineDelimiter());
+        listener.getLogger().println(Messages.XCodeBuilder_DebugInfoAvailablePProfiles());
+        /*returnCode =*/ launcher.launch().envs(envs).cmds("/usr/bin/security", "find-identity", "-p", "codesigning", "-v").stdout(listener).pwd(projectRoot).join();
+
+        if (!StringUtils.isEmpty(codeSigningIdentity)) {
+            listener.getLogger().println(Messages.XCodeBuilder_DebugInfoCanFindPProfile());
+            /*returnCode =*/ launcher.launch().envs(envs).cmds("/usr/bin/security", "find-certificate", "-a", "-c", codeSigningIdentity, "-Z", "|", "grep", "^SHA-1").stdout(listener).pwd(projectRoot).join();
+            // We could fail here, but this doesn't seem to work as it should right now (output not properly redirected. We might need a parser)
+        }
+
+        listener.getLogger().println(Messages.XCodeBuilder_DebugInfoAvailableSDKs());
+        /*returnCode =*/ launcher.launch().envs(envs).cmds(getDescriptor().getXcodebuildPath(), "-showsdks").stdout(listener).pwd(projectRoot).join();
+        {
+            List<String> commandLine = Lists.newArrayList(getDescriptor().getXcodebuildPath());
+            commandLine.add("-list");
+            // xcodebuild -list -workspace $workspace
+            listener.getLogger().println(Messages.XCodeBuilder_DebugInfoAvailableSchemes());
+            if (!StringUtils.isEmpty(xcodeWorkspaceFile)) {
+                commandLine.add("-workspace");
+                commandLine.add(xcodeWorkspaceFile + ".xcworkspace");
+            } else if (!StringUtils.isEmpty(xcodeProjectFile)) {
+                commandLine.add("-project");
+                commandLine.add(xcodeProjectFile);
+            }
+            returnCode = launcher.launch().envs(envs).cmds(commandLine).stdout(listener).pwd(projectRoot).join();
+            if (returnCode > 0) return false;
+        }
+        listener.getLogger().println(Messages.XCodeBuilder_DebugInfoLineDelimiter());
+
         // Build
         StringBuilder xcodeReport = new StringBuilder(Messages.XCodeBuilder_invokeXcodebuild());
         XCodeBuildOutputParser reportGenerator = new XCodeBuildOutputParser(projectRoot, listener);
@@ -389,12 +451,17 @@ public class XCodeBuilder extends Builder {
             xcodeReport.append(", configurationBuildDir: DEFAULT");
         }
 
+        // handle code signing identities
+        if (!StringUtils.isEmpty(codeSigningIdentity)) {
+            commandLine.add("CODE_SIGN_IDENTITY=" + codeSigningIdentity);
+            xcodeReport.append(", codeSignIdentity: ").append(codeSigningIdentity);
+        } else {
+            xcodeReport.append(", codeSignIdentity: DEFAULT");
+        }
+
         // Additional (custom) xcodebuild arguments
         if (!StringUtils.isEmpty(xcodebuildArguments)) {
-            String[] parts = xcodebuildArguments.split("[ ]");
-            for (String arg : parts) {
-                commandLine.add(arg);
-            }
+            commandLine.addAll(splitXcodeBuildArguments(xcodebuildArguments));
         }
 
         listener.getLogger().println(xcodeReport.toString());
@@ -406,17 +473,27 @@ public class XCodeBuilder extends Builder {
         // Package IPA
         if (buildIpa) {
 
-            if (buildDirectory.exists()) {
-                listener.getLogger().println(Messages.XCodeBuilder_cleaningIPA());
-                for (FilePath path : buildDirectory.list("*.ipa")) {
-                    path.delete();
-                }
-            } else {
-                listener.getLogger().println(Messages.XCodeBuilder_NotExistingDirToCleanIPA(buildDirectory.absolutize().getRemote()));
+            if (!buildDirectory.exists() || !buildDirectory.isDirectory()) {
+                listener.fatalError(Messages.XCodeBuilder_NotExistingBuildDirectory(buildDirectory.absolutize().getRemote()));
+                return false;                
             }
-
+            // clean IPA
+            listener.getLogger().println(Messages.XCodeBuilder_cleaningIPA());
+            for (FilePath path : buildDirectory.list("*.ipa")) {
+                path.delete();
+            }
+            listener.getLogger().println(Messages.XCodeBuilder_cleaningDSYM());
+            for (FilePath path : buildDirectory.list("*-dSYM.zip")) {
+                path.delete();
+            }
+            // packaging IPA
             listener.getLogger().println(Messages.XCodeBuilder_packagingIPA());
             List<FilePath> apps = buildDirectory.list(new AppFileFilter());
+            // FilePath is based on File.listFiles() which can randomly fail | http://stackoverflow.com/questions/3228147/retrieving-the-underlying-error-when-file-listfiles-return-null
+            if (apps == null) {
+                listener.fatalError(Messages.XCodeBuilder_NoAppsInBuildDirectory(buildDirectory.absolutize().getRemote()));
+                return false;                
+            }
 
             for (FilePath app : apps) {
                 String version;
@@ -451,6 +528,10 @@ public class XCodeBuilder extends Builder {
                     packageCommandLine.add("--embed");
                     packageCommandLine.add(embeddedProfileFile);
                 }
+                if (!StringUtils.isEmpty(codeSigningIdentity)) {                   
+                    packageCommandLine.add("--sign");
+                    packageCommandLine.add(codeSigningIdentity);
+                }
 
                 returnCode = launcher.launch().envs(envs).stdout(listener).pwd(projectRoot).cmds(packageCommandLine).join();
                 if (returnCode > 0) {
@@ -459,7 +540,7 @@ public class XCodeBuilder extends Builder {
                 }
 
                 // also zip up the symbols, if present
-                returnCode = launcher.launch().envs(envs).stdout(listener).pwd(buildDirectory).cmds("zip", "-r", "-T", "-y", baseName + "-dSYM.zip", app.absolutize().getRemote() + ".dSYM").join();
+                returnCode = launcher.launch().envs(envs).stdout(listener).pwd(buildDirectory).cmds("ditto", "-c", "-k", "--keepParent", "-rsrc", app.absolutize().getRemote() + ".dSYM", baseName + "-dSYM.zip").join();
                 if (returnCode > 0) {
                     listener.getLogger().println(Messages.XCodeBuilder_zipFailed(baseName));
                     continue;
@@ -470,6 +551,15 @@ public class XCodeBuilder extends Builder {
         }
 
         return true;
+    }
+
+    static List<String> splitXcodeBuildArguments(String xcodebuildArguments) {
+        String[] parts = xcodebuildArguments.split("(?<!\\\\)\\s+");
+        List<String> result = new ArrayList<String>(parts.length);
+        for(String arg : parts) {
+            result.add(arg.replaceAll("\\\\ ", " "));
+        }
+        return result;
     }
 
     @Override
