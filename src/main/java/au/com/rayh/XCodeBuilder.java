@@ -47,8 +47,8 @@ import javax.servlet.ServletException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.StringTokenizer;
 
 /**
  * @author Ray Hilton
@@ -553,11 +553,68 @@ public class XCodeBuilder extends Builder {
         return true;
     }
 
-    static List<String> splitXcodeBuildArguments(String xcodebuildArguments) {
-        String[] parts = xcodebuildArguments.split("(?<!\\\\)\\s+");
-        List<String> result = new ArrayList<String>(parts.length);
-        for(String arg : parts) {
-            result.add(arg.replaceAll("\\\\ ", " "));
+    public static List<String> splitXcodeBuildArguments(String xcodebuildArguments) {
+        if (xcodebuildArguments == null || xcodebuildArguments.length() == 0) {
+            return new ArrayList<String>(0);
+        }
+
+        final int normal = 0;
+        final int inQuote = 1;
+        final int inDoubleQuote = 2;
+        final int escapeChar = 3;
+        int state = normal;
+        final StringTokenizer tok = new StringTokenizer(xcodebuildArguments, "\"'\\ ", true);
+        final List<String> result = new ArrayList<String>();
+        final StringBuilder current = new StringBuilder();
+        boolean lastTokenHasBeenQuoted = false;
+        String nextTok;
+        while (tok.hasMoreTokens()) {
+            nextTok = tok.nextToken();
+            switch (state) {
+            case inQuote:
+                if ("\'".equals(nextTok)) {
+                    lastTokenHasBeenQuoted = true;
+                    state = normal;
+                } else {
+                    current.append(nextTok);
+                }
+                break;
+            case inDoubleQuote:
+                if ("\"".equals(nextTok)) {
+                    lastTokenHasBeenQuoted = true;
+                    state = normal;
+                } else {
+                    current.append(nextTok);
+                }
+                break;
+            case escapeChar:
+                current.append(nextTok);
+                state = normal;
+                break;
+            default:
+                if ("\'".equals(nextTok)) {
+                    state = inQuote;
+                } else if ("\"".equals(nextTok)) {
+                    state = inDoubleQuote;
+                } else if ("\\".equals(nextTok)) {
+                    state = escapeChar;
+                } else if (" ".equals(nextTok) && !(current.length() > 0 && current.charAt(current.length() - 1) == '\\')) {
+                    if (lastTokenHasBeenQuoted || current.length() != 0) {
+                        result.add(current.toString());
+                        current.setLength(0);
+                    }
+                } else {
+                    current.append(nextTok);
+                }
+                lastTokenHasBeenQuoted = false;
+                break;
+            }
+        }
+        if (lastTokenHasBeenQuoted || current.length() != 0) {
+            result.add(current.toString());
+        }
+        if (state == inQuote || state == inDoubleQuote) {
+            throw new IllegalArgumentException(String.format("Inconsistent quotes: %s", xcodebuildArguments));
         }
         return result;
     }
