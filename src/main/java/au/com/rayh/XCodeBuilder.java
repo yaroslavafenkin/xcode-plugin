@@ -123,7 +123,7 @@ public class XCodeBuilder extends Builder {
      */
     public final Boolean unlockKeychain;
     /**
-     * @since 1.3.2
+     * @since 1.4
      */
     public final String keychainName;
     /**
