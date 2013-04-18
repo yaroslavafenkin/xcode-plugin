@@ -552,17 +552,20 @@ public class XCodeBuilder extends Builder {
 
         return true;
     }
+    
+    enum ParserState {
+        NORMAL,
+        IN_QUOTE,
+        IN_DOUBLE_QUOTE,
+        ESCAPE_CHAR
+    };
 
-    public static List<String> splitXcodeBuildArguments(String xcodebuildArguments) {
+    static List<String> splitXcodeBuildArguments(String xcodebuildArguments) {
         if (xcodebuildArguments == null || xcodebuildArguments.length() == 0) {
             return new ArrayList<String>(0);
         }
 
-        final int normal = 0;
-        final int inQuote = 1;
-        final int inDoubleQuote = 2;
-        final int escapeChar = 3;
-        int state = normal;
+        ParserState state = ParserState.NORMAL;
         final StringTokenizer tok = new StringTokenizer(xcodebuildArguments, "\"'\\ ", true);
         final List<String> result = new ArrayList<String>();
         final StringBuilder current = new StringBuilder();
@@ -571,33 +574,33 @@ public class XCodeBuilder extends Builder {
         while (tok.hasMoreTokens()) {
             nextTok = tok.nextToken();
             switch (state) {
-            case inQuote:
+            case IN_QUOTE:
                 if ("\'".equals(nextTok)) {
                     lastTokenHasBeenQuoted = true;
-                    state = normal;
+                    state = ParserState.NORMAL;
                 } else {
                     current.append(nextTok);
                 }
                 break;
-            case inDoubleQuote:
+            case IN_DOUBLE_QUOTE:
                 if ("\"".equals(nextTok)) {
                     lastTokenHasBeenQuoted = true;
-                    state = normal;
+                    state = ParserState.NORMAL;
                 } else {
                     current.append(nextTok);
                 }
                 break;
-            case escapeChar:
+            case ESCAPE_CHAR:
                 current.append(nextTok);
-                state = normal;
+                state = ParserState.NORMAL;
                 break;
             default:
                 if ("\'".equals(nextTok)) {
-                    state = inQuote;
+                    state = ParserState.IN_QUOTE;
                 } else if ("\"".equals(nextTok)) {
-                    state = inDoubleQuote;
+                    state = ParserState.IN_DOUBLE_QUOTE;
                 } else if ("\\".equals(nextTok)) {
-                    state = escapeChar;
+                    state = ParserState.ESCAPE_CHAR;
                 } else if (" ".equals(nextTok) && !(current.length() > 0 && current.charAt(current.length() - 1) == '\\')) {
                     if (lastTokenHasBeenQuoted || current.length() != 0) {
                         result.add(current.toString());
@@ -613,7 +616,7 @@ public class XCodeBuilder extends Builder {
         if (lastTokenHasBeenQuoted || current.length() != 0) {
             result.add(current.toString());
         }
-        if (state == inQuote || state == inDoubleQuote) {
+        if (state == ParserState.IN_QUOTE || state == ParserState.IN_DOUBLE_QUOTE) {
             throw new IllegalArgumentException(String.format("Inconsistent quotes: %s", xcodebuildArguments));
         }
         return result;
