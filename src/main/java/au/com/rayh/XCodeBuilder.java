@@ -471,7 +471,7 @@ public class XCodeBuilder extends Builder {
 
         listener.getLogger().println(xcodeReport.toString());
         returnCode = launcher.launch().envs(envs).cmds(commandLine).stdout(reportGenerator.getOutputStream()).pwd(projectRoot).join();
-        if (allowFailingBuildResults == false) {
+        if (allowFailingBuildResults != null && allowFailingBuildResults.booleanValue() == false) {
             if (reportGenerator.getExitCode() != 0) return false;
             if (returnCode > 0) return false;
         }
