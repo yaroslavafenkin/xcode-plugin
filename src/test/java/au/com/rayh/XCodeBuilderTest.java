@@ -62,4 +62,12 @@ public class XCodeBuilderTest {
         assertEquals(asList("A=B", "CODE_SIGN_IDENTITY=iPhone Distribution", "C=D"),
             XCodeBuilder.splitXcodeBuildArguments("A=B CODE_SIGN_IDENTITY=\"iPhone Distribution\" C=D"));
     }
+    @Test(expected=IllegalArgumentException.class)
+    public void shouldFailSplittingXcodeBuildArgumentsWithIncompleteDoubleQuote() throws Exception {
+        XCodeBuilder.splitXcodeBuildArguments("A=B CODE_SIGN_IDENTITY=\"iPhone Distribution");
+    }
+    @Test(expected=IllegalArgumentException.class)
+    public void shouldFailSplittingXcodeBuildArgumentsWithIncompleteSingleQuote() throws Exception {
+        XCodeBuilder.splitXcodeBuildArguments("A=B CODE_SIGN_IDENTITY='iPhone");
+    }
 }
