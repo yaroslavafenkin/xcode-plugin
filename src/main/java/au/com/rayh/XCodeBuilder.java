@@ -136,11 +136,11 @@ public class XCodeBuilder extends Builder {
      */
     public final String keychainPwd;
     /**
-     * @since 1.3.2
+     * @since 1.3.3
      */
     public final String codeSigningIdentity;
     /**
-     * @since 1.3.2
+     * @since 1.4
      */
     public final Boolean allowFailingBuildResults;
 
