@@ -85,7 +85,7 @@
 				        <select class="setting-input" name="keychainName" id="global-keychain-select" onchange="showOrHideKeychainAttributeInput()">
 				        	<f:option selected="${instance.keychainName==null}">none (specify one below)</f:option>
 				        	
-				            <j:forEach var="keychain" items="${descriptor.keychains}">
+				            <j:forEach var="keychain" items="${descriptor.globalConfiguration.keychains}">
 				            	<j:if test="${keychain.keychainName==instance.keychainName}">
 				            		<j:set var="displayCustomKeychainData" value="none" scope="parent" />
 				            	</j:if>
