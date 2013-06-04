@@ -52,6 +52,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.UUID;
 
 /**
  * @author Ray Hilton
@@ -686,6 +687,9 @@ public class XCodeBuilder extends Builder {
 	    	return globalConfiguration;
 	    }
     	
+	    public String getUUID() {
+	    	return "" + UUID.randomUUID().getMostSignificantBits();
+	    }
     }
 }
 
