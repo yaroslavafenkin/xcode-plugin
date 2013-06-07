@@ -36,6 +36,7 @@ import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
 import hudson.util.CopyOnWriteList;
 import hudson.util.FormValidation;
+import hudson.util.QuotedStringTokenizer;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.tokenmacro.MacroEvaluationException;
@@ -573,13 +574,6 @@ public class XCodeBuilder extends Builder {
 
         return true;
     }
-    
-    enum ParserState {
-        NORMAL,
-        IN_QUOTE,
-        IN_DOUBLE_QUOTE,
-        ESCAPE_CHAR
-    };
 
     public Keychain getKeychain() {
         if(!StringUtils.isEmpty(keychainPath)) {
@@ -599,60 +593,11 @@ public class XCodeBuilder extends Builder {
             return new ArrayList<String>(0);
         }
 
-        ParserState state = ParserState.NORMAL;
-        final StringTokenizer tok = new StringTokenizer(xcodebuildArguments, "\"'\\ ", true);
+        final QuotedStringTokenizer tok = new QuotedStringTokenizer(xcodebuildArguments);
         final List<String> result = new ArrayList<String>();
-        final StringBuilder current = new StringBuilder();
-        boolean lastTokenHasBeenQuoted = false;
-        String nextTok;
-        while (tok.hasMoreTokens()) {
-            nextTok = tok.nextToken();
-            switch (state) {
-            case IN_QUOTE:
-                if ("\'".equals(nextTok)) {
-                    lastTokenHasBeenQuoted = true;
-                    state = ParserState.NORMAL;
-                } else {
-                    current.append(nextTok);
-                }
-                break;
-            case IN_DOUBLE_QUOTE:
-                if ("\"".equals(nextTok)) {
-                    lastTokenHasBeenQuoted = true;
-                    state = ParserState.NORMAL;
-                } else {
-                    current.append(nextTok);
-                }
-                break;
-            case ESCAPE_CHAR:
-                current.append(nextTok);
-                state = ParserState.NORMAL;
-                break;
-            default:
-                if ("\'".equals(nextTok)) {
-                    state = ParserState.IN_QUOTE;
-                } else if ("\"".equals(nextTok)) {
-                    state = ParserState.IN_DOUBLE_QUOTE;
-                } else if ("\\".equals(nextTok)) {
-                    state = ParserState.ESCAPE_CHAR;
-                } else if (" ".equals(nextTok) && !(current.length() > 0 && current.charAt(current.length() - 1) == '\\')) {
-                    if (lastTokenHasBeenQuoted || current.length() != 0) {
-                        result.add(current.toString());
-                        current.setLength(0);
-                    }
-                } else {
-                    current.append(nextTok);
-                }
-                lastTokenHasBeenQuoted = false;
-                break;
-            }
-        }
-        if (lastTokenHasBeenQuoted || current.length() != 0) {
-            result.add(current.toString());
-        }
-        if (state == ParserState.IN_QUOTE || state == ParserState.IN_DOUBLE_QUOTE) {
-            throw new IllegalArgumentException(String.format("Inconsistent quotes: %s", xcodebuildArguments));
-        }
+        while(tok.hasMoreTokens()) 
+            result.add(tok.nextToken());
+
         return result;
     }
 
