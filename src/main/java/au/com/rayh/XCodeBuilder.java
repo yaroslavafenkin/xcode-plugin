@@ -39,13 +39,11 @@ import hudson.util.FormValidation;
 import hudson.util.QuotedStringTokenizer;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.text.StrSubstitutor;
 import org.jenkinsci.plugins.tokenmacro.MacroEvaluationException;
 import org.jenkinsci.plugins.tokenmacro.TokenMacro;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
-import com.dd.plist.*;
 
 import javax.servlet.ServletException;
 import java.io.ByteArrayOutputStream;
@@ -54,10 +52,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
 
 /**
  * @author Ray Hilton
@@ -319,7 +314,7 @@ public class XCodeBuilder extends Builder {
         if (StringUtils.isEmpty(cfBundleVersion))
             listener.getLogger().println(Messages.XCodeBuilder_CFBundleVersionNotFound());
         else
-            listener.getLogger().println(Messages.XCodeBuilder_CFBundleVersionFound(cfBundleShortVersionString));
+            listener.getLogger().println(Messages.XCodeBuilder_CFBundleVersionFound(cfBundleVersion));
         listener.getLogger().println(Messages.XCodeBuilder_CFBundleVersionValue(cfBundleVersion));
         
         String buildDescription = cfBundleShortVersionString + " (" + cfBundleVersion + ")";
@@ -563,13 +558,21 @@ public class XCodeBuilder extends Builder {
 
             for (FilePath app : apps) {
                 String version = "";
+                String shortVersion = "";
                 
-                if (! provideApplicationVersion) {
+                if (!provideApplicationVersion) {
 	                try {
-	                    File file = new File(app.absolutize().child("Info.plist").getRemote());
-	
-	                    NSDictionary rootDict = (NSDictionary)PropertyListParser.parse(file);
-	                    version = rootDict.objectForKey("CFBundleVersion").toString();
+	                	output.reset();
+	                    returnCode = launcher.launch().envs(envs).cmds("/usr/libexec/PlistBuddy", "-c",  "Print :CFBundleVersion", app.absolutize().child("Info.plist").getRemote()).stdout(output).pwd(projectRoot).join();
+	                    if (returnCode == 0) {
+	                    	version = output.toString().trim();
+	                    }
+	                    
+	                    output.reset();
+	                    returnCode = launcher.launch().envs(envs).cmds("/usr/libexec/PlistBuddy", "-c", "Print :CFBundleShortVersionString", app.absolutize().child("Info.plist").getRemote()).stdout(output).pwd(projectRoot).join();
+	                    if (returnCode == 0) {
+	                    	shortVersion = output.toString().trim();
+	                    }
 	                } 
 	                catch(Exception ex) {
 	                    listener.getLogger().println("Failed to get version from Info.plist: " + ex.toString());
@@ -581,7 +584,7 @@ public class XCodeBuilder extends Builder {
                 		version = cfBundleVersionValue;
                 	}
                 	else if (! StringUtils.isEmpty(cfBundleShortVersionStringValue)) {
-                		version = cfBundleShortVersionStringValue;
+                		shortVersion = cfBundleShortVersionStringValue;
                 	}
                 	else {
                 		listener.getLogger().println("You have to provide a value for either the marketing or technical version. Found neither.");
@@ -592,10 +595,15 @@ public class XCodeBuilder extends Builder {
                 File file = new File(app.absolutize().getRemote());
                 String lastModified = new SimpleDateFormat("yyyy.MM.dd").format(new Date(file.lastModified()));
 
-                String baseName = app.getBaseName().replaceAll(" ", "_") + (StringUtils.isEmpty(version) ? "" : "_" + version) + "_" + lastModified;
+                String baseName = app.getBaseName().replaceAll(" ", "_") + (shortVersion.isEmpty() ? "" : "-" + shortVersion) + (version.isEmpty() ? "" : "-" + version);
                 // If custom .ipa name pattern has been provided, use it and expand version and build date variables
                 if (! StringUtils.isEmpty(ipaName)) {
-                	EnvVars customVars = new EnvVars("VERSION", version, "BUILD_DATE", lastModified);
+                	EnvVars customVars = new EnvVars(
+                		"BASE_NAME", app.getBaseName().replaceAll(" ", "_"),
+                		"VERSION", version,
+                		"SHORT_VERSION", shortVersion,
+                		"BUILD_DATE", lastModified
+                	);
                     baseName = customVars.expand(ipaName);
                 }
 
@@ -742,7 +750,7 @@ public class XCodeBuilder extends Builder {
         public String getXcrunPath() {
             return xcrunPath;
         }
-
+        
         public void setXcodebuildPath(String xcodebuildPath) {
             this.xcodebuildPath = xcodebuildPath;
         }
