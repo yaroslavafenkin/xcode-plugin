@@ -18,7 +18,7 @@ def fileForm() {
     }
 }
 
-if (instance.image==null) {// TODO: revisit
+if (instance?.image==null) {// TODO: revisit
     fileForm()
 } else {
     f.optionalBlock(title:_("Overwrite *.developerprofile File"),inline:true) {
