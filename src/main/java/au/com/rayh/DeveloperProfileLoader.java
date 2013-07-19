@@ -48,19 +48,33 @@ public class DeveloperProfileLoader extends Builder {
         if (dp==null)
             throw new AbortException("No Apple developer profile is configured");
 
-        // TODO: if a key chain already exists, delete it
-
-        String keyChain = build.getProject().getFullName().replace('/', '-');
+        String keyChain = "jenkins-"+build.getProject().getFullName().replace('/', '-');
         String keychainPass = UUID.randomUUID().toString();
 
-        ArgumentListBuilder args = new ArgumentListBuilder("security","create-keychain");
+        ArgumentListBuilder args;
+
+        {// if the key chain is already present, delete it and start fresh
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            args = new ArgumentListBuilder("security","list-keychains");
+            if (launcher.launch().cmds(args).stdout(out).join()!=0) {
+                listener.getLogger().write(out.toByteArray());
+                throw new AbortException("Failed to list keychains");
+            }
+
+            if (out.toString().contains("/"+keyChain+"\"")) {  // TODO: encoding
+                args = new ArgumentListBuilder("security","delete-keychain",keyChain);
+                invoke(launcher, listener, args, "Failed to delete the keychain");
+            }
+        }
+
+
+        args = new ArgumentListBuilder("security","create-keychain");
         args.add("-p").addMasked(keychainPass);
         args.add(keyChain);
         invoke(launcher, listener, args, "Failed to create a keychain");
 
         args = new ArgumentListBuilder("security","unlock-keychain");
-        args.add(id).add("-k",keyChain);
-        args.add("-p").addMasked(dp.getPassword().getPlainText());
+        args.add("-p").addMasked(keychainPass);
         args.add(keyChain);
         invoke(launcher, listener, args, "Failed to unlock keychain");
 
@@ -83,7 +97,8 @@ public class DeveloperProfileLoader extends Builder {
         FilePath profiles = home.child("Library/MobileDevice/Provisioning Profiles");
         profiles.mkdirs();
 
-        for (FilePath mp : secret.list("**/*.mobileprofile")) {
+        for (FilePath mp : secret.list("**/*.mobileprovision")) {
+            listener.getLogger().println("Installing  "+mp.getName());
             mp.copyTo(profiles.child(mp.getName()));
         }
 
