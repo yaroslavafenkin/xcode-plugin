@@ -58,6 +58,12 @@ public class DeveloperProfileLoader extends Builder {
         args.add(keyChain);
         invoke(launcher, listener, args, "Failed to create a keychain");
 
+        args = new ArgumentListBuilder("security","unlock-keychain");
+        args.add(id).add("-k",keyChain);
+        args.add("-p").addMasked(dp.getPassword().getPlainText());
+        args.add(keyChain);
+        invoke(launcher, listener, args, "Failed to unlock keychain");
+
         final FilePath secret = getSecretDir(build, keychainPass);
         secret.unzipFrom(new ByteArrayInputStream(dp.getImage()));
 
