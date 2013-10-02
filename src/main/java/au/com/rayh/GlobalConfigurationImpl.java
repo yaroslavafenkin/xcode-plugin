@@ -25,6 +25,7 @@ package au.com.rayh;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 
@@ -38,7 +39,6 @@ import org.kohsuke.stapler.StaplerRequest;
 import hudson.Extension;
 import hudson.model.AbstractProject;
 import hudson.model.AutoCompletionCandidates;
-import hudson.util.CopyOnWriteList;
 import hudson.util.FormValidation;
 import jenkins.model.GlobalConfiguration;
 
@@ -57,8 +57,7 @@ public final class GlobalConfigurationImpl extends GlobalConfiguration {
 	
 	public GlobalConfigurationImpl() {
 		load();
-		
-		System.out.println("[Xcode] Default constructor: " + getKeychains().size());
+		LOGGER.fine("[Xcode] Default constructor: " + getKeychains().size());
 	}
 	
 	@DataBoundConstructor
@@ -72,7 +71,7 @@ public final class GlobalConfigurationImpl extends GlobalConfiguration {
 		this.setDefaultKeychain(defaultKeychain);
 		this.setKeychains(keychains);
 		
-		System.out.println("[Xcode] DataBoundConstructor: " + keychains.size());
+        LOGGER.fine("[Xcode] DataBoundConstructor: " + keychains.size());
 	}
 	
     public FormValidation doCheckXcodebuildPath(@QueryParameter String value) throws IOException, ServletException {
@@ -186,4 +185,6 @@ public final class GlobalConfigurationImpl extends GlobalConfiguration {
 	public void setDefaultKeychain(String defaultKeychain) {
 		this.defaultKeychain = defaultKeychain;
 	}
+
+    private static final Logger LOGGER = Logger.getLogger(GlobalConfigurationImpl.class.getName());
 }
