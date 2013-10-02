@@ -31,23 +31,17 @@ import hudson.FilePath;
 import hudson.Launcher;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
-import hudson.model.Descriptor;
 import hudson.model.BuildListener;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
 import hudson.util.CopyOnWriteList;
-import hudson.util.FormValidation;
 import hudson.util.QuotedStringTokenizer;
-import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.tokenmacro.MacroEvaluationException;
 import org.jenkinsci.plugins.tokenmacro.TokenMacro;
 import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.QueryParameter;
-import org.kohsuke.stapler.StaplerRequest;
 
 import javax.inject.Inject;
-import javax.servlet.ServletException;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -55,7 +49,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.StringTokenizer;
 import java.util.UUID;
 
 /**
@@ -441,7 +434,7 @@ public class XCodeBuilder extends Builder {
 
         // Build
         StringBuilder xcodeReport = new StringBuilder(Messages.XCodeBuilder_invokeXcodebuild());
-        XCodeBuildOutputParser reportGenerator = new HudsonXCodeBuildOutputParser(projectRoot, listener);
+        XCodeBuildOutputParser reportGenerator = new JenkinsXCodeBuildOutputParser(projectRoot, listener);
         List<String> commandLine = Lists.newArrayList(getGlobalConfiguration().getXcodebuildPath());
 
         // Prioritizing schema over target setting

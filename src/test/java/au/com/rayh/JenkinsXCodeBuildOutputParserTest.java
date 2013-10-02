@@ -47,12 +47,12 @@ import org.junit.Test;
  *
  * @author ray
  */
-public class HudsonXCodeBuildOutputParserTest {
+public class JenkinsXCodeBuildOutputParserTest {
     OutputParserTests test;
 
     @Before
     public void setUp() throws IOException, InterruptedException {
-        HudsonXCodeBuildOutputParser parser = new HudsonXCodeBuildOutputParser(new FilePath(new File(".")), new TaskListener() {
+        JenkinsXCodeBuildOutputParser parser = new JenkinsXCodeBuildOutputParser(new FilePath(new File(".")), new TaskListener() {
 
             public PrintStream getLogger() {
                 try {

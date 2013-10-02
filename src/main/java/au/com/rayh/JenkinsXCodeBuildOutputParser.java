@@ -39,11 +39,11 @@ import java.io.OutputStream;
  *
  * @author ray
  */
-public class HudsonXCodeBuildOutputParser extends XCodeBuildOutputParser {
+public class JenkinsXCodeBuildOutputParser extends XCodeBuildOutputParser {
     protected TaskListener buildListener;
     private FilePath testReportsDir;
 
-	public HudsonXCodeBuildOutputParser(FilePath workspace, TaskListener buildListener) throws IOException, InterruptedException {
+	public JenkinsXCodeBuildOutputParser(FilePath workspace, TaskListener buildListener) throws IOException, InterruptedException {
 		super();
         this.buildListener = buildListener;
         this.captureOutputStream = new LineBasedFilterOutputStream();
