@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright (c) 2013 Maur’cio Hanika
+ * Copyright (c) 2013 Maurï¿½cio Hanika
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -42,6 +42,11 @@ import hudson.util.CopyOnWriteList;
 import hudson.util.FormValidation;
 import jenkins.model.GlobalConfiguration;
 
+/**
+ * Stores global configuration for XCode.
+ *
+ * @since 1.4
+ */
 @Extension
 public final class GlobalConfigurationImpl extends GlobalConfiguration {
 	private String xcodebuildPath = "/usr/bin/xcodebuild";
