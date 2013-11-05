@@ -486,7 +486,7 @@ public class XCodeBuilder extends Builder {
         }
         commandLine.add("build");
         
-        if(generateArchive){
+        if(generateArchive != null && generateArchive){
             commandLine.add("archive");
             xcodeReport.append(", archive:YES");
         }else{
