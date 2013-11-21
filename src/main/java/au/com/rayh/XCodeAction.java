@@ -1,13 +1,13 @@
 package au.com.rayh;
 
-import hudson.model.Action;
+import hudson.model.InvisibleAction;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
  * Simple Action for storing the build number
  * @author Reuben Bijl
  */
-public class XCodeAction implements Action {
+public class XCodeAction extends InvisibleAction {
     private String buildDescription;
 
     @DataBoundConstructor
@@ -15,8 +15,5 @@ public class XCodeAction implements Action {
         this.buildDescription = buildDescription;
     }
 
-    public String getUrlName() { return ""; }
-    public String getDisplayName() { return ""; }
-    public String getIconFileName() { return ""; }
     public  String getBuildDescription() { return buildDescription; }
 }
