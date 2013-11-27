@@ -3,3 +3,4 @@ work
 .idea
 test-*
 *.iml
+.DS_Store
