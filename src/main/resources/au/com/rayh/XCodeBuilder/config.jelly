@@ -93,12 +93,7 @@
 					</f:entry>
 				</f:optionalBlock>
 			</f:entry>		
-		    
-		    <f:entry title="${%Bundle ID Change}" field="bundleID"
-		    description="Change the bundle ID">
-		    	<f:textbox />
-		    </f:entry>  
-		    
+		    		    
 		    <f:entry title="${%Code Signing Identity}" field="codeSigningIdentity"
 		      description="Override the code signing identity specified in the project">
 		        <f:textbox />
