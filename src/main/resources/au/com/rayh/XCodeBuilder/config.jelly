@@ -79,6 +79,12 @@
 	<!-- Code signing section -->
 	<f:section title="${%Code signing &amp; OS X keychain options}">
 		<f:advanced title="Code signing settings">
+		    
+		    <f:entry title="${%Bundle ID Change}" field="bundleID"
+		    description="Change the bundle ID">
+		    	<f:textbox />
+		    </f:entry>  
+		    
 		    <f:entry title="${%Code Signing Identity}" field="codeSigningIdentity"
 		      description="Override the code signing identity specified in the project">
 		        <f:textbox />

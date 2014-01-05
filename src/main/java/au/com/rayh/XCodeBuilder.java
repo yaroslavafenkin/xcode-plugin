@@ -159,6 +159,10 @@ public class XCodeBuilder extends Builder {
      * @since 1.4
      */
     public final Boolean provideApplicationVersion;
+    /** 
+     * @since 1.4
+     */
+    public final String bundleID;
 
     // Fields in config.jelly must match the parameter names in the "DataBoundConstructor"
     @DataBoundConstructor
@@ -167,7 +171,7 @@ public class XCodeBuilder extends Builder {
     		String embeddedProfileFile, String cfBundleVersionValue, String cfBundleShortVersionStringValue, Boolean unlockKeychain,
     		String keychainName, String keychainPath, String keychainPwd, String symRoot, String xcodeWorkspaceFile,
     		String xcodeSchema, String configurationBuildDir, String codeSigningIdentity, Boolean allowFailingBuildResults,
-    		String ipaName, Boolean provideApplicationVersion, String ipaOutputDirectory) {
+    		String ipaName, Boolean provideApplicationVersion, String ipaOutputDirectory, String bundleID) {
         this.buildIpa = buildIpa;
         this.generateArchive = generateArchive;
         this.sdk = sdk;
@@ -194,6 +198,7 @@ public class XCodeBuilder extends Builder {
         this.ipaName = ipaName;
         this.ipaOutputDirectory = ipaOutputDirectory;
         this.provideApplicationVersion = provideApplicationVersion;
+        this.bundleID = bundleID;
     }
 
     @Override
@@ -229,6 +234,7 @@ public class XCodeBuilder extends Builder {
         String codeSigningIdentity = envs.expand(this.codeSigningIdentity);
         String ipaName = envs.expand(this.ipaName);
         String ipaOutputDirectory = envs.expand(this.ipaOutputDirectory);
+        String bundleID = envs.expand(this.bundleID);
         // End expanding all string variables in parameters  
 
         // Set the working directory
@@ -322,6 +328,16 @@ public class XCodeBuilder extends Builder {
         String buildDescription = cfBundleShortVersionString + " (" + cfBundleVersion + ")";
         XCodeAction a = new XCodeAction(buildDescription);
         build.addAction(a);
+
+        // Update the bundle ID
+        if (!StringUtils.isEmpty(bundleID)) {
+            listener.getLogger().println("Changing bundle ID to: *" + bundleID + "*");
+            returnCode = launcher.launch().envs(envs).cmds("/usr/libexec/PlistBuddy", "-c",  "Set :CFBundleIdentifier" + bundleID).stdout(listener).pwd(projectRoot).join();
+         if (returnCode > 0) {
+                    listener.fatalError(Messages.XCodeBuilder_CFBundleShortVersionStringUpdateError(bundleID));
+                    return false;
+                }
+        }
 
         // Update the Marketing version (CFBundleShortVersionString)
         if (!StringUtils.isEmpty(cfBundleShortVersionStringValue)) {
