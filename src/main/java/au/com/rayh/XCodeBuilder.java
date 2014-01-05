@@ -341,12 +341,13 @@ public class XCodeBuilder extends Builder {
 
         // Update the bundle ID
         if (this.changeBundleID) {
-            listener.getLogger().println("Changing bundle ID to: *" + bundleID + "*. Plist Path: *" + bundleIDInfoPlistPath + "*");
-            returnCode = launcher.launch().envs(envs).cmds("/usr/libexec/PlistBuddy", "-c",  "Set :CFBundleIdentifier " + bundleID, bundleIDInfoPlistPath).stdout(listener).pwd(projectRoot).join();
-         if (returnCode > 0) {
-                    listener.fatalError(Messages.XCodeBuilder_CFBundleShortVersionStringUpdateError(bundleID));
-                    return false;
-                }
+        	listener.getLogger().println(Messages.XCodeBuilder_CFBundleIdentifierChanged(bundleIDInfoPlistPath, bundleID));
+        	returnCode = launcher.launch().envs(envs).cmds("/usr/libexec/PlistBuddy", "-c",  "Set :CFBundleIdentifier " + bundleID, bundleIDInfoPlistPath).stdout(listener).pwd(projectRoot).join();
+        	
+        	if (returnCode > 0) {
+        		listener.fatalError(Messages.XCodeBuilder_CFBundleIdentifierInfoPlistNotFound(bundleIDInfoPlistPath));
+        		return false;
+        	}
         }
 
         // Update the Marketing version (CFBundleShortVersionString)
