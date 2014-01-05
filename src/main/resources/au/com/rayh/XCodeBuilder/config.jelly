@@ -79,6 +79,20 @@
 	<!-- Code signing section -->
 	<f:section title="${%Code signing &amp; OS X keychain options}">
 		<f:advanced title="Code signing settings">
+
+			<f:entry>
+				<f:optionalBlock inline="true" title="Change bundle ID?"
+					name="changeBundleID">
+					<f:entry title="${%Bundle ID Change}" field="bundleID"
+						description="Change the bundle ID">
+						<f:textbox />
+					</f:entry>
+					<f:entry title="${%Info.plist path}" field="bundleIDInfoPlistPath"
+						description="Path to Info.plist file to be modified">
+						<f:textbox />
+					</f:entry>
+				</f:optionalBlock>
+			</f:entry>		
 		    
 		    <f:entry title="${%Bundle ID Change}" field="bundleID"
 		    description="Change the bundle ID">

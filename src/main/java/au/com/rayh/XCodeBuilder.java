@@ -159,10 +159,18 @@ public class XCodeBuilder extends Builder {
      * @since 1.4
      */
     public final Boolean provideApplicationVersion;
+    /**
+     * @since 1.4
+     */
+    public final Boolean changeBundleID;
     /** 
      * @since 1.4
      */
     public final String bundleID;
+    /**
+     * @since 1.4
+     */
+    public final String bundleIDInfoPlistPath;
 
     // Fields in config.jelly must match the parameter names in the "DataBoundConstructor"
     @DataBoundConstructor
@@ -171,7 +179,7 @@ public class XCodeBuilder extends Builder {
     		String embeddedProfileFile, String cfBundleVersionValue, String cfBundleShortVersionStringValue, Boolean unlockKeychain,
     		String keychainName, String keychainPath, String keychainPwd, String symRoot, String xcodeWorkspaceFile,
     		String xcodeSchema, String configurationBuildDir, String codeSigningIdentity, Boolean allowFailingBuildResults,
-    		String ipaName, Boolean provideApplicationVersion, String ipaOutputDirectory, String bundleID) {
+    		String ipaName, Boolean provideApplicationVersion, String ipaOutputDirectory, Boolean changeBundleID, String bundleID, String bundleIDInfoPlistPath) {
         this.buildIpa = buildIpa;
         this.generateArchive = generateArchive;
         this.sdk = sdk;
@@ -198,7 +206,9 @@ public class XCodeBuilder extends Builder {
         this.ipaName = ipaName;
         this.ipaOutputDirectory = ipaOutputDirectory;
         this.provideApplicationVersion = provideApplicationVersion;
+        this.changeBundleID = changeBundleID;
         this.bundleID = bundleID;
+        this.bundleIDInfoPlistPath = bundleIDInfoPlistPath;
     }
 
     @Override
@@ -330,9 +340,9 @@ public class XCodeBuilder extends Builder {
         build.addAction(a);
 
         // Update the bundle ID
-        if (!StringUtils.isEmpty(bundleID)) {
-            listener.getLogger().println("Changing bundle ID to: *" + bundleID + "*");
-            returnCode = launcher.launch().envs(envs).cmds("/usr/libexec/PlistBuddy", "-c",  "Set :CFBundleIdentifier" + bundleID).stdout(listener).pwd(projectRoot).join();
+        if (this.changeBundleID) {
+            listener.getLogger().println("Changing bundle ID to: *" + bundleID + "*. Plist Path: *" + bundleIDInfoPlistPath + "*");
+            returnCode = launcher.launch().envs(envs).cmds("/usr/libexec/PlistBuddy", "-c",  "Set :CFBundleIdentifier " + bundleID, bundleIDInfoPlistPath).stdout(listener).pwd(projectRoot).join();
          if (returnCode > 0) {
                     listener.fatalError(Messages.XCodeBuilder_CFBundleShortVersionStringUpdateError(bundleID));
                     return false;
