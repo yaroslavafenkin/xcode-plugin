@@ -81,8 +81,7 @@
 		<f:advanced title="Code signing settings">
 		
 			<f:entry>
-				<f:optionalBlock inline="true" title="Change bundle ID?"
-					field="changeBundleID" checked="{instance.changeBundleID == true}">
+				<f:optionalBlock inline="true" checked="${instance.changeBundleID == true}" name="changeBundleID" title="Change bundle ID?" >
 					
 					<f:nested>
 					<table id="${UUID}">
