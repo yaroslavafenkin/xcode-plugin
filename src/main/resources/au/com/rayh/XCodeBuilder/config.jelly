@@ -82,15 +82,15 @@
 		
 			<f:entry>
 				<f:optionalBlock inline="true" title="Change bundle ID?"
-					name="changeBundleID">
+					field="changeBundleID" checked="{instance.changeBundleID == true}" help="/plugin/xcode/help-bundleIDChange.html">
 					
 					<f:nested>
 					<table id="${UUID}">
-						<f:entry title="${%New bundle ID}" field="bundleID">
+						<f:entry title="${%New bundle ID}" field="bundleID" help="/plugin/xcode/help-bundleIDNew.html">
 							<f:textbox />
 						</f:entry>
 						<f:entry title="${%Info.plist path}" field="bundleIDInfoPlistPath"
-							description="Path to Info.plist file to be modified with the new bundle ID">
+							description="Path to Info.plist file to be modified with the new bundle ID" help="/plugin/xcode/help-bundleIDInfoPlistPath.html">
 							<f:textbox />
 						</f:entry>
 						</table>
