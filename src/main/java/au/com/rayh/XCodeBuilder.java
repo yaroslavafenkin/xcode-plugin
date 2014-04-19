@@ -342,7 +342,7 @@ public class XCodeBuilder extends Builder {
         build.addAction(a);
 
         // Update the bundle ID
-        if (this.changeBundleID) {
+        if (this.changeBundleID != null && this.changeBundleID) {
         	listener.getLogger().println(Messages.XCodeBuilder_CFBundleIdentifierChanged(bundleIDInfoPlistPath, bundleID));
         	returnCode = launcher.launch().envs(envs).cmds("/usr/libexec/PlistBuddy", "-c",  "Set :CFBundleIdentifier " + bundleID, bundleIDInfoPlistPath).stdout(listener).pwd(projectRoot).join();
         	
