@@ -79,6 +79,24 @@
 	<!-- Code signing section -->
 	<f:section title="${%Code signing &amp; OS X keychain options}">
 		<f:advanced title="Code signing settings">
+		
+			<f:entry>
+				<f:optionalBlock inline="true" checked="${instance.changeBundleID == true}" name="changeBundleID" field="changeBundleID" title="Change bundle ID?" >
+					
+					<f:nested>
+					<table id="${UUID}">
+						<f:entry title="${%New bundle ID}" field="bundleID">
+							<f:textbox />
+						</f:entry>
+						<f:entry title="${%Info.plist path}" field="bundleIDInfoPlistPath"
+							description="Path to Info.plist file to be modified with the new bundle ID">
+							<f:textbox />
+						</f:entry>
+						</table>
+					</f:nested>
+				</f:optionalBlock>
+			</f:entry>		
+		    		    
 		    <f:entry title="${%Code Signing Identity}" field="codeSigningIdentity"
 		      description="Override the code signing identity specified in the project">
 		        <f:textbox />
