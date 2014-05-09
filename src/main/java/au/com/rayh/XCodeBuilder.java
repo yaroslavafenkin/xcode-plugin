@@ -50,6 +50,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 /**
  * @author Ray Hilton
@@ -172,6 +173,8 @@ public class XCodeBuilder extends Builder {
      */
     public final String bundleIDInfoPlistPath;
 
+    public final Boolean interpretTargetAsRegEx;
+
     // Fields in config.jelly must match the parameter names in the "DataBoundConstructor"
     @DataBoundConstructor
     public XCodeBuilder(Boolean buildIpa, Boolean generateArchive, Boolean cleanBeforeBuild, Boolean cleanTestReports, String configuration,
@@ -180,7 +183,7 @@ public class XCodeBuilder extends Builder {
     		String keychainName, String keychainPath, String keychainPwd, String symRoot, String xcodeWorkspaceFile,
     		String xcodeSchema, String configurationBuildDir, String codeSigningIdentity, Boolean allowFailingBuildResults,
     		String ipaName, Boolean provideApplicationVersion, String ipaOutputDirectory, Boolean changeBundleID, String bundleID, 
-    		String bundleIDInfoPlistPath) {
+    		String bundleIDInfoPlistPath, Boolean interpretTargetAsRegEx) {
         this.buildIpa = buildIpa;
         this.generateArchive = generateArchive;
         this.sdk = sdk;
@@ -210,6 +213,7 @@ public class XCodeBuilder extends Builder {
         this.changeBundleID = changeBundleID;
         this.bundleID = bundleID;
         this.bundleIDInfoPlistPath = bundleIDInfoPlistPath;
+        this.interpretTargetAsRegEx = interpretTargetAsRegEx;
     }
 
     @Override
@@ -444,6 +448,8 @@ public class XCodeBuilder extends Builder {
 
         listener.getLogger().println(Messages.XCodeBuilder_DebugInfoAvailableSDKs());
         /*returnCode =*/ launcher.launch().envs(envs).cmds(getGlobalConfiguration().getXcodebuildPath(), "-showsdks").stdout(listener).pwd(projectRoot).join();
+
+        XcodeBuildListParser xcodebuildListParser = null;
         {
             List<String> commandLine = Lists.newArrayList(getGlobalConfiguration().getXcodebuildPath());
             commandLine.add("-list");
@@ -456,8 +462,15 @@ public class XCodeBuilder extends Builder {
                 commandLine.add("-project");
                 commandLine.add(xcodeProjectFile);
             }
-            returnCode = launcher.launch().envs(envs).cmds(commandLine).stdout(listener).pwd(projectRoot).join();
+            
+            
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            returnCode = launcher.launch().envs(envs).cmds(commandLine).stdout(baos).pwd(projectRoot).join();
+            String xcodeBuildListOutput = baos.toString("UTF-8");
+            listener.getLogger().println(xcodeBuildListOutput);
             if (returnCode > 0) return false;
+
+            xcodebuildListParser = new XcodeBuildListParser(xcodeBuildListOutput);
         }
         listener.getLogger().println(Messages.XCodeBuilder_DebugInfoLineDelimiter());
 
@@ -474,6 +487,25 @@ public class XCodeBuilder extends Builder {
         } else if (StringUtils.isEmpty(target)) {
             commandLine.add("-alltargets");
             xcodeReport.append("target: ALL");
+        } else if(interpretTargetAsRegEx != null && interpretTargetAsRegEx) {
+            if(xcodebuildListParser == null || xcodebuildListParser.getTargets().isEmpty()) {
+                listener.getLogger().println(Messages.XCodeBuilder_NoTargetsFoundInConfig());
+                return false;
+            }
+            Boolean matchFound = Boolean.FALSE;
+            Pattern p = Pattern.compile(target);
+            for (String availableTarget : xcodebuildListParser.getTargets()) {
+                if(p.matcher(availableTarget).matches()) {
+                    commandLine.add("-target");
+                    commandLine.add(availableTarget);
+                    xcodeReport.append("target: ").append(availableTarget);
+                    matchFound = Boolean.TRUE;
+                }
+            }
+            if(!matchFound) {
+                listener.getLogger().println(Messages.XCodeBuilder_NoMatchingTargetsFound());
+                return false;
+            }
         } else {
             commandLine.add("-target");
             commandLine.add(target);
