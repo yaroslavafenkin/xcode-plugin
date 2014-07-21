@@ -353,7 +353,7 @@ public class XCodeBuilder extends Builder {
         }
 
         // Update the Marketing version (CFBundleShortVersionString)
-        if (!StringUtils.isEmpty(cfBundleShortVersionStringValue)) {
+        if (this.provideApplicationVersion && !StringUtils.isEmpty(cfBundleShortVersionStringValue)) {
             try {
                 // If not empty we use the Token Expansion to replace it
                 // https://wiki.jenkins-ci.org/display/JENKINS/Token+Macro+Plugin
@@ -372,7 +372,7 @@ public class XCodeBuilder extends Builder {
         }
 
         // Update the Technical version (CFBundleVersion)
-        if (!StringUtils.isEmpty(cfBundleVersionValue)) {
+        if (this.provideApplicationVersion && !StringUtils.isEmpty(cfBundleVersionValue)) {
             try {
                 // If not empty we use the Token Expansion to replace it
                 // https://wiki.jenkins-ci.org/display/JENKINS/Token+Macro+Plugin
@@ -601,38 +601,29 @@ public class XCodeBuilder extends Builder {
                 String version = "";
                 String shortVersion = "";
                 
-                if (!provideApplicationVersion) {
-	                try {
-	                	output.reset();
-	                    returnCode = launcher.launch().envs(envs).cmds("/usr/libexec/PlistBuddy", "-c",  "Print :CFBundleVersion", app.absolutize().child("Info.plist").getRemote()).stdout(output).pwd(projectRoot).join();
-	                    if (returnCode == 0) {
-	                    	version = output.toString().trim();
-	                    }
-	                    
-	                    output.reset();
-	                    returnCode = launcher.launch().envs(envs).cmds("/usr/libexec/PlistBuddy", "-c", "Print :CFBundleShortVersionString", app.absolutize().child("Info.plist").getRemote()).stdout(output).pwd(projectRoot).join();
-	                    if (returnCode == 0) {
-	                    	shortVersion = output.toString().trim();
-	                    }
-	                } 
-	                catch(Exception ex) {
-	                    listener.getLogger().println("Failed to get version from Info.plist: " + ex.toString());
-	                    return false;
-	                }
+                try {
+                    output.reset();
+                    returnCode = launcher.launch().envs(envs).cmds("/usr/libexec/PlistBuddy", "-c",  "Print :CFBundleVersion", app.absolutize().child("Info.plist").getRemote()).stdout(output).pwd(projectRoot).join();
+                    if (returnCode == 0) {
+                        version = output.toString().trim();
+                    }
+
+                    output.reset();
+                    returnCode = launcher.launch().envs(envs).cmds("/usr/libexec/PlistBuddy", "-c", "Print :CFBundleShortVersionString", app.absolutize().child("Info.plist").getRemote()).stdout(output).pwd(projectRoot).join();
+                    if (returnCode == 0) {
+                        shortVersion = output.toString().trim();
+                    }
                 }
-                else {
-                	if (! StringUtils.isEmpty(cfBundleVersionValue)) {
-                		version = cfBundleVersionValue;
-                	}
-                	else if (! StringUtils.isEmpty(cfBundleShortVersionStringValue)) {
-                		shortVersion = cfBundleShortVersionStringValue;
-                	}
-                	else {
-                		listener.getLogger().println("You have to provide a value for either the marketing or technical version. Found neither.");
-                		return false;
-                	}
+                catch(Exception ex) {
+                    listener.getLogger().println("Failed to get version from Info.plist: " + ex.toString());
+                    return false;
                 }
-	                
+
+               	if (StringUtils.isEmpty(version) && StringUtils.isEmpty(shortVersion)) {
+               		listener.getLogger().println("You have to provide a value for either the marketing or technical version. Found neither.");
+               		return false;
+               	}
+
                 File file = new File(app.absolutize().getRemote());
                 String lastModified = new SimpleDateFormat("yyyy.MM.dd").format(new Date(file.lastModified()));
 
