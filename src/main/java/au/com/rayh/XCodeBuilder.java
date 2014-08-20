@@ -55,6 +55,10 @@ import java.util.UUID;
  * @author Ray Hilton
  */
 public class XCodeBuilder extends Builder {
+
+    private static final String MANIFEST_PLIST_TEMPLATE = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">"
+            + "<plist version=\"1.0\"><dict><key>items</key><array><dict><key>assets</key><array><dict><key>kind</key><string>software-package</string><key>url</key><string>${IPA_URL_BASE}/${IPA_NAME}</string></dict></array>"
+            + "<key>metadata</key><dict><key>bundle-identifier</key><string>${BUNDLE_ID}</string><key>bundle-version</key><string>${BUNDLE_VERSION}</string><key>kind</key><string>software</string><key>title</key><string>${APP_NAME}</string></dict></dict></array></dict></plist>";
     /**
      * @since 1.0
      */
@@ -172,6 +176,11 @@ public class XCodeBuilder extends Builder {
      */
     public final String bundleIDInfoPlistPath;
 
+    /**
+     * @since 1.5
+     */
+    public final String ipaManifestPlistUrl;
+
     // Fields in config.jelly must match the parameter names in the "DataBoundConstructor"
     @DataBoundConstructor
     public XCodeBuilder(Boolean buildIpa, Boolean generateArchive, Boolean cleanBeforeBuild, Boolean cleanTestReports, String configuration,
@@ -180,7 +189,7 @@ public class XCodeBuilder extends Builder {
     		String keychainName, String keychainPath, String keychainPwd, String symRoot, String xcodeWorkspaceFile,
     		String xcodeSchema, String configurationBuildDir, String codeSigningIdentity, Boolean allowFailingBuildResults,
     		String ipaName, Boolean provideApplicationVersion, String ipaOutputDirectory, Boolean changeBundleID, String bundleID, 
-    		String bundleIDInfoPlistPath) {
+    		String bundleIDInfoPlistPath, String ipaManifestPlistUrl) {
         this.buildIpa = buildIpa;
         this.generateArchive = generateArchive;
         this.sdk = sdk;
@@ -210,6 +219,7 @@ public class XCodeBuilder extends Builder {
         this.changeBundleID = changeBundleID;
         this.bundleID = bundleID;
         this.bundleIDInfoPlistPath = bundleIDInfoPlistPath;
+        this.ipaManifestPlistUrl = ipaManifestPlistUrl;
     }
 
     @Override
@@ -639,7 +649,8 @@ public class XCodeBuilder extends Builder {
                     baseName = customVars.expand(ipaName);
                 }
 
-                FilePath ipaLocation = ipaOutputPath.child(baseName + ".ipa");
+                String ipaFileName = baseName + ".ipa";
+                FilePath ipaLocation = ipaOutputPath.child(ipaFileName);
 
                 FilePath payload = ipaOutputPath.child("Payload");
                 payload.deleteRecursive();
@@ -678,6 +689,34 @@ public class XCodeBuilder extends Builder {
                     continue;
                 }
 
+                if(!StringUtils.isEmpty(ipaManifestPlistUrl)) {
+                    FilePath ipaManifestLocation = ipaOutputPath.child(baseName + ".plist");
+                    listener.getLogger().println("Creating Manifest Plist => " + ipaManifestLocation.absolutize().getRemote());
+
+                    String displayName = "";
+                    String bundleId = "";
+
+                    output.reset();
+                    returnCode = launcher.launch().envs(envs).cmds("/usr/libexec/PlistBuddy", "-c", "Print :CFBundleIdentifier", app.absolutize().child("Info.plist").getRemote()).stdout(output).pwd(projectRoot).join();
+                    if (returnCode == 0) {
+                        bundleId = output.toString().trim();
+                    }
+                    output.reset();
+                    returnCode = launcher.launch().envs(envs).cmds("/usr/libexec/PlistBuddy", "-c", "Print :CFBundleDisplayName", app.absolutize().child("Info.plist").getRemote()).stdout(output).pwd(projectRoot).join();
+                    if (returnCode == 0) {
+                        displayName = output.toString().trim();
+                    }
+
+
+                    String manifest = MANIFEST_PLIST_TEMPLATE
+                                        .replace("${IPA_URL_BASE}", this.ipaManifestPlistUrl)
+                                        .replace("${IPA_NAME}", ipaFileName)
+                                        .replace("${BUNDLE_ID}", bundleId)
+                                        .replace("${BUNDLE_VERSION}", shortVersion)
+                                        .replace("${APP_NAME}", displayName);
+
+                    ipaManifestLocation.write(manifest, "UTF-8");
+                }
                 payload.deleteRecursive();
             }
         }
