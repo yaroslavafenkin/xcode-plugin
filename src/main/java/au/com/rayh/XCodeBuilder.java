@@ -601,7 +601,7 @@ public class XCodeBuilder extends Builder {
                 String version = "";
                 String shortVersion = "";
                 
-                if (!provideApplicationVersion) {
+                if (provideApplicationVersion == null || !provideApplicationVersion) {
 	                try {
 	                	output.reset();
 	                    returnCode = launcher.launch().envs(envs).cmds("/usr/libexec/PlistBuddy", "-c",  "Print :CFBundleVersion", app.absolutize().child("Info.plist").getRemote()).stdout(output).pwd(projectRoot).join();
