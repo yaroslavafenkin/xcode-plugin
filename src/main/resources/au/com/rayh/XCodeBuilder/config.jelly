@@ -114,7 +114,7 @@
 		    <j:set var="UUID" value="${descriptor.UUID}" />
 		    
             <f:entry>
-                <f:optionalBlock inline="true" checked="${instance.unlockKeychain == true}" name="unlockKeychain" title="${%Unlock Keychain?}" help="/plugin/xcode/help-unlockKeychain.html">
+                <f:optionalBlock inline="true" checked="${instance.unlockKeychain == true}" name="unlockKeychain" title="${%Unlock Keychain?}" field="unlockKeychain">
 				    <f:entry title="${%Keychain}" description="The globally configured keychain to unlock for this build."
 				             field="globalKeychainName">
 				        <select class="setting-input" name="keychainName" foo="${UID}" id="global-keychain-select-${UUID}" onchange="showOrHideKeychainAttributeInput('${UUID}')">
@@ -156,8 +156,7 @@
 	<!-- Advanced build options -->
 	<f:section title="${%Advanced Xcode build options}">
 		<f:advanced title="Advanced build settings">
-		    <f:entry title="${%Clean test reports?}" field="cleanTestReports"
-		      help="/plugin/xcode/help-cleanTestReports.html">
+		    <f:entry title="${%Clean test reports?}" field="cleanTestReports">
 		        <f:checkbox title="Yes" name="xcode.cleanTestReports" checked="${instance.cleanTestReports}" />
 		    </f:entry>
 		
@@ -176,8 +175,7 @@
 		        <f:textbox/>
 		    </f:entry>
 		
-		    <f:entry title="${%Custom xcodebuild arguments}" field="xcodebuildArguments"
-		      help="/plugin/xcode/help-xcodebuildArguments.html">
+		    <f:entry title="${%Custom xcodebuild arguments}" field="xcodebuildArguments">
 		        <f:textbox name="xcode.xcodebuildArguments" value="${instance.xcodebuildArguments}" default=""/>
 		    </f:entry>
 		
