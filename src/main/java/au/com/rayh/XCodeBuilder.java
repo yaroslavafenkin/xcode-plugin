@@ -686,13 +686,15 @@ public class XCodeBuilder extends Builder {
     }
 
     public Keychain getKeychain() {
+        if(!StringUtils.isEmpty(keychainName)) {
+            for (Keychain keychain : getGlobalConfiguration().getKeychains()) {
+                if(keychain.getKeychainName().equals(keychainName))
+                    return keychain;
+            }
+        }
+        
         if(!StringUtils.isEmpty(keychainPath)) {
             return new Keychain("", keychainPath, keychainPwd, false);
-        }
-
-        for (Keychain keychain : getGlobalConfiguration().getKeychains()) {
-            if(keychain.getKeychainName().equals(keychainName))
-                return keychain;
         }
 
         return null;
