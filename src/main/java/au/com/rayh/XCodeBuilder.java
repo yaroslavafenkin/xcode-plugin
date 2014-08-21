@@ -56,6 +56,10 @@ import java.util.regex.Pattern;
  * @author Ray Hilton
  */
 public class XCodeBuilder extends Builder {
+
+    private static final String MANIFEST_PLIST_TEMPLATE = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">"
+            + "<plist version=\"1.0\"><dict><key>items</key><array><dict><key>assets</key><array><dict><key>kind</key><string>software-package</string><key>url</key><string>${IPA_URL_BASE}/${IPA_NAME}</string></dict></array>"
+            + "<key>metadata</key><dict><key>bundle-identifier</key><string>${BUNDLE_ID}</string><key>bundle-version</key><string>${BUNDLE_VERSION}</string><key>kind</key><string>software</string><key>title</key><string>${APP_NAME}</string></dict></dict></array></dict></plist>";
     /**
      * @since 1.0
      */
@@ -174,6 +178,10 @@ public class XCodeBuilder extends Builder {
     public final String bundleIDInfoPlistPath;
 
     public final Boolean interpretTargetAsRegEx;
+    /**
+     * @since 1.5
+     */
+    public final String ipaManifestPlistUrl;
 
     // Fields in config.jelly must match the parameter names in the "DataBoundConstructor"
     @DataBoundConstructor
@@ -183,7 +191,7 @@ public class XCodeBuilder extends Builder {
     		String keychainName, String keychainPath, String keychainPwd, String symRoot, String xcodeWorkspaceFile,
     		String xcodeSchema, String configurationBuildDir, String codeSigningIdentity, Boolean allowFailingBuildResults,
     		String ipaName, Boolean provideApplicationVersion, String ipaOutputDirectory, Boolean changeBundleID, String bundleID, 
-    		String bundleIDInfoPlistPath, Boolean interpretTargetAsRegEx) {
+    		String bundleIDInfoPlistPath, String ipaManifestPlistUrl, Boolean interpretTargetAsRegEx) {
         this.buildIpa = buildIpa;
         this.generateArchive = generateArchive;
         this.sdk = sdk;
@@ -214,6 +222,7 @@ public class XCodeBuilder extends Builder {
         this.bundleID = bundleID;
         this.bundleIDInfoPlistPath = bundleIDInfoPlistPath;
         this.interpretTargetAsRegEx = interpretTargetAsRegEx;
+        this.ipaManifestPlistUrl = ipaManifestPlistUrl;
     }
 
     @Override
@@ -357,7 +366,7 @@ public class XCodeBuilder extends Builder {
         }
 
         // Update the Marketing version (CFBundleShortVersionString)
-        if (!StringUtils.isEmpty(cfBundleShortVersionStringValue)) {
+        if (this.provideApplicationVersion != null && this.provideApplicationVersion && !StringUtils.isEmpty(cfBundleShortVersionStringValue)) {
             try {
                 // If not empty we use the Token Expansion to replace it
                 // https://wiki.jenkins-ci.org/display/JENKINS/Token+Macro+Plugin
@@ -376,7 +385,7 @@ public class XCodeBuilder extends Builder {
         }
 
         // Update the Technical version (CFBundleVersion)
-        if (!StringUtils.isEmpty(cfBundleVersionValue)) {
+        if (this.provideApplicationVersion != null && this.provideApplicationVersion && !StringUtils.isEmpty(cfBundleVersionValue)) {
             try {
                 // If not empty we use the Token Expansion to replace it
                 // https://wiki.jenkins-ci.org/display/JENKINS/Token+Macro+Plugin
@@ -633,38 +642,29 @@ public class XCodeBuilder extends Builder {
                 String version = "";
                 String shortVersion = "";
                 
-                if (!provideApplicationVersion) {
-	                try {
-	                	output.reset();
-	                    returnCode = launcher.launch().envs(envs).cmds("/usr/libexec/PlistBuddy", "-c",  "Print :CFBundleVersion", app.absolutize().child("Info.plist").getRemote()).stdout(output).pwd(projectRoot).join();
-	                    if (returnCode == 0) {
-	                    	version = output.toString().trim();
-	                    }
-	                    
-	                    output.reset();
-	                    returnCode = launcher.launch().envs(envs).cmds("/usr/libexec/PlistBuddy", "-c", "Print :CFBundleShortVersionString", app.absolutize().child("Info.plist").getRemote()).stdout(output).pwd(projectRoot).join();
-	                    if (returnCode == 0) {
-	                    	shortVersion = output.toString().trim();
-	                    }
-	                } 
-	                catch(Exception ex) {
-	                    listener.getLogger().println("Failed to get version from Info.plist: " + ex.toString());
-	                    return false;
-	                }
+                try {
+                    output.reset();
+                    returnCode = launcher.launch().envs(envs).cmds("/usr/libexec/PlistBuddy", "-c",  "Print :CFBundleVersion", app.absolutize().child("Info.plist").getRemote()).stdout(output).pwd(projectRoot).join();
+                    if (returnCode == 0) {
+                        version = output.toString().trim();
+                    }
+
+                    output.reset();
+                    returnCode = launcher.launch().envs(envs).cmds("/usr/libexec/PlistBuddy", "-c", "Print :CFBundleShortVersionString", app.absolutize().child("Info.plist").getRemote()).stdout(output).pwd(projectRoot).join();
+                    if (returnCode == 0) {
+                        shortVersion = output.toString().trim();
+                    }
                 }
-                else {
-                	if (! StringUtils.isEmpty(cfBundleVersionValue)) {
-                		version = cfBundleVersionValue;
-                	}
-                	else if (! StringUtils.isEmpty(cfBundleShortVersionStringValue)) {
-                		shortVersion = cfBundleShortVersionStringValue;
-                	}
-                	else {
-                		listener.getLogger().println("You have to provide a value for either the marketing or technical version. Found neither.");
-                		return false;
-                	}
+                catch(Exception ex) {
+                    listener.getLogger().println("Failed to get version from Info.plist: " + ex.toString());
+                    return false;
                 }
-	                
+
+               	if (StringUtils.isEmpty(version) && StringUtils.isEmpty(shortVersion)) {
+               		listener.getLogger().println("You have to provide a value for either the marketing or technical version. Found neither.");
+               		return false;
+               	}
+
                 File file = new File(app.absolutize().getRemote());
                 String lastModified = new SimpleDateFormat("yyyy.MM.dd").format(new Date(file.lastModified()));
 
@@ -680,7 +680,8 @@ public class XCodeBuilder extends Builder {
                     baseName = customVars.expand(ipaName);
                 }
 
-                FilePath ipaLocation = ipaOutputPath.child(baseName + ".ipa");
+                String ipaFileName = baseName + ".ipa";
+                FilePath ipaLocation = ipaOutputPath.child(ipaFileName);
 
                 FilePath payload = ipaOutputPath.child("Payload");
                 payload.deleteRecursive();
@@ -719,6 +720,34 @@ public class XCodeBuilder extends Builder {
                     continue;
                 }
 
+                if(!StringUtils.isEmpty(ipaManifestPlistUrl)) {
+                    FilePath ipaManifestLocation = ipaOutputPath.child(baseName + ".plist");
+                    listener.getLogger().println("Creating Manifest Plist => " + ipaManifestLocation.absolutize().getRemote());
+
+                    String displayName = "";
+                    String bundleId = "";
+
+                    output.reset();
+                    returnCode = launcher.launch().envs(envs).cmds("/usr/libexec/PlistBuddy", "-c", "Print :CFBundleIdentifier", app.absolutize().child("Info.plist").getRemote()).stdout(output).pwd(projectRoot).join();
+                    if (returnCode == 0) {
+                        bundleId = output.toString().trim();
+                    }
+                    output.reset();
+                    returnCode = launcher.launch().envs(envs).cmds("/usr/libexec/PlistBuddy", "-c", "Print :CFBundleDisplayName", app.absolutize().child("Info.plist").getRemote()).stdout(output).pwd(projectRoot).join();
+                    if (returnCode == 0) {
+                        displayName = output.toString().trim();
+                    }
+
+
+                    String manifest = MANIFEST_PLIST_TEMPLATE
+                                        .replace("${IPA_URL_BASE}", this.ipaManifestPlistUrl)
+                                        .replace("${IPA_NAME}", ipaFileName)
+                                        .replace("${BUNDLE_ID}", bundleId)
+                                        .replace("${BUNDLE_VERSION}", shortVersion)
+                                        .replace("${APP_NAME}", displayName);
+
+                    ipaManifestLocation.write(manifest, "UTF-8");
+                }
                 payload.deleteRecursive();
             }
         }
@@ -727,13 +756,15 @@ public class XCodeBuilder extends Builder {
     }
 
     public Keychain getKeychain() {
+        if(!StringUtils.isEmpty(keychainName)) {
+            for (Keychain keychain : getGlobalConfiguration().getKeychains()) {
+                if(keychain.getKeychainName().equals(keychainName))
+                    return keychain;
+            }
+        }
+        
         if(!StringUtils.isEmpty(keychainPath)) {
             return new Keychain("", keychainPath, keychainPwd, false);
-        }
-
-        for (Keychain keychain : getGlobalConfiguration().getKeychains()) {
-            if(keychain.getKeychainName().equals(keychainName))
-                return keychain;
         }
 
         return null;
