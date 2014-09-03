@@ -634,8 +634,7 @@ public class XCodeBuilder extends Builder {
                		return false;
                	}
 
-                File file = new File(app.absolutize().getRemote());
-                String lastModified = new SimpleDateFormat("yyyy.MM.dd").format(new Date(file.lastModified()));
+                String lastModified = new SimpleDateFormat("yyyy.MM.dd").format(new Date(app.lastModified()));
 
                 String baseName = app.getBaseName().replaceAll(" ", "_") + (shortVersion.isEmpty() ? "" : "-" + shortVersion) + (version.isEmpty() ? "" : "-" + version);
                 // If custom .ipa name pattern has been provided, use it and expand version and build date variables
