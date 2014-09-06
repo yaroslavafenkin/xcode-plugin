@@ -24,6 +24,8 @@
 
 package au.com.rayh;
 
+import com.google.common.base.Predicates;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import hudson.EnvVars;
 import hudson.Extension;
@@ -50,7 +52,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-import java.util.regex.Pattern;
+import java.util.Collection;
 
 /**
  * @author Ray Hilton
@@ -501,19 +503,18 @@ public class XCodeBuilder extends Builder {
                 listener.getLogger().println(Messages.XCodeBuilder_NoTargetsFoundInConfig());
                 return false;
             }
-            Boolean matchFound = Boolean.FALSE;
-            Pattern p = Pattern.compile(target);
-            for (String availableTarget : xcodebuildListParser.getTargets()) {
-                if(p.matcher(availableTarget).matches()) {
-                    commandLine.add("-target");
-                    commandLine.add(availableTarget);
-                    xcodeReport.append("target: ").append(availableTarget);
-                    matchFound = Boolean.TRUE;
-                }
-            }
-            if(!matchFound) {
+            Collection<String> matchedTargets = Collections2.filter(xcodebuildListParser.getTargets(),
+                    Predicates.containsPattern(target));
+
+            if (matchedTargets.isEmpty()) {
                 listener.getLogger().println(Messages.XCodeBuilder_NoMatchingTargetsFound());
                 return false;
+            }
+
+            for (String matchedTarget : matchedTargets) {
+                commandLine.add("-target");
+                commandLine.add(matchedTarget);
+                xcodeReport.append("target: ").append(matchedTarget);
             }
         } else {
             commandLine.add("-target");

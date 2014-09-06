@@ -15,6 +15,11 @@ public class XcodeBuildListParser {
     private List<String> schemes = new ArrayList<String>();
 
     public XcodeBuildListParser(String xcodebuildListOutput) {
+
+        if(xcodebuildListOutput == null) {
+            return;
+        }
+
         String [] lines = xcodebuildListOutput.split("\n");
         List<String> curList = null;
         for(String line : lines) {
@@ -23,7 +28,7 @@ public class XcodeBuildListParser {
                 curList = null;
             } else if("Targets:".equals(line)) {
                 curList = targets;
-            } else if("Build Configurations::".equals(line)) {
+            } else if("Build Configurations:".equals(line)) {
                 curList = configurations;
             } else if("Schemes:".equals(line)) {
                 curList = schemes;
