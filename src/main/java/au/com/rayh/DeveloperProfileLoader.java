@@ -48,6 +48,7 @@ public class DeveloperProfileLoader extends Builder {
         if (dp==null)
             throw new AbortException("No Apple developer profile is configured");
 
+        // Note: keychain are usualy suffixed with .keychain. If we change we should probably clean up the ones we created
         String keyChain = "jenkins-"+build.getProject().getFullName().replace('/', '-');
         String keychainPass = UUID.randomUUID().toString();
 
