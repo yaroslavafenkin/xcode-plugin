@@ -55,16 +55,8 @@ public class DeveloperProfileLoader extends Builder {
 
         {// if the key chain is already present, delete it and start fresh
             ByteArrayOutputStream out = new ByteArrayOutputStream();
-            args = new ArgumentListBuilder("security","list-keychains");
-            if (launcher.launch().cmds(args).stdout(out).join()!=0) {
-                listener.getLogger().write(out.toByteArray());
-                throw new AbortException("Failed to list keychains");
-            }
-
-            if (out.toString().contains("/"+keyChain+"\"")) {  // TODO: encoding
-                args = new ArgumentListBuilder("security","delete-keychain",keyChain);
-                invoke(launcher, listener, args, "Failed to delete the keychain");
-            }
+            args = new ArgumentListBuilder("security","delete-keychain", keyChain);
+            launcher.launch().cmds(args).stdout(out).join();
         }
 
 
