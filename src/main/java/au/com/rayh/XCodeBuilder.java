@@ -683,10 +683,13 @@ public class XCodeBuilder extends Builder {
                 }
 
                 // also zip up the symbols, if present
-                returnCode = launcher.launch().envs(envs).stdout(listener).pwd(buildDirectory).cmds("ditto", "-c", "-k", "--keepParent", "-rsrc", app.absolutize().getRemote() + ".dSYM", ipaOutputPath.child(baseName + "-dSYM.zip").absolutize().getRemote()).join();
-                if (returnCode > 0) {
-                    listener.getLogger().println(Messages.XCodeBuilder_zipFailed(baseName));
-                    continue;
+                FilePath dSYM = app.withSuffix(".dSYM");
+                if (dSYM.exists()) {
+                    returnCode = launcher.launch().envs(envs).stdout(listener).pwd(buildDirectory).cmds("ditto", "-c", "-k", "--keepParent", "-rsrc", app.absolutize().getRemote(), ipaOutputPath.child(baseName + "-dSYM.zip").absolutize().getRemote()).join();
+                    if (returnCode > 0) {
+                        listener.getLogger().println(Messages.XCodeBuilder_zipFailed(baseName));
+                        return false;
+                    }
                 }
 
                 if(!StringUtils.isEmpty(ipaManifestPlistUrl)) {
