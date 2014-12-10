@@ -679,7 +679,7 @@ public class XCodeBuilder extends Builder {
                 returnCode = launcher.launch().envs(envs).stdout(listener).pwd(projectRoot).cmds(packageCommandLine).join();
                 if (returnCode > 0) {
                     listener.getLogger().println("Failed to build " + ipaLocation.absolutize().getRemote());
-                    continue;
+                    return false;
                 }
 
                 // also zip up the symbols, if present
