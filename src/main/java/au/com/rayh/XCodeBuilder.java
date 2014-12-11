@@ -45,6 +45,7 @@ import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.ObjectStreamException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -162,7 +163,7 @@ public class XCodeBuilder extends Builder {
     /**
      * @since 1.4
      */
-    public final Boolean provideApplicationVersion;
+    public Boolean provideApplicationVersion;
     /**
      * @since 1.4
      */
@@ -220,6 +221,17 @@ public class XCodeBuilder extends Builder {
         this.bundleID = bundleID;
         this.bundleIDInfoPlistPath = bundleIDInfoPlistPath;
         this.ipaManifestPlistUrl = ipaManifestPlistUrl;
+    }
+
+    @SuppressWarnings("unused")
+    private Object readResolve() throws ObjectStreamException {
+        if (provideApplicationVersion == null) {
+            if (!StringUtils.isEmpty(cfBundleVersionValue) 
+                || !StringUtils.isEmpty(cfBundleShortVersionStringValue)) {
+                provideApplicationVersion = true;
+            }
+        }
+        return this;
     }
 
     @Override
