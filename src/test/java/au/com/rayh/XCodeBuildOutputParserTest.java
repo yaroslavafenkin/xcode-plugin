@@ -29,13 +29,19 @@
 
 package au.com.rayh;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 
+import hudson.util.IOUtils;
+import org.apache.commons.io.FileUtils;
+import org.codehaus.plexus.util.StringOutputStream;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  *
@@ -70,6 +76,16 @@ public class XCodeBuildOutputParserTest {
     }
 
     @Test
+    public void shouldParseStartTestSuiteXC() throws Exception {
+    	test.shouldParseStartTestSuiteXC();
+    }
+
+    @Test
+    public void shouldParseEndTestSuiteXC() throws Exception {
+    	test.shouldParseEndTestSuiteXC();
+    }
+
+    @Test
     public void shouldParseStartTestCase() throws Exception {
     	test.shouldParseStartTestCase();
     }
@@ -87,5 +103,24 @@ public class XCodeBuildOutputParserTest {
     @Test
     public void shouldParseFailedTestCase() throws Exception {
     	test.shouldParseFailedTestCase();
+    }
+
+    @Test
+    public void shouldParseFullXCPassingTestOutput1() throws IOException {
+        XCodeBuildOutputParser parser = parseTestOutput("/XCTest_output_passing_1.txt");
+        assertEquals(0, parser.getExitCode());
+    }
+
+    @Test
+    public void shouldParseFullXCFailingTestOutput1() throws IOException {
+        XCodeBuildOutputParser parser = parseTestOutput("/XCTest_output_failing_1.txt");
+        assertEquals(-1, parser.getExitCode());
+    }
+
+    private XCodeBuildOutputParser parseTestOutput(String outputFileName) throws IOException {
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        XCodeBuildOutputParser parser = new XCodeBuildOutputParser(new File("."), output);
+        IOUtils.copy(getClass().getResourceAsStream(outputFileName), parser.captureOutputStream);
+        return parser;
     }
 }

@@ -54,8 +54,8 @@ import au.com.rayh.report.TestSuite;
 public class XCodeBuildOutputParser {
 
     private static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z");
-    private static Pattern START_SUITE = Pattern.compile("Test Suite '(\\S+)'.*started at\\s+(.*)");
-    private static Pattern END_SUITE = Pattern.compile("Test Suite '(\\S+)'.*\\S+ at\\s+(.*).");
+    private static Pattern START_SUITE = Pattern.compile("Test Suite '([^/].+)'.*started at\\s+(.*)");
+    private static Pattern END_SUITE = Pattern.compile("Test Suite '([^/].+)'.*\\S+ at\\s+(.*).");
     private static Pattern START_TESTCASE = Pattern.compile("Test Case '-\\[\\S+\\s+(\\S+)\\]' started.");
     private static Pattern END_TESTCASE = Pattern.compile("Test Case '-\\[\\S+\\s+(\\S+)\\]' passed \\((.*) seconds\\).");
     private static Pattern ERROR_TESTCASE = Pattern.compile("(.*): error: -\\[(\\S+) (\\S+)\\] : (.*)");
@@ -213,7 +213,7 @@ public class XCodeBuildOutputParser {
             return;
         }
 
-        if(line.matches("BUILD FAILED")) {
+        if(line.matches("BUILD FAILED") || line.matches("\\*\\* TEST FAILED \\*\\*")) {
             exitCode = -1;
         }
     }

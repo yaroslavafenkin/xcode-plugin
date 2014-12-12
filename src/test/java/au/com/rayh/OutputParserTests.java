@@ -71,6 +71,22 @@ class OutputParserTests {
         assertEquals(0, parser.exitCode);
     }
 
+	void shouldParseStartTestSuiteXC() throws Exception {
+        String line = "Test Suite 'All tests' started at 2014-12-12 05:12:52 +0000";
+        parser.handleLine(line);
+        assertNotNull(parser.currentTestSuite);
+        assertEquals("All tests", parser.currentTestSuite.getName());
+        assertEquals(new Date(Date.UTC(114, 11, 12, 05, 12, 52)), parser.currentTestSuite.getStartTime());
+    }
+
+	void shouldParseEndTestSuiteXC() throws Exception {
+        parser.currentTestSuite = new TestSuite("host", "All tests", new Date());
+        String line = "Test Suite 'All tests' passed at 2014-12-12 05:12:52 +0000.";
+        parser.handleLine(line);
+        assertNull(parser.currentTestSuite);
+        assertEquals(0, parser.exitCode);
+    }
+
 	void shouldParseStartTestCase() throws Exception {
         parser.currentTestSuite = new TestSuite("host", "PisClientTestCase", new Date());
         String line = "Test Case '-[PisClientTestCase testThatFails]' started.";

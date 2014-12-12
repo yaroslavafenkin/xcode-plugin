@@ -1,0 +1,46 @@
+Test Suite 'All tests' started at 2014-12-12 05:02:01 +0000
+Test Suite 'UnitTestsCardExampleTests.xctest' started at 2014-12-12 05:02:01 +0000
+Test Suite 'CardTestCase' started at 2014-12-12 05:02:01 +0000
+Test Case '-[CardTestCase testDoesNotMatchDifferentCard]' started.
+Test Case '-[CardTestCase testDoesNotMatchDifferentCard]' passed (0.000 seconds).
+Test Case '-[CardTestCase testMatchesDifferentCardWithSameContents]' started.
+Test Case '-[CardTestCase testMatchesDifferentCardWithSameContents]' passed (0.000 seconds).
+Test Case '-[CardTestCase testMatchesForAtLeastOneCard]' started.
+Test Case '-[CardTestCase testMatchesForAtLeastOneCard]' passed (0.000 seconds).
+Test Suite 'CardTestCase' passed at 2014-12-12 05:02:01 +0000.
+	 Executed 3 tests, with 0 failures (0 unexpected) in 0.001 (0.003) seconds
+Test Suite 'DeckTestCase' started at 2014-12-12 05:02:01 +0000
+Test Case '-[DeckTestCase testDeckWithMultipleCardsWillRandomlyDrawThemAll]' started.
+Test Case '-[DeckTestCase testDeckWithMultipleCardsWillRandomlyDrawThemAll]' passed (0.001 seconds).
+Test Case '-[DeckTestCase testDrawCardFromEmptyDeckAnswersNoCard]' started.
+Test Case '-[DeckTestCase testDrawCardFromEmptyDeckAnswersNoCard]' passed (0.000 seconds).
+Test Case '-[DeckTestCase testDrawnRandomCardsAreDifferent]' started.
+Test Case '-[DeckTestCase testDrawnRandomCardsAreDifferent]' passed (0.000 seconds).
+Test Case '-[DeckTestCase testOneCardDeckShouldAnswerThatCard]' started.
+Test Case '-[DeckTestCase testOneCardDeckShouldAnswerThatCard]' passed (0.000 seconds).
+Test Suite 'DeckTestCase' passed at 2014-12-12 05:02:01 +0000.
+	 Executed 4 tests, with 0 failures (0 unexpected) in 0.002 (0.013) seconds
+Test Suite 'PlayingCardDeckTestCase' started at 2014-12-12 05:02:01 +0000
+Test Case '-[PlayingCardDeckTestCase testPlayingCardDeckAnswersPlayingCards]' started.
+Test Case '-[PlayingCardDeckTestCase testPlayingCardDeckAnswersPlayingCards]' passed (0.001 seconds).
+Test Case '-[PlayingCardDeckTestCase testPlayingCardDeckHasTheCorrectInitialCards]' started.
+Test Case '-[PlayingCardDeckTestCase testPlayingCardDeckHasTheCorrectInitialCards]' passed (0.001 seconds).
+Test Suite 'PlayingCardDeckTestCase' passed at 2014-12-12 05:02:01 +0000.
+	 Executed 2 tests, with 0 failures (0 unexpected) in 0.001 (0.002) seconds
+Test Suite 'PlayingCardTestCase' started at 2014-12-12 05:02:01 +0000
+Test Case '-[PlayingCardTestCase testSetSuitAnyValidAccepted]' started.
+Test Case '-[PlayingCardTestCase testSetSuitAnyValidAccepted]' passed (0.000 seconds).
+Test Case '-[PlayingCardTestCase testSetSuitInvalidRejected]' started.
+Test Case '-[PlayingCardTestCase testSetSuitInvalidRejected]' passed (0.000 seconds).
+Test Case '-[PlayingCardTestCase testTheValidSuits]' started.
+/Users/lacostej/Code/Jenkins/xcode-plugin/examples/UnitTestsCardExample/UnitTestsCardExampleTests/PlayingCardTestCase.m:34: error: -[PlayingCardTestCase testTheValidSuits] : ((howMany) equal to (3)) failed: ("4") is not equal to ("3") - Should be only 4
+Test Case '-[PlayingCardTestCase testTheValidSuits]' failed (0.001 seconds).
+Test Suite 'PlayingCardTestCase' failed at 2014-12-12 05:02:01 +0000.
+	 Executed 3 tests, with 1 failure (0 unexpected) in 0.002 (0.003) seconds
+Test Suite 'UnitTestsCardExampleTests.xctest' failed at 2014-12-12 05:02:01 +0000.
+	 Executed 12 tests, with 1 failure (0 unexpected) in 0.006 (0.024) seconds
+Test Suite 'All tests' failed at 2014-12-12 05:02:01 +0000.
+	 Executed 12 tests, with 1 failure (0 unexpected) in 0.006 (0.026) seconds
+Failing tests:
+	-[PlayingCardTestCase testTheValidSuits]
+** TEST FAILED **
