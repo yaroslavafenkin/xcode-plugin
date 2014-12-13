@@ -669,6 +669,10 @@ public class XCodeBuilder extends Builder {
                 payload.mkdirs();
 
                 listener.getLogger().println("Packaging " + app.getBaseName() + ".app => " + ipaLocation.absolutize().getRemote());
+                if (buildPlatform.contains("simulator")) {
+                    listener.getLogger().println(Messages.XCodeBuilder_warningPackagingIPAForSimulatorSDK(sdk));
+                }
+
                 List<String> packageCommandLine = new ArrayList<String>();
                 packageCommandLine.add(getGlobalConfiguration().getXcrunPath());
                 packageCommandLine.add("-sdk");
