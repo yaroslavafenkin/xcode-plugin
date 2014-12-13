@@ -175,7 +175,8 @@
 		        <f:textbox/>
 		    </f:entry>
 		
-		    <f:entry title="${%Custom xcodebuild arguments}" field="xcodebuildArguments">
+		    <f:entry title="${%Custom xcodebuild arguments}" field="xcodebuildArguments"
+		    	description="Additional xcodebuild arguments">
 		        <f:textbox name="xcode.xcodebuildArguments" value="${instance.xcodebuildArguments}" default=""/>
 		    </f:entry>
 		
