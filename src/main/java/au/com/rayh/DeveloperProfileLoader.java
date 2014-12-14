@@ -84,6 +84,14 @@ public class DeveloperProfileLoader extends Builder {
             invoke(launcher, listener, args, "Failed to import identity "+id);
         }
 
+        {
+            // display keychain info for potential troubleshooting
+            args = new ArgumentListBuilder("security","show-keychain-info");
+            args.add(keyChain);
+            ByteArrayOutputStream output = invoke(launcher, listener, args, "Failed to show keychain info");
+            listener.getLogger().write(output.toByteArray());
+        }
+
         // copy provisioning profiles
         VirtualChannel ch = build.getBuiltOn().getChannel();
         FilePath home = ch.call(new GetHomeDirectory());    // TODO: switch to FilePath.getHomeDirectory(ch) when we can
@@ -98,12 +106,13 @@ public class DeveloperProfileLoader extends Builder {
         return true;
     }
 
-    private void invoke(Launcher launcher, BuildListener listener, ArgumentListBuilder args, String errorMessage) throws IOException, InterruptedException {
+    private ByteArrayOutputStream invoke(Launcher launcher, BuildListener listener, ArgumentListBuilder args, String errorMessage) throws IOException, InterruptedException {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         if (launcher.launch().cmds(args).stdout(output).join()!=0) {
             listener.getLogger().write(output.toByteArray());
             throw new AbortException(errorMessage);
         }
+        return output;
     }
 
     private FilePath getSecretDir(AbstractBuild<?, ?> build, String keychainPass) throws IOException, InterruptedException {
