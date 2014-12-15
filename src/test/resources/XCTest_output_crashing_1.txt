@@ -1,0 +1,95 @@
+=== BUILD TARGET Pods-MatrixSDK-Mantle OF PROJECT Pods WITH CONFIGURATION Debug ===
+
+Check dependencies
+
+=== BUILD TARGET Pods-MatrixSDK-AFNetworking OF PROJECT Pods WITH CONFIGURATION Debug ===
+Check dependencies
+
+=== BUILD TARGET Pods-MatrixSDK OF PROJECT Pods WITH CONFIGURATION Debug ===
+
+Check dependencies
+
+=== BUILD TARGET MatrixSDK OF PROJECT MatrixSDK WITH CONFIGURATION Debug ===
+
+Check dependencies
+
+PhaseScriptExecution Check\ Pods\ Manifest.lock /Users/davidjb/Library/Developer/Xcode/DerivedData/MatrixSDK-fxluueiwaovpfwffbxfypleqfrnl/Build/Intermediates/MatrixSDK.build/Debug-iphonesimulator/MatrixSDK.build/Script-977E3F228F61BF8765F90684.sh
+    cd /Users/davidjb/matrix/matrix-ios-sdk/sdk
+    /bin/sh -c /Users/davidjb/Library/Developer/Xcode/DerivedData/MatrixSDK-fxluueiwaovpfwffbxfypleqfrnl/Build/Intermediates/MatrixSDK.build/Debug-iphonesimulator/MatrixSDK.build/Script-977E3F228F61BF8765F90684.sh
+
+PhaseScriptExecution Copy\ Pods\ Resources /Users/davidjb/Library/Developer/Xcode/DerivedData/MatrixSDK-fxluueiwaovpfwffbxfypleqfrnl/Build/Intermediates/MatrixSDK.build/Debug-iphonesimulator/MatrixSDK.build/Script-FDD4B60A568A908CBDAC1A26.sh
+    cd /Users/davidjb/matrix/matrix-ios-sdk/sdk
+    /bin/sh -c /Users/davidjb/Library/Developer/Xcode/DerivedData/MatrixSDK-fxluueiwaovpfwffbxfypleqfrnl/Build/Intermediates/MatrixSDK.build/Debug-iphonesimulator/MatrixSDK.build/Script-FDD4B60A568A908CBDAC1A26.sh
+building file list ... done
+
+sent 29 bytes  received 20 bytes  98.00 bytes/sec
+total size is 0  speedup is 0.00
+
+=== BUILD TARGET MatrixSDKTests OF PROJECT MatrixSDK WITH CONFIGURATION Debug ===
+
+Check dependencies
+
+Test Suite 'All tests' started at 2014-12-15 17:55:06 +0000
+Test Suite 'MatrixSDKTests.xctest' started at 2014-12-15 17:55:06 +0000
+Test Suite 'MXErrorTests' started at 2014-12-15 17:55:06 +0000
+Test Case '-[MXErrorTests testInit]' started.
+Test Case '-[MXErrorTests testInit]' passed (0.031 seconds).
+Test Case '-[MXErrorTests testNonMatrixNSError]' started.
+Test Case '-[MXErrorTests testNonMatrixNSError]' passed (0.000 seconds).
+Test Case '-[MXErrorTests testNSError]' started.
+Test Case '-[MXErrorTests testNSError]' passed (0.000 seconds).
+Test Suite 'MXErrorTests' passed at 2014-12-15 17:55:06 +0000.
+	 Executed 3 tests, with 0 failures (0 unexpected) in 0.032 (0.033) seconds
+Test Suite 'MXEventTests' started at 2014-12-15 17:55:06 +0000
+Test Case '-[MXEventTests testIsState]' started.
+2014-12-15 17:55:06.800 xctest[2422:5067215] Request failed for path: register - HTTP code: 0
+2014-12-15 17:55:06.800 xctest[2422:5067215] *** Assertion failure in -[MatrixSDKTestsData getBobCredentials:], /Users/davidjb/matrix/matrix-ios-sdk/sdk/MatrixSDKTests/MatrixSDKTestsData.m:109
+2014-12-15 17:55:06.810 xctest[2422:5067215] *** Terminating app due to uncaught exception 'NSInternalInconsistencyException', reason: 'Cannot create mxBOB account'
+*** First throw call stack:
+(
+	0   CoreFoundation                      0x00883946 __exceptionPreprocess + 182
+	1   libobjc.A.dylib                     0x0050ca97 objc_exception_throw + 44
+	2   CoreFoundation                      0x008837da +[NSException raise:format:arguments:] + 138
+	3   Foundation                          0x00180810 -[NSAssertionHandler handleFailureInMethod:object:file:lineNumber:description:] + 118
+	4   MatrixSDKTests                      0x0357de1c __40-[MatrixSDKTestsData getBobCredentials:]_block_invoke19 + 892
+	5   MatrixSDK                           0x0376d974 __73-[MXRestClient registerOrLoginWithUser:user:andPassword:success:failure:]_block_invoke57 + 84
+	6   MatrixSDK                           0x0375f51e __87-[MXHTTPClient requestWithMethod:path:parameters:data:headers:timeout:success:failure:]_block_invoke68 + 862
+	7   MatrixSDK                           0x037798b1 __64-[AFHTTPRequestOperation setCompletionBlockWithSuccess:failure:]_block_invoke_3 + 97
+	8   libdispatch.dylib                   0x019bfa2a _dispatch_call_block_and_release + 15
+	9   libdispatch.dylib                   0x019dc03f _dispatch_client_callout + 14
+	10  libdispatch.dylib                   0x019c5764 _dispatch_main_queue_callback_4CF + 470
+	11  CoreFoundation                      0x007dd95e __CFRUNLOOP_IS_SERVICING_THE_MAIN_DISPATCH_QUEUE__ + 14
+	12  CoreFoundation                      0x0079c760 __CFRunLoopRun + 2256
+	13  CoreFoundation                      0x0079bbcb CFRunLoopRunSpecific + 443
+	14  CoreFoundation                      0x0079b9fb CFRunLoopRunInMode + 123
+	15  Foundation                          0x00113d98 -[NSRunLoop(NSRunLoop) runMode:beforeDate:] + 309
+	16  XCTest                              0x20119a31 -[XCTestCase(AsynchronousTesting) waitForExpectationsWithTimeout:handler:] + 1192
+	17  MatrixSDKTests                      0x0357e70b -[MatrixSDKTestsData doMXRestClientTestWithBob:readyToTest:] + 427
+	18  MatrixSDKTests                      0x0357ed85 -[MatrixSDKTestsData doMXRestClientTestWithBobAndARoom:readyToTest:] + 245
+	19  MatrixSDKTests                      0x03581e7f -[MatrixSDKTestsData doMXRestClientTestWithBobAndARoomWithMessages:readyToTest:] + 239
+	20  MatrixSDKTests                      0x035e2c83 -[MXEventTests testIsState] + 179
+	21  CoreFoundation                      0x0076676d __invoking___ + 29
+	22  CoreFoundation                      0x00766618 -[NSInvocation invoke] + 360
+	23  XCTest                              0x2010897b -[XCTestCase invokeTest] + 320
+	24  XCTest                              0x20108bb9 -[XCTestCase performTest:] + 184
+	25  XCTest                              0x20114162 -[XCTest run] + 314
+	26  XCTest                              0x20107598 -[XCTestSuite performTest:] + 406
+	27  XCTest                              0x20114162 -[XCTest run] + 314
+	28  XCTest                              0x20107598 -[XCTestSuite performTest:] + 406
+	29  XCTest                              0x20114162 -[XCTest run] + 314
+	30  XCTest                              0x20107598 -[XCTestSuite performTest:] + 406
+	31  XCTest                              0x20114162 -[XCTest run] + 314
+	32  XCTest                              0x20103de2 __25-[XCTestDriver _runSuite]_block_invoke + 61
+	33  XCTest                              0x20110c82 -[XCTestObservationCenter _observeTestExecutionForBlock:] + 184
+	34  XCTest                              0x20103d06 -[XCTestDriver _runSuite] + 285
+	35  XCTest                              0x20104951 -[XCTestDriver _checkForTestManager] + 272
+	36  XCTest                              0x20104c6b -[XCTestDriver runTestSuite:completionHandler:] + 378
+	37  XCTest                              0x2011775c +[XCTestProbe runTests:] + 216
+	38  libobjc.A.dylib                     0x0052267e +[NSObject performSelector:withObject:] + 70
+	39  xctest                              0x00046237 xctest + 4663
+	40  xctest                              0x000464ac xctest + 5292
+	41  xctest                              0x0004658f xctest + 5519
+	42  xctest                              0x00045e3d xctest + 3645
+	43  libdyld.dylib                       0x01a02ac9 start + 1
+)
+libc++abi.dylib: terminating with uncaught exception of type NSException

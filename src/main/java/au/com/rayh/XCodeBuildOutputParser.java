@@ -61,6 +61,7 @@ public class XCodeBuildOutputParser {
     private static Pattern ERROR_TESTCASE = Pattern.compile("(.*): error: -\\[(\\S+) (\\S+)\\] : (.*)");
     private static Pattern FAILED_TESTCASE = Pattern.compile("Test Case '-\\[\\S+ (\\S+)\\]' failed \\((\\S+) seconds\\).");
     private static Pattern FAILED_WITH_EXIT_CODE = Pattern.compile("failed with exit code (\\d+)");
+    private static Pattern TERMINATING_EXCEPTION = Pattern.compile(".*\\*\\*\\* Terminating app due to uncaught exception.*");
     private File testReportsDir;
     protected OutputStream captureOutputStream;
     protected int exitCode;
@@ -215,6 +216,24 @@ public class XCodeBuildOutputParser {
 
         if(line.matches("BUILD FAILED") || line.matches("\\*\\* TEST FAILED \\*\\*")) {
             exitCode = -1;
+        }
+        
+        m = TERMINATING_EXCEPTION.matcher(line);
+        if(m.matches()) {
+            exitCode = -1;
+            
+            requireTestSuite();
+            if (currentTestCase != null) {
+                TestFailure failure = new TestFailure(line, "unknown");
+                currentTestCase.getFailures().add(failure);
+                
+                currentTestSuite.getTestCases().add(currentTestCase);
+                currentTestSuite.addTest();
+                
+                currentTestCase = null;
+            }
+            writeTestReport();
+            currentTestSuite = null;
         }
     }
 
