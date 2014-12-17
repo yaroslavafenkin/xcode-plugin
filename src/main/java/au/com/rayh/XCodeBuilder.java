@@ -47,6 +47,7 @@ import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.ObjectStreamException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -165,7 +166,7 @@ public class XCodeBuilder extends Builder {
     /**
      * @since 1.4
      */
-    public final Boolean provideApplicationVersion;
+    public Boolean provideApplicationVersion;
     /**
      * @since 1.4
      */
@@ -225,6 +226,17 @@ public class XCodeBuilder extends Builder {
         this.bundleIDInfoPlistPath = bundleIDInfoPlistPath;
         this.interpretTargetAsRegEx = interpretTargetAsRegEx;
         this.ipaManifestPlistUrl = ipaManifestPlistUrl;
+    }
+
+    @SuppressWarnings("unused")
+    private Object readResolve() throws ObjectStreamException {
+        if (provideApplicationVersion == null) {
+            if (!StringUtils.isEmpty(cfBundleVersionValue) 
+                || !StringUtils.isEmpty(cfBundleShortVersionStringValue)) {
+                provideApplicationVersion = true;
+            }
+        }
+        return this;
     }
 
     @Override
@@ -594,7 +606,7 @@ public class XCodeBuilder extends Builder {
 
         listener.getLogger().println(xcodeReport.toString());
         returnCode = launcher.launch().envs(envs).cmds(commandLine).stdout(reportGenerator.getOutputStream()).pwd(projectRoot).join();
-        if (allowFailingBuildResults != null && allowFailingBuildResults.booleanValue() == false) {
+        if (allowFailingBuildResults != null && !allowFailingBuildResults) {
             if (reportGenerator.getExitCode() != 0) return false;
             if (returnCode > 0) return false;
         }
@@ -666,8 +678,7 @@ public class XCodeBuilder extends Builder {
                		return false;
                	}
 
-                File file = new File(app.absolutize().getRemote());
-                String lastModified = new SimpleDateFormat("yyyy.MM.dd").format(new Date(file.lastModified()));
+                String lastModified = new SimpleDateFormat("yyyy.MM.dd").format(new Date(app.lastModified()));
 
                 String baseName = app.getBaseName().replaceAll(" ", "_") + (shortVersion.isEmpty() ? "" : "-" + shortVersion) + (version.isEmpty() ? "" : "-" + version);
                 // If custom .ipa name pattern has been provided, use it and expand version and build date variables
@@ -689,6 +700,10 @@ public class XCodeBuilder extends Builder {
                 payload.mkdirs();
 
                 listener.getLogger().println("Packaging " + app.getBaseName() + ".app => " + ipaLocation.absolutize().getRemote());
+                if (buildPlatform.contains("simulator")) {
+                    listener.getLogger().println(Messages.XCodeBuilder_warningPackagingIPAForSimulatorSDK(sdk));
+                }
+
                 List<String> packageCommandLine = new ArrayList<String>();
                 packageCommandLine.add(getGlobalConfiguration().getXcrunPath());
                 packageCommandLine.add("-sdk");
@@ -711,14 +726,17 @@ public class XCodeBuilder extends Builder {
                 returnCode = launcher.launch().envs(envs).stdout(listener).pwd(projectRoot).cmds(packageCommandLine).join();
                 if (returnCode > 0) {
                     listener.getLogger().println("Failed to build " + ipaLocation.absolutize().getRemote());
-                    continue;
+                    return false;
                 }
 
                 // also zip up the symbols, if present
-                returnCode = launcher.launch().envs(envs).stdout(listener).pwd(buildDirectory).cmds("ditto", "-c", "-k", "--keepParent", "-rsrc", app.absolutize().getRemote() + ".dSYM", ipaOutputPath.child(baseName + "-dSYM.zip").absolutize().getRemote()).join();
-                if (returnCode > 0) {
-                    listener.getLogger().println(Messages.XCodeBuilder_zipFailed(baseName));
-                    continue;
+                FilePath dSYM = app.withSuffix(".dSYM");
+                if (dSYM.exists()) {
+                    returnCode = launcher.launch().envs(envs).stdout(listener).pwd(buildDirectory).cmds("ditto", "-c", "-k", "--keepParent", "-rsrc", dSYM.absolutize().getRemote(), ipaOutputPath.child(baseName + "-dSYM.zip").absolutize().getRemote()).join();
+                    if (returnCode > 0) {
+                        listener.getLogger().println(Messages.XCodeBuilder_zipFailed(baseName));
+                        return false;
+                    }
                 }
 
                 if(!StringUtils.isEmpty(ipaManifestPlistUrl)) {

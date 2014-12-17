@@ -48,6 +48,7 @@ public class DeveloperProfileLoader extends Builder {
         if (dp==null)
             throw new AbortException("No Apple developer profile is configured");
 
+        // Note: keychain are usualy suffixed with .keychain. If we change we should probably clean up the ones we created
         String keyChain = "jenkins-"+build.getProject().getFullName().replace('/', '-');
         String keychainPass = UUID.randomUUID().toString();
 
@@ -55,16 +56,8 @@ public class DeveloperProfileLoader extends Builder {
 
         {// if the key chain is already present, delete it and start fresh
             ByteArrayOutputStream out = new ByteArrayOutputStream();
-            args = new ArgumentListBuilder("security","list-keychains");
-            if (launcher.launch().cmds(args).stdout(out).join()!=0) {
-                listener.getLogger().write(out.toByteArray());
-                throw new AbortException("Failed to list keychains");
-            }
-
-            if (out.toString().contains("/"+keyChain+"\"")) {  // TODO: encoding
-                args = new ArgumentListBuilder("security","delete-keychain",keyChain);
-                invoke(launcher, listener, args, "Failed to delete the keychain");
-            }
+            args = new ArgumentListBuilder("security","delete-keychain", keyChain);
+            launcher.launch().cmds(args).stdout(out).join();
         }
 
 
@@ -91,6 +84,14 @@ public class DeveloperProfileLoader extends Builder {
             invoke(launcher, listener, args, "Failed to import identity "+id);
         }
 
+        {
+            // display keychain info for potential troubleshooting
+            args = new ArgumentListBuilder("security","show-keychain-info");
+            args.add(keyChain);
+            ByteArrayOutputStream output = invoke(launcher, listener, args, "Failed to show keychain info");
+            listener.getLogger().write(output.toByteArray());
+        }
+
         // copy provisioning profiles
         VirtualChannel ch = build.getBuiltOn().getChannel();
         FilePath home = ch.call(new GetHomeDirectory());    // TODO: switch to FilePath.getHomeDirectory(ch) when we can
@@ -105,12 +106,13 @@ public class DeveloperProfileLoader extends Builder {
         return true;
     }
 
-    private void invoke(Launcher launcher, BuildListener listener, ArgumentListBuilder args, String errorMessage) throws IOException, InterruptedException {
+    private ByteArrayOutputStream invoke(Launcher launcher, BuildListener listener, ArgumentListBuilder args, String errorMessage) throws IOException, InterruptedException {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         if (launcher.launch().cmds(args).stdout(output).join()!=0) {
             listener.getLogger().write(output.toByteArray());
             throw new AbortException(errorMessage);
         }
+        return output;
     }
 
     private FilePath getSecretDir(AbstractBuild<?, ?> build, String keychainPass) throws IOException, InterruptedException {

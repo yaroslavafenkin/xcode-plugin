@@ -1,0 +1,44 @@
+Test Suite 'All tests' started at 2014-12-12 04:48:53 +0000
+Test Suite 'UnitTestsCardExampleTests.xctest' started at 2014-12-12 04:48:53 +0000
+Test Suite 'CardTestCase' started at 2014-12-12 04:48:53 +0000
+Test Case '-[CardTestCase testDoesNotMatchDifferentCard]' started.
+Test Case '-[CardTestCase testDoesNotMatchDifferentCard]' passed (0.000 seconds).
+Test Case '-[CardTestCase testMatchesDifferentCardWithSameContents]' started.
+Test Case '-[CardTestCase testMatchesDifferentCardWithSameContents]' passed (0.000 seconds).
+Test Case '-[CardTestCase testMatchesForAtLeastOneCard]' started.
+Test Case '-[CardTestCase testMatchesForAtLeastOneCard]' passed (0.000 seconds).
+Test Suite 'CardTestCase' passed at 2014-12-12 04:48:53 +0000.
+	 Executed 3 tests, with 0 failures (0 unexpected) in 0.001 (0.002) seconds
+Test Suite 'DeckTestCase' started at 2014-12-12 04:48:53 +0000
+Test Case '-[DeckTestCase testDeckWithMultipleCardsWillRandomlyDrawThemAll]' started.
+Test Case '-[DeckTestCase testDeckWithMultipleCardsWillRandomlyDrawThemAll]' passed (0.001 seconds).
+Test Case '-[DeckTestCase testDrawCardFromEmptyDeckAnswersNoCard]' started.
+Test Case '-[DeckTestCase testDrawCardFromEmptyDeckAnswersNoCard]' passed (0.000 seconds).
+Test Case '-[DeckTestCase testDrawnRandomCardsAreDifferent]' started.
+Test Case '-[DeckTestCase testDrawnRandomCardsAreDifferent]' passed (0.000 seconds).
+Test Case '-[DeckTestCase testOneCardDeckShouldAnswerThatCard]' started.
+Test Case '-[DeckTestCase testOneCardDeckShouldAnswerThatCard]' passed (0.000 seconds).
+Test Suite 'DeckTestCase' passed at 2014-12-12 04:48:53 +0000.
+	 Executed 4 tests, with 0 failures (0 unexpected) in 0.001 (0.003) seconds
+Test Suite 'PlayingCardDeckTestCase' started at 2014-12-12 04:48:53 +0000
+Test Case '-[PlayingCardDeckTestCase testPlayingCardDeckAnswersPlayingCards]' started.
+Test Case '-[PlayingCardDeckTestCase testPlayingCardDeckAnswersPlayingCards]' passed (0.001 seconds).
+Test Case '-[PlayingCardDeckTestCase testPlayingCardDeckHasTheCorrectInitialCards]' started.
+Test Case '-[PlayingCardDeckTestCase testPlayingCardDeckHasTheCorrectInitialCards]' passed (0.001 seconds).
+Test Suite 'PlayingCardDeckTestCase' passed at 2014-12-12 04:48:53 +0000.
+	 Executed 2 tests, with 0 failures (0 unexpected) in 0.001 (0.002) seconds
+Test Suite 'PlayingCardTestCase' started at 2014-12-12 04:48:53 +0000
+Test Case '-[PlayingCardTestCase testSetSuitAnyValidAccepted]' started.
+Test Case '-[PlayingCardTestCase testSetSuitAnyValidAccepted]' passed (0.000 seconds).
+Test Case '-[PlayingCardTestCase testSetSuitInvalidRejected]' started.
+Test Case '-[PlayingCardTestCase testSetSuitInvalidRejected]' passed (0.000 seconds).
+Test Case '-[PlayingCardTestCase testTheValidSuits]' started.
+Test Case '-[PlayingCardTestCase testTheValidSuits]' passed (0.000 seconds).
+Test Suite 'PlayingCardTestCase' passed at 2014-12-12 04:48:53 +0000.
+	 Executed 3 tests, with 0 failures (0 unexpected) in 0.001 (0.002) seconds
+Test Suite 'UnitTestsCardExampleTests.xctest' passed at 2014-12-12 04:48:53 +0000.
+	 Executed 12 tests, with 0 failures (0 unexpected) in 0.004 (0.015) seconds
+Test Suite 'All tests' passed at 2014-12-12 04:48:53 +0000.
+	 Executed 12 tests, with 0 failures (0 unexpected) in 0.004 (0.017) seconds
+** TEST SUCCEEDED **
+
