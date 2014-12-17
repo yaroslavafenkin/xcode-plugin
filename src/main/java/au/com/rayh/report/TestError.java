@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright (c) 2011 Ray Yamamoto Hilton
+ * Copyright (c) 2014 David Baker
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,57 +24,33 @@
 
 package au.com.rayh.report;
 
-import java.util.ArrayList;
-import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
-@XmlType(name="testcase")
+@XmlType(name="error")
 @XmlAccessorType(XmlAccessType.NONE)
-public class TestCase {
+public class TestError {
     @XmlAttribute
-    String classname;
-    
-    @XmlAttribute
-    String name;
+    String message;
     
     @XmlAttribute
-    float time;
-    
-    @XmlElement(name="failure")
-    List<TestFailure> failures = new ArrayList<TestFailure>();
-    
-    @XmlElement(name="error")
-    List<TestError> errors = new ArrayList<TestError>();
+    String type;
 
-    public TestCase() {
+    public TestError() {
     }
 
-    public TestCase(String classname, String name) {
-        this.classname = classname;
-        this.name = name;
+    public TestError(String message, String type) {
+        this.message = message;
+        this.type = type;
     }
 
-    public String getName() {
-        return name;
+    public String getMessage() {
+        return message;
     }
 
-    public void setTime(float time) {
-        this.time = time;
-    }
-
-    public float getTime() {
-        return time;
-    }
-
-    public List<TestFailure> getFailures() {
-        return failures;
-    }
-    
-    public List<TestError> getErrors() {
-        return errors;
+    public String getType() {
+        return type;
     }
 }

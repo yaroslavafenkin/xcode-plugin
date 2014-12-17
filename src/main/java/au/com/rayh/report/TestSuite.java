@@ -41,6 +41,9 @@ public class TestSuite {
     int failures;
     
     @XmlAttribute
+    int errors;
+    
+    @XmlAttribute
     String hostname;
     
     @XmlAttribute
@@ -73,6 +76,10 @@ public class TestSuite {
     public int getFailures() {
         return failures;
     }
+    
+    public int getErrors() {
+        return errors;
+    }
 
     public int getTests() {
         return tests;
@@ -80,6 +87,10 @@ public class TestSuite {
 
     public void addFailure() {
         failures+=1;
+    }
+    
+    public void addError() {
+        errors+=1;
     }
 
     public void addTest() {
