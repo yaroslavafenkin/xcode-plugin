@@ -46,6 +46,9 @@ public class TestCase {
     
     @XmlElement(name="failure")
     List<TestFailure> failures = new ArrayList<TestFailure>();
+    
+    @XmlElement(name="error")
+    List<TestError> errors = new ArrayList<TestError>();
 
     public TestCase() {
     }
@@ -69,5 +72,9 @@ public class TestCase {
 
     public List<TestFailure> getFailures() {
         return failures;
+    }
+    
+    public List<TestError> getErrors() {
+        return errors;
     }
 }
