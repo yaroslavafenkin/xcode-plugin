@@ -116,7 +116,14 @@ public class XCodeBuildOutputParserTest {
         XCodeBuildOutputParser parser = parseTestOutput("/XCTest_output_failing_1.txt");
         assertEquals(-1, parser.getExitCode());
     }
-    
+
+    //@Issue("JENKINS-26295")
+    @Test
+    public void shouldParseFullXCFailingTestOutput2() throws IOException {
+        XCodeBuildOutputParser parser = parseTestOutput("/XCTest_output_failing_2.txt");
+        assertEquals(-1, parser.getExitCode());
+    }
+
     @Test
     public void shouldParseFullXCCrashingTestOutput1() throws IOException {
         XCodeBuildOutputParser parser = parseTestOutput("/XCTest_output_crashing_1.txt");

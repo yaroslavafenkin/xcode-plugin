@@ -115,7 +115,7 @@ public class XCodeBuildOutputParser {
 
     private void requireTestSuite(String name) {
         requireTestSuite();
-        if(!currentTestSuite.getName().equals(name)) {
+        if(name == null || !name.endsWith(currentTestSuite.getName())) {
             throw new RuntimeException("Log statements out of sync: current test suite was '" + currentTestSuite.getName() + "' and not '" + name + "'");
         }
     }

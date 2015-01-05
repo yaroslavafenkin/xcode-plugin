@@ -1,0 +1,514 @@
+Test Suite 'All tests' started at 2015-01-05 18:41:39 +0000
+Test Suite 'OMPlus-DemoTests.xctest' started at 2015-01-05 18:41:39 +0000
+Test Suite 'OMCOffsetRangeClosedOpenTests' started at 2015-01-05 18:41:39 +0000
+Test Case '-[OMPlus_DemoTests.OMCOffsetRangeClosedOpenTests testContainsClosedOpenShouldContainStart]' started.
+Test Case '-[OMPlus_DemoTests.OMCOffsetRangeClosedOpenTests testContainsClosedOpenShouldContainStart]' passed (0.008 seconds).
+Test Case '-[OMPlus_DemoTests.OMCOffsetRangeClosedOpenTests testContainsClosedOpenShouldNotContainEnd]' started.
+Test Case '-[OMPlus_DemoTests.OMCOffsetRangeClosedOpenTests testContainsClosedOpenShouldNotContainEnd]' passed (0.000 seconds).
+Test Case '-[OMPlus_DemoTests.OMCOffsetRangeClosedOpenTests testContainsClosedOpenShouldNotContainValueGreaterThanEnd]' started.
+Test Case '-[OMPlus_DemoTests.OMCOffsetRangeClosedOpenTests testContainsClosedOpenShouldNotContainValueGreaterThanEnd]' passed (0.000 seconds).
+Test Case '-[OMPlus_DemoTests.OMCOffsetRangeClosedOpenTests testContainsClosedOpenShouldNotContainValueLesserThanStart]' started.
+Test Case '-[OMPlus_DemoTests.OMCOffsetRangeClosedOpenTests testContainsClosedOpenShouldNotContainValueLesserThanStart]' passed (0.000 seconds).
+Test Case '-[OMPlus_DemoTests.OMCOffsetRangeClosedOpenTests testShouldContainRange]' started.
+Test Case '-[OMPlus_DemoTests.OMCOffsetRangeClosedOpenTests testShouldContainRange]' passed (0.000 seconds).
+Test Case '-[OMPlus_DemoTests.OMCOffsetRangeClosedOpenTests testShouldContainRangeEndingOnEnd]' started.
+Test Case '-[OMPlus_DemoTests.OMCOffsetRangeClosedOpenTests testShouldContainRangeEndingOnEnd]' passed (0.000 seconds).
+Test Case '-[OMPlus_DemoTests.OMCOffsetRangeClosedOpenTests testShouldIntersectOtherRangeContainingEnd]' started.
+Test Case '-[OMPlus_DemoTests.OMCOffsetRangeClosedOpenTests testShouldIntersectOtherRangeContainingEnd]' passed (0.000 seconds).
+Test Case '-[OMPlus_DemoTests.OMCOffsetRangeClosedOpenTests testShouldIntersectOtherRangeContainingEntireRange]' started.
+Test Case '-[OMPlus_DemoTests.OMCOffsetRangeClosedOpenTests testShouldIntersectOtherRangeContainingEntireRange]' passed (0.000 seconds).
+Test Case '-[OMPlus_DemoTests.OMCOffsetRangeClosedOpenTests testShouldIntersectOtherRangeContainingStart]' started.
+Test Case '-[OMPlus_DemoTests.OMCOffsetRangeClosedOpenTests testShouldIntersectOtherRangeContainingStart]' passed (0.000 seconds).
+Test Case '-[OMPlus_DemoTests.OMCOffsetRangeClosedOpenTests testShouldNotIntersectOtherRangeEndingOnStart]' started.
+Test Case '-[OMPlus_DemoTests.OMCOffsetRangeClosedOpenTests testShouldNotIntersectOtherRangeEndingOnStart]' passed (0.000 seconds).
+Test Case '-[OMPlus_DemoTests.OMCOffsetRangeClosedOpenTests testShouldNotIntersectOtherRangeStartingOnEnd]' started.
+Test Case '-[OMPlus_DemoTests.OMCOffsetRangeClosedOpenTests testShouldNotIntersectOtherRangeStartingOnEnd]' passed (0.002 seconds).
+Test Suite 'OMCOffsetRangeClosedOpenTests' passed at 2015-01-05 18:41:39 +0000.
+Executed 11 tests, with 0 failures (0 unexpected) in 0.012 (0.037) seconds
+Test Suite 'OMDPacketSpecificationTest' started at 2015-01-05 18:41:39 +0000
+Test Case '-[OMPlus_DemoTests.OMDPacketSpecificationTest testFindsMultipleIssues]' started.
+Test Case '-[OMPlus_DemoTests.OMDPacketSpecificationTest testFindsMultipleIssues]' passed (0.011 seconds).
+Test Suite 'OMDPacketSpecificationTest' passed at 2015-01-05 18:41:39 +0000.
+Executed 1 test, with 0 failures (0 unexpected) in 0.011 (0.012) seconds
+Test Suite 'OMSAccountRegistrationTests' started at 2015-01-05 18:41:39 +0000
+Test Case '-[OMPlus_DemoTests.OMSAccountRegistrationTests testShouldRegisterAnAccount]' started.
+Test Case '-[OMPlus_DemoTests.OMSAccountRegistrationTests testShouldRegisterAnAccount]' passed (0.065 seconds).
+Test Case '-[OMPlus_DemoTests.OMSAccountRegistrationTests testShouldUpdateExistingAccount]' started.
+Test Case '-[OMPlus_DemoTests.OMSAccountRegistrationTests testShouldUpdateExistingAccount]' passed (0.012 seconds).
+Test Suite 'OMSAccountRegistrationTests' passed at 2015-01-05 18:41:39 +0000.
+Executed 2 tests, with 0 failures (0 unexpected) in 0.077 (0.078) seconds
+Test Suite 'OMSCappedTimeSeriesTests' started at 2015-01-05 18:41:39 +0000
+Test Case '-[OMPlus_DemoTests.OMSCappedTimeSeriesTests testClearing]' started.
+Test Case '-[OMPlus_DemoTests.OMSCappedTimeSeriesTests testClearing]' passed (0.008 seconds).
+Test Suite 'OMSCappedTimeSeriesTests' passed at 2015-01-05 18:41:39 +0000.
+Executed 1 test, with 0 failures (0 unexpected) in 0.008 (0.011) seconds
+Test Suite 'OMSCoreEventPushingQueueStrategyTests' started at 2015-01-05 18:41:39 +0000
+Test Case '-[OMPlus_DemoTests.OMSCoreEventPushingQueueStrategyTests testRemainingCountShouldAddItemsFromTheThreeQueues]' started.
+Test Case '-[OMPlus_DemoTests.OMSCoreEventPushingQueueStrategyTests testRemainingCountShouldAddItemsFromTheThreeQueues]' passed (1.925 seconds).
+Test Case '-[OMPlus_DemoTests.OMSCoreEventPushingQueueStrategyTests testRemainingCountShouldCountSinceLastAcknowledgement]' started.
+Test Case '-[OMPlus_DemoTests.OMSCoreEventPushingQueueStrategyTests testRemainingCountShouldCountSinceLastAcknowledgement]' passed (0.628 seconds).
+Test Case '-[OMPlus_DemoTests.OMSCoreEventPushingQueueStrategyTests testShouldFetch6000BoxSyncEventsAnd1000BoxLiveEventsAnd500SdkEvents]' started.
+Test Case '-[OMPlus_DemoTests.OMSCoreEventPushingQueueStrategyTests testShouldFetch6000BoxSyncEventsAnd1000BoxLiveEventsAnd500SdkEvents]' passed (1.245 seconds).
+Test Case '-[OMPlus_DemoTests.OMSCoreEventPushingQueueStrategyTests testShouldFetch6000BoxSyncEventsAnd1500BoxLiveEvents]' started.
+Test Case '-[OMPlus_DemoTests.OMSCoreEventPushingQueueStrategyTests testShouldFetch6000BoxSyncEventsAnd1500BoxLiveEvents]' passed (2.141 seconds).
+Test Case '-[OMPlus_DemoTests.OMSCoreEventPushingQueueStrategyTests testShouldFetch7500BoxSyncEvents]' started.
+Test Case '-[OMPlus_DemoTests.OMSCoreEventPushingQueueStrategyTests testShouldFetch7500BoxSyncEvents]' passed (2.637 seconds).
+Test Case '-[OMPlus_DemoTests.OMSCoreEventPushingQueueStrategyTests testShouldFetchFromLastAcknowledgement]' started.
+Test Case '-[OMPlus_DemoTests.OMSCoreEventPushingQueueStrategyTests testShouldFetchFromLastAcknowledgement]' passed (0.819 seconds).
+Test Suite 'OMSCoreEventPushingQueueStrategyTests' passed at 2015-01-05 18:41:48 +0000.
+Executed 6 tests, with 0 failures (0 unexpected) in 9.395 (9.398) seconds
+Test Suite 'OMSCredentialRegistrationTests' started at 2015-01-05 18:41:48 +0000
+Test Case '-[OMPlus_DemoTests.OMSCredentialRegistrationTests testShouldNotRegisterMultipleCredentials]' started.
+Test Case '-[OMPlus_DemoTests.OMSCredentialRegistrationTests testShouldNotRegisterMultipleCredentials]' passed (0.023 seconds).
+Test Case '-[OMPlus_DemoTests.OMSCredentialRegistrationTests testShouldRegisterCredentials]' started.
+Test Case '-[OMPlus_DemoTests.OMSCredentialRegistrationTests testShouldRegisterCredentials]' passed (0.010 seconds).
+Test Case '-[OMPlus_DemoTests.OMSCredentialRegistrationTests testShouldUpdatePassword]' started.
+Test Case '-[OMPlus_DemoTests.OMSCredentialRegistrationTests testShouldUpdatePassword]' passed (0.014 seconds).
+Test Suite 'OMSCredentialRegistrationTests' passed at 2015-01-05 18:41:49 +0000.
+Executed 3 tests, with 0 failures (0 unexpected) in 0.047 (0.048) seconds
+Test Suite 'OMSDailyReportStoreTests' started at 2015-01-05 18:41:49 +0000
+Test Case '-[OMPlus_DemoTests.OMSDailyReportStoreTests testShouldFindAllOrderedByDay]' started.
+Test Case '-[OMPlus_DemoTests.OMSDailyReportStoreTests testShouldFindAllOrderedByDay]' passed (0.019 seconds).
+Test Case '-[OMPlus_DemoTests.OMSDailyReportStoreTests testShouldRetrieveLatestLifestyleReport]' started.
+Test Case '-[OMPlus_DemoTests.OMSDailyReportStoreTests testShouldRetrieveLatestLifestyleReport]' passed (0.024 seconds).
+Test Case '-[OMPlus_DemoTests.OMSDailyReportStoreTests testShouldRetrieveLifestyleReportByDay]' started.
+Test Case '-[OMPlus_DemoTests.OMSDailyReportStoreTests testShouldRetrieveLifestyleReportByDay]' passed (0.016 seconds).
+Test Case '-[OMPlus_DemoTests.OMSDailyReportStoreTests testShouldRetrieveLifestyleReportsWithinTimeRange]' started.
+Test Case '-[OMPlus_DemoTests.OMSDailyReportStoreTests testShouldRetrieveLifestyleReportsWithinTimeRange]' passed (0.022 seconds).
+Test Case '-[OMPlus_DemoTests.OMSDailyReportStoreTests testShouldStoreLifestyleReport]' started.
+Test Case '-[OMPlus_DemoTests.OMSDailyReportStoreTests testShouldStoreLifestyleReport]' passed (0.016 seconds).
+Test Suite 'OMSDailyReportStoreTests' passed at 2015-01-05 18:41:49 +0000.
+Executed 5 tests, with 0 failures (0 unexpected) in 0.097 (0.099) seconds
+Test Suite 'OMSDoublePrimitiveTests' started at 2015-01-05 18:41:49 +0000
+Test Case '-[OMPlus_DemoTests.OMSDoublePrimitiveTests testShouldRountDoubleToInt]' started.
+Test Case '-[OMPlus_DemoTests.OMSDoublePrimitiveTests testShouldRountDoubleToInt]' passed (0.001 seconds).
+Test Suite 'OMSDoublePrimitiveTests' passed at 2015-01-05 18:41:49 +0000.
+Executed 1 test, with 0 failures (0 unexpected) in 0.001 (0.001) seconds
+Test Suite 'OMSFitnessTestFacadeTests' started at 2015-01-05 18:41:49 +0000
+Test Case '-[OMPlus_DemoTests.OMSFitnessTestFacadeTests testHasToFinishBeforeStarting]' started.
+Test Case '-[OMPlus_DemoTests.OMSFitnessTestFacadeTests testHasToFinishBeforeStarting]' passed (0.014 seconds).
+Test Case '-[OMPlus_DemoTests.OMSFitnessTestFacadeTests testHasToStartBeforeEnding]' started.
+Test Case '-[OMPlus_DemoTests.OMSFitnessTestFacadeTests testHasToStartBeforeEnding]' passed (0.014 seconds).
+Test Case '-[OMPlus_DemoTests.OMSFitnessTestFacadeTests testHasToStartBeforeRecovery]' started.
+Test Case '-[OMPlus_DemoTests.OMSFitnessTestFacadeTests testHasToStartBeforeRecovery]' passed (0.013 seconds).
+Test Case '-[OMPlus_DemoTests.OMSFitnessTestFacadeTests testWithoutScore]' started.
+Test Case '-[OMPlus_DemoTests.OMSFitnessTestFacadeTests testWithoutScore]' passed (0.012 seconds).
+Test Case '-[OMPlus_DemoTests.OMSFitnessTestFacadeTests testWithScore]' started.
+Test Case '-[OMPlus_DemoTests.OMSFitnessTestFacadeTests testWithScore]' passed (0.013 seconds).
+Test Suite 'OMSFitnessTestFacadeTests' passed at 2015-01-05 18:41:49 +0000.
+Executed 5 tests, with 0 failures (0 unexpected) in 0.066 (0.068) seconds
+Test Suite 'OMSGoalsProjectorTests' started at 2015-01-05 18:41:49 +0000
+Test Case '-[OMPlus_DemoTests.OMSGoalsProjectorTests testAddTimeInHrZoneGoal]' started.
+Test Case '-[OMPlus_DemoTests.OMSGoalsProjectorTests testAddTimeInHrZoneGoal]' passed (0.015 seconds).
+Test Case '-[OMPlus_DemoTests.OMSGoalsProjectorTests testPerformanceExample]' started.
+<unknown>:0: Test Case '-[OMPlus_DemoTests.OMSGoalsProjectorTests testPerformanceExample]' measured [Time, seconds] average: 0.000, relative standard deviation: 114.408%, values: [0.000005, 0.000001, 0.000001, 0.000001, 0.000001, 0.000001, 0.000001, 0.000001, 0.000001, 0.000001], performanceMetricID:com.apple.XCTPerformanceMetric_WallClockTime, baselineName: "", baselineAverage: , maxPercentRegression: 10.000%, maxPercentRelativeStandardDeviation: 10.000%, maxRegression: 0.100, maxStandardDeviation: 0.100
+Test Case '-[OMPlus_DemoTests.OMSGoalsProjectorTests testPerformanceExample]' passed (0.275 seconds).
+Test Case '-[OMPlus_DemoTests.OMSGoalsProjectorTests testRemoveTimeInHrZoneGoal]' started.
+Test Case '-[OMPlus_DemoTests.OMSGoalsProjectorTests testRemoveTimeInHrZoneGoal]' passed (0.012 seconds).
+Test Case '-[OMPlus_DemoTests.OMSGoalsProjectorTests testUpdateTimeInHrZoneGoal]' started.
+Test Case '-[OMPlus_DemoTests.OMSGoalsProjectorTests testUpdateTimeInHrZoneGoal]' passed (0.013 seconds).
+Test Suite 'OMSGoalsProjectorTests' passed at 2015-01-05 18:41:49 +0000.
+Executed 4 tests, with 0 failures (0 unexpected) in 0.316 (0.318) seconds
+Test Suite 'OMSHeightUnitsConverterTests' started at 2015-01-05 18:41:49 +0000
+Test Case '-[OMPlus_DemoTests.OMSHeightUnitsConverterTests testShouldMapToInternationalMetric]' started.
+Test Case '-[OMPlus_DemoTests.OMSHeightUnitsConverterTests testShouldMapToInternationalMetric]' passed (0.000 seconds).
+Test Suite 'OMSHeightUnitsConverterTests' passed at 2015-01-05 18:41:49 +0000.
+Executed 1 test, with 0 failures (0 unexpected) in 0.000 (0.001) seconds
+Test Suite 'OMSKafkaConsumersTests' started at 2015-01-05 18:41:49 +0000
+Test Case '-[OMPlus_DemoTests.OMSKafkaConsumersTests testFivePersistentElementsShouldBeLeftToConsumeWhenConsumingPersistentMessages]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaConsumersTests testFivePersistentElementsShouldBeLeftToConsumeWhenConsumingPersistentMessages]' passed (0.001 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaConsumersTests testFivePersistentElementsShouldBeLeftToConsumeWhenConsumingTransientMessages]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaConsumersTests testFivePersistentElementsShouldBeLeftToConsumeWhenConsumingTransientMessages]' passed (0.000 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaConsumersTests testFiveTransientElementsShouldBeLeftToConsumeWhenConsumingTransientMessages]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaConsumersTests testFiveTransientElementsShouldBeLeftToConsumeWhenConsumingTransientMessages]' passed (0.000 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaConsumersTests testNoTransientElementsShouldBeLeftToConsumeWhenConsumingPersistentMessagesOnly]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaConsumersTests testNoTransientElementsShouldBeLeftToConsumeWhenConsumingPersistentMessagesOnly]' passed (0.000 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaConsumersTests testSixPersistentElementsShouldBeLeftToConsumeWhenConsumingTransientMessagesUsingNilClientOffset]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaConsumersTests testSixPersistentElementsShouldBeLeftToConsumeWhenConsumingTransientMessagesUsingNilClientOffset]' passed (0.000 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaConsumersTests testSixTransientElementsShouldBeLeftToConsumeWhenConsumingTransientMessagesUsingNilClientOffset]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaConsumersTests testSixTransientElementsShouldBeLeftToConsumeWhenConsumingTransientMessagesUsingNilClientOffset]' passed (0.000 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaConsumersTests testZeroElementsShouldBeLeftToConsumeWhenTopicOffsetIsNil]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaConsumersTests testZeroElementsShouldBeLeftToConsumeWhenTopicOffsetIsNil]' passed (0.000 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaConsumersTests testZeroElementsShouldBeLeftToConsumeWhenTopicPersistentOffsetIsNil]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaConsumersTests testZeroElementsShouldBeLeftToConsumeWhenTopicPersistentOffsetIsNil]' passed (0.000 seconds).
+Test Suite 'OMSKafkaConsumersTests' passed at 2015-01-05 18:41:49 +0000.
+Executed 8 tests, with 0 failures (0 unexpected) in 0.002 (0.008) seconds
+Test Suite 'OMSKafkaEventuallyPersistentQueueTests' started at 2015-01-05 18:41:49 +0000
+Test Case '-[OMPlus_DemoTests.OMSKafkaEventuallyPersistentQueueTests testEmptyQueueShouldNotHaveAnyNewestMessage]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaEventuallyPersistentQueueTests testEmptyQueueShouldNotHaveAnyNewestMessage]' passed (0.043 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaEventuallyPersistentQueueTests testEmptyQueueShouldNotHaveAnyNewestPersistedMessage]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaEventuallyPersistentQueueTests testEmptyQueueShouldNotHaveAnyNewestPersistedMessage]' passed (0.018 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaEventuallyPersistentQueueTests testEmptyQueueShouldNotHaveAnyOldestMessage]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaEventuallyPersistentQueueTests testEmptyQueueShouldNotHaveAnyOldestMessage]' passed (0.019 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaEventuallyPersistentQueueTests testShouldFetchAndMergeResultsFromPersistentAndTransientQueue]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaEventuallyPersistentQueueTests testShouldFetchAndMergeResultsFromPersistentAndTransientQueue]' passed (0.025 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaEventuallyPersistentQueueTests testShouldFetchFromTransientQueueFromOffset0WithoutAnyMessageAlreadyPersisted]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaEventuallyPersistentQueueTests testShouldFetchFromTransientQueueFromOffset0WithoutAnyMessageAlreadyPersisted]' passed (0.016 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaEventuallyPersistentQueueTests testShouldFetchFromTransientQueueFromOffset1WithoutAnyMessageAlreadyPersisted]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaEventuallyPersistentQueueTests testShouldFetchFromTransientQueueFromOffset1WithoutAnyMessageAlreadyPersisted]' passed (0.017 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaEventuallyPersistentQueueTests testShouldFlushTransientQueueWhenRequested]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaEventuallyPersistentQueueTests testShouldFlushTransientQueueWhenRequested]' passed (0.018 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaEventuallyPersistentQueueTests testShouldNotFetchDeletedItemsFromTransientAndPersistentQueue]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaEventuallyPersistentQueueTests testShouldNotFetchDeletedItemsFromTransientAndPersistentQueue]' passed (0.022 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaEventuallyPersistentQueueTests testShouldReturnNewestMessageFromTransientQueue]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaEventuallyPersistentQueueTests testShouldReturnNewestMessageFromTransientQueue]' passed (0.020 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaEventuallyPersistentQueueTests testShouldReturnNewestPersistedMessageFromTransientQueue]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaEventuallyPersistentQueueTests testShouldReturnNewestPersistedMessageFromTransientQueue]' passed (0.020 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaEventuallyPersistentQueueTests testShouldReturnOldestMessageFromPersistentTransientQueue]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaEventuallyPersistentQueueTests testShouldReturnOldestMessageFromPersistentTransientQueue]' passed (0.021 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaEventuallyPersistentQueueTests testShouldReturnOldestMessageFromTransientQueue]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaEventuallyPersistentQueueTests testShouldReturnOldestMessageFromTransientQueue]' passed (0.019 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaEventuallyPersistentQueueTests testShoulOnlyPersistOnThirdMessage]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaEventuallyPersistentQueueTests testShoulOnlyPersistOnThirdMessage]' passed (0.019 seconds).
+Test Suite 'OMSKafkaEventuallyPersistentQueueTests' passed at 2015-01-05 18:41:49 +0000.
+Executed 13 tests, with 0 failures (0 unexpected) in 0.276 (0.282) seconds
+Test Suite 'OMSKafkaGarbageCollectorTests' started at 2015-01-05 18:41:49 +0000
+Test Case '-[OMPlus_DemoTests.OMSKafkaGarbageCollectorTests testGCDoesntDeleteWhenNotConsumed]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaGarbageCollectorTests testGCDoesntDeleteWhenNotConsumed]' passed (0.026 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaGarbageCollectorTests testGCHandleNilOffsetSoItAvoidDeletingUnconsumedElements]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaGarbageCollectorTests testGCHandleNilOffsetSoItAvoidDeletingUnconsumedElements]' passed (0.024 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaGarbageCollectorTests testGCKeepsOnlyOneElementInTheQueue]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaGarbageCollectorTests testGCKeepsOnlyOneElementInTheQueue]' passed (0.026 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaGarbageCollectorTests testGCWaitsForSlowestConsumer]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaGarbageCollectorTests testGCWaitsForSlowestConsumer]' passed (0.026 seconds).
+Test Suite 'OMSKafkaGarbageCollectorTests' passed at 2015-01-05 18:41:49 +0000.
+Executed 4 tests, with 0 failures (0 unexpected) in 0.102 (0.112) seconds
+Test Suite 'OMSKafkaMessageIndexTests' started at 2015-01-05 18:41:49 +0000
+Test Case '-[OMPlus_DemoTests.OMSKafkaMessageIndexTests testEmptyIndexShouldNotReturnAnyLogicalOffsetRange]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaMessageIndexTests testEmptyIndexShouldNotReturnAnyLogicalOffsetRange]' passed (0.000 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaMessageIndexTests testEmptyIndexShouldNotReturnAnyLogicalOffsetRangeAssociatedWithPhysicalRange]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaMessageIndexTests testEmptyIndexShouldNotReturnAnyLogicalOffsetRangeAssociatedWithPhysicalRange]' passed (0.000 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaMessageIndexTests testEmptyIndexShouldNotReturnAnyPhysicalOffset]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaMessageIndexTests testEmptyIndexShouldNotReturnAnyPhysicalOffset]' passed (0.021 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaMessageIndexTests testIndexShouldNotReturnAnyLogicalOffsetRangeAssociatedWithNonExistingPhysicalRange]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaMessageIndexTests testIndexShouldNotReturnAnyLogicalOffsetRangeAssociatedWithNonExistingPhysicalRange]' passed (0.000 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaMessageIndexTests testIndexShouldReturnLogicalOffsetRangeAssociatedWithExistingPhysicalRange]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaMessageIndexTests testIndexShouldReturnLogicalOffsetRangeAssociatedWithExistingPhysicalRange]' passed (0.000 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaMessageIndexTests testIndexWithOneRangeShouldReturnIt]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaMessageIndexTests testIndexWithOneRangeShouldReturnIt]' passed (0.001 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaMessageIndexTests testIndexWithSeveralRangesShouldMergeThem]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaMessageIndexTests testIndexWithSeveralRangesShouldMergeThem]' passed (0.000 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaMessageIndexTests testPruneShouldHaveClosedOpenSemantics]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaMessageIndexTests testPruneShouldHaveClosedOpenSemantics]' passed (0.000 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaMessageIndexTests testShouldNotReturnAnyPhysicalOffsetContainingLogicalOffsetOutsideOfInterval]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaMessageIndexTests testShouldNotReturnAnyPhysicalOffsetContainingLogicalOffsetOutsideOfInterval]' passed (0.000 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaMessageIndexTests testShouldNotReturnPysicalOffsetRangeWhenNoIntersectionBetweenIndexAndQuery]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaMessageIndexTests testShouldNotReturnPysicalOffsetRangeWhenNoIntersectionBetweenIndexAndQuery]' passed (0.000 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaMessageIndexTests testShouldPruneOldMappingsAndKeepNewOnes]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaMessageIndexTests testShouldPruneOldMappingsAndKeepNewOnes]' passed (0.000 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaMessageIndexTests testShouldRestoreEmptyState]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaMessageIndexTests testShouldRestoreEmptyState]' passed (0.003 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaMessageIndexTests testShouldRestoreState]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaMessageIndexTests testShouldRestoreState]' passed (0.000 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaMessageIndexTests testShouldReturnNilPhysicalOffsetRange]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaMessageIndexTests testShouldReturnNilPhysicalOffsetRange]' passed (0.007 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaMessageIndexTests testShouldReturnPhysicalOffsetContainingLogicalOffset]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaMessageIndexTests testShouldReturnPhysicalOffsetContainingLogicalOffset]' passed (0.000 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaMessageIndexTests testShouldReturnPhysicalOffsetRangeOf1Element]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaMessageIndexTests testShouldReturnPhysicalOffsetRangeOf1Element]' passed (0.000 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaMessageIndexTests testShouldReturnPhysicalOffsetRangeOf3Elements]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaMessageIndexTests testShouldReturnPhysicalOffsetRangeOf3Elements]' passed (0.000 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaMessageIndexTests testShouldReturnPysicalOffsetRangeAssociatedWithLogicalOffsetFullyContainedInIndex]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaMessageIndexTests testShouldReturnPysicalOffsetRangeAssociatedWithLogicalOffsetFullyContainedInIndex]' passed (0.015 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaMessageIndexTests testShouldReturnPysicalOffsetRangeAssociatedWithLogicalOffsetIntersectingEnd]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaMessageIndexTests testShouldReturnPysicalOffsetRangeAssociatedWithLogicalOffsetIntersectingEnd]' passed (0.000 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaMessageIndexTests testShouldReturnPysicalOffsetRangeAssociatedWithLogicalOffsetIntersectingStart]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaMessageIndexTests testShouldReturnPysicalOffsetRangeAssociatedWithLogicalOffsetIntersectingStart]' passed (0.000 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaMessageIndexTests testShouldReturnPysicalOffsetRangeWhenThereAreGaps]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaMessageIndexTests testShouldReturnPysicalOffsetRangeWhenThereAreGaps]' passed (0.000 seconds).
+Test Suite 'OMSKafkaMessageIndexTests' passed at 2015-01-05 18:41:50 +0000.
+Executed 21 tests, with 0 failures (0 unexpected) in 0.051 (0.107) seconds
+Test Suite 'OMSKafkaPersistentQueueTests' started at 2015-01-05 18:41:50 +0000
+Test Case '-[OMPlus_DemoTests.OMSKafkaPersistentQueueTests testCreatedMessageIndexShouldBeDirty]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaPersistentQueueTests testCreatedMessageIndexShouldBeDirty]' passed (0.025 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaPersistentQueueTests testCreatedMessageIndexShouldNotBeDirty]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaPersistentQueueTests testCreatedMessageIndexShouldNotBeDirty]' passed (0.021 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaPersistentQueueTests testEmptyQueueShouldNotReturnNewestMessage]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaPersistentQueueTests testEmptyQueueShouldNotReturnNewestMessage]' passed (0.016 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaPersistentQueueTests testEmptyQueueShouldNotReturnOldestMessage]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaPersistentQueueTests testEmptyQueueShouldNotReturnOldestMessage]' passed (0.016 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaPersistentQueueTests testNonEmptyQueueShouldReturnNewestMessage]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaPersistentQueueTests testNonEmptyQueueShouldReturnNewestMessage]' passed (0.020 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaPersistentQueueTests testNonEmptyQueueShouldReturnOldestMessage]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaPersistentQueueTests testNonEmptyQueueShouldReturnOldestMessage]' passed (0.020 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaPersistentQueueTests testPersistingEmptyArrayShouldNotChangeTheCount]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaPersistentQueueTests testPersistingEmptyArrayShouldNotChangeTheCount]' passed (0.017 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaPersistentQueueTests testPersistingEmptyArrayShouldNotLeadToWeirdErrors]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaPersistentQueueTests testPersistingEmptyArrayShouldNotLeadToWeirdErrors]' passed (0.017 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaPersistentQueueTests testShouldCreateIndex]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaPersistentQueueTests testShouldCreateIndex]' passed (0.024 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaPersistentQueueTests testShouldDeleteMessagesUntilGivenOffsetAtBeginningOfNextBucket]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaPersistentQueueTests testShouldDeleteMessagesUntilGivenOffsetAtBeginningOfNextBucket]' passed (0.026 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaPersistentQueueTests testShouldDeleteMessagesUntilGivenOffsetInTheMiddleOfBucket]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaPersistentQueueTests testShouldDeleteMessagesUntilGivenOffsetInTheMiddleOfBucket]' passed (0.028 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaPersistentQueueTests testShouldFetchAllElementsFromGivenBucket]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaPersistentQueueTests testShouldFetchAllElementsFromGivenBucket]' passed (0.022 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaPersistentQueueTests testShouldFetchElementsSpanningThreeBuckets]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaPersistentQueueTests testShouldFetchElementsSpanningThreeBuckets]' passed (0.030 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaPersistentQueueTests testShouldFetchElementsSpanningTwoBuckets]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaPersistentQueueTests testShouldFetchElementsSpanningTwoBuckets]' passed (0.022 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaPersistentQueueTests testShouldFetchMaxWithHoles]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaPersistentQueueTests testShouldFetchMaxWithHoles]' passed (0.021 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaPersistentQueueTests testShouldFetchSomeElementsOfGivenBucket]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaPersistentQueueTests testShouldFetchSomeElementsOfGivenBucket]' passed (0.020 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaPersistentQueueTests testShouldHandleHolesInBuckets]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaPersistentQueueTests testShouldHandleHolesInBuckets]' passed (0.026 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaPersistentQueueTests testShouldNotDoAnythingStupidWhenDeletingFromEmptyQueue]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaPersistentQueueTests testShouldNotDoAnythingStupidWhenDeletingFromEmptyQueue]' passed (0.014 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaPersistentQueueTests testShouldNotFetchAnyElementNotExisting]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaPersistentQueueTests testShouldNotFetchAnyElementNotExisting]' passed (0.022 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaPersistentQueueTests testShouldNotReadMessageIndexUnknownQueue]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaPersistentQueueTests testShouldNotReadMessageIndexUnknownQueue]' passed (0.018 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaPersistentQueueTests testShouldOnlyRetrieveExistingElementsEventIfMaxAsksForMore]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaPersistentQueueTests testShouldOnlyRetrieveExistingElementsEventIfMaxAsksForMore]' passed (0.021 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaPersistentQueueTests testShouldPersistAndRetrieveBucketOfOnlyOneElement]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaPersistentQueueTests testShouldPersistAndRetrieveBucketOfOnlyOneElement]' passed (0.020 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaPersistentQueueTests testShouldReadPersistedMessageIndex]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaPersistentQueueTests testShouldReadPersistedMessageIndex]' passed (0.019 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaPersistentQueueTests testShouldReturnCountOfMessages]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaPersistentQueueTests testShouldReturnCountOfMessages]' passed (0.020 seconds).
+Test Suite 'OMSKafkaPersistentQueueTests' passed at 2015-01-05 18:41:50 +0000.
+Executed 24 tests, with 0 failures (0 unexpected) in 0.505 (0.515) seconds
+Test Suite 'OMSKafkaRACClientTests' started at 2015-01-05 18:41:50 +0000
+Test Case '-[OMPlus_DemoTests.OMSKafkaRACClientTests testPeekOutOfOrder]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaRACClientTests testPeekOutOfOrder]' passed (0.035 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaRACClientTests testShouldPeekSpecificRange]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaRACClientTests testShouldPeekSpecificRange]' passed (0.028 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaRACClientTests testStreamsPacketsUntilTheEnd]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaRACClientTests testStreamsPacketsUntilTheEnd]' passed (6.405 seconds).
+Test Suite 'OMSKafkaRACClientTests' passed at 2015-01-05 18:41:57 +0000.
+Executed 3 tests, with 0 failures (0 unexpected) in 6.467 (6.469) seconds
+Test Suite 'OMSKafkaRACConsumerTests' started at 2015-01-05 18:41:57 +0000
+Test Case '-[OMPlus_DemoTests.OMSKafkaRACConsumerTests testPeekedElementsThatAreNotAcknowledgedShouldCountAsRemaining]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaRACConsumerTests testPeekedElementsThatAreNotAcknowledgedShouldCountAsRemaining]' passed (0.034 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaRACConsumerTests testShouldBeBehind]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaRACConsumerTests testShouldBeBehind]' passed (0.029 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaRACConsumerTests testShouldConsumeOnlyElementOfQueue]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaRACConsumerTests testShouldConsumeOnlyElementOfQueue]' passed (0.031 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaRACConsumerTests testShouldConsumeOnlyTwoElementsOutOfThree]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaRACConsumerTests testShouldConsumeOnlyTwoElementsOutOfThree]' passed (0.027 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaRACConsumerTests testShouldFetchFromPreviousAcknowledgement]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaRACConsumerTests testShouldFetchFromPreviousAcknowledgement]' passed (0.027 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaRACConsumerTests testShouldGetRemainingCountWhenNothingHasBeenAcknowledged]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaRACConsumerTests testShouldGetRemainingCountWhenNothingHasBeenAcknowledged]' passed (0.028 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaRACConsumerTests testShouldGetRemainingCountWhenSomeElementsHaveBeenAcknowledged]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaRACConsumerTests testShouldGetRemainingCountWhenSomeElementsHaveBeenAcknowledged]' passed (0.029 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaRACConsumerTests testShouldNotFetchAnyDataFromEmptyQueue]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaRACConsumerTests testShouldNotFetchAnyDataFromEmptyQueue]' passed (0.028 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaRACConsumerTests testShouldPersistOffset]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaRACConsumerTests testShouldPersistOffset]' passed (0.029 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaRACConsumerTests testShouldSignalWhenQueueSizeIncreases]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaRACConsumerTests testShouldSignalWhenQueueSizeIncreases]' passed (0.029 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaRACConsumerTests testSignalsWhenMessagesAreConsumed]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaRACConsumerTests testSignalsWhenMessagesAreConsumed]' passed (0.030 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaRACConsumerTests testUpdatesZookeeper]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaRACConsumerTests testUpdatesZookeeper]' passed (0.027 seconds).
+Test Suite 'OMSKafkaRACConsumerTests' passed at 2015-01-05 18:41:57 +0000.
+Executed 12 tests, with 0 failures (0 unexpected) in 0.348 (0.353) seconds
+Test Suite 'OMSKafkaSynchronousConsumerTests' started at 2015-01-05 18:41:57 +0000
+Test Case '-[OMPlus_DemoTests.OMSKafkaSynchronousConsumerTests test]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaSynchronousConsumerTests test]' passed (0.030 seconds).
+Test Suite 'OMSKafkaSynchronousConsumerTests' passed at 2015-01-05 18:41:57 +0000.
+Executed 1 test, with 0 failures (0 unexpected) in 0.030 (0.030) seconds
+Test Suite 'OMSKafkaTopicTests' started at 2015-01-05 18:41:57 +0000
+Test Case '-[OMPlus_DemoTests.OMSKafkaTopicTests testEmptyQueueShouldNotReturnAnyNewestMessage]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaTopicTests testEmptyQueueShouldNotReturnAnyNewestMessage]' passed (0.029 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaTopicTests testEmptyQueueShouldNotReturnAnyOldestMessage]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaTopicTests testEmptyQueueShouldNotReturnAnyOldestMessage]' passed (0.030 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaTopicTests testQueuesShouldNotMixUp]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaTopicTests testQueuesShouldNotMixUp]' passed (0.031 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaTopicTests testQueueWithOneElementShouldReturnItAsNewestMessage]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaTopicTests testQueueWithOneElementShouldReturnItAsNewestMessage]' passed (0.027 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaTopicTests testQueueWithOneElementShouldReturnItAsOldestMessage]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaTopicTests testQueueWithOneElementShouldReturnItAsOldestMessage]' passed (0.028 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaTopicTests testQueueWithTwoElementsShouldReturnNewestMessage]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaTopicTests testQueueWithTwoElementsShouldReturnNewestMessage]' passed (0.031 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaTopicTests testQueueWithTwoMessagesShouldReturnOldestMessage]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaTopicTests testQueueWithTwoMessagesShouldReturnOldestMessage]' passed (0.033 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaTopicTests testShouldFetchFromGivenOffset]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaTopicTests testShouldFetchFromGivenOffset]' passed (0.026 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaTopicTests testShouldIncrementsOffsets]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaTopicTests testShouldIncrementsOffsets]' passed (0.029 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaTopicTests testShouldNotFetchAnyDataFromEmptyQueue]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaTopicTests testShouldNotFetchAnyDataFromEmptyQueue]' passed (0.030 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaTopicTests testShouldNotFetchAnyDataWhenMaxResultsIsZero]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaTopicTests testShouldNotFetchAnyDataWhenMaxResultsIsZero]' passed (0.028 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaTopicTests testShouldNotFetchDeletedOffsets]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaTopicTests testShouldNotFetchDeletedOffsets]' passed (0.028 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaTopicTests testShouldUpdateZookeeper]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaTopicTests testShouldUpdateZookeeper]' passed (0.025 seconds).
+Test Suite 'OMSKafkaTopicTests' passed at 2015-01-05 18:41:57 +0000.
+Executed 13 tests, with 0 failures (0 unexpected) in 0.375 (0.380) seconds
+Test Suite 'OMSKafkaTransientQueueTests' started at 2015-01-05 18:41:57 +0000
+Test Case '-[OMPlus_DemoTests.OMSKafkaTransientQueueTests testDeletingFromEmptyQueueShouldNotDoAnything]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaTransientQueueTests testDeletingFromEmptyQueueShouldNotDoAnything]' passed (0.000 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaTransientQueueTests testFilteringEmptyBufferShouldReturnEmptyArray]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaTransientQueueTests testFilteringEmptyBufferShouldReturnEmptyArray]' passed (0.000 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaTransientQueueTests testShouldBeOverCapacity]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaTransientQueueTests testShouldBeOverCapacity]' passed (0.032 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaTransientQueueTests testShouldCountFiveMessages]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaTransientQueueTests testShouldCountFiveMessages]' passed (0.000 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaTransientQueueTests testShouldCountZeroMessages]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaTransientQueueTests testShouldCountZeroMessages]' passed (0.000 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaTransientQueueTests testShouldDeleteAllElements]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaTransientQueueTests testShouldDeleteAllElements]' passed (0.001 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaTransientQueueTests testShouldFetchAllMessages]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaTransientQueueTests testShouldFetchAllMessages]' passed (0.001 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaTransientQueueTests testShouldFetchSomeMessagesFromOffset0]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaTransientQueueTests testShouldFetchSomeMessagesFromOffset0]' passed (0.001 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaTransientQueueTests testShouldFetchSomeMessagesFromOffset2]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaTransientQueueTests testShouldFetchSomeMessagesFromOffset2]' passed (0.001 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaTransientQueueTests testShouldFilterBufferShouldOnlyKeepRequestedElements]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaTransientQueueTests testShouldFilterBufferShouldOnlyKeepRequestedElements]' passed (0.001 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaTransientQueueTests testShouldHaveMessagesBeforeOrEqual4]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaTransientQueueTests testShouldHaveMessagesBeforeOrEqual4]' passed (0.001 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaTransientQueueTests testShouldHaveMessagesBeforeOrEqual5]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaTransientQueueTests testShouldHaveMessagesBeforeOrEqual5]' passed (0.000 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaTransientQueueTests testShouldHaveMessagesBeforeOrEqual7]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaTransientQueueTests testShouldHaveMessagesBeforeOrEqual7]' passed (0.000 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaTransientQueueTests testShouldHaveMessagesBeforeOrEqual9]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaTransientQueueTests testShouldHaveMessagesBeforeOrEqual9]' passed (0.000 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaTransientQueueTests testShouldKeepLastElement]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaTransientQueueTests testShouldKeepLastElement]' passed (0.033 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaTransientQueueTests testShouldNotBeOverCapacity]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaTransientQueueTests testShouldNotBeOverCapacity]' passed (0.000 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaTransientQueueTests testShouldNotFetchAnyMessageFromEmptyStore]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaTransientQueueTests testShouldNotFetchAnyMessageFromEmptyStore]' passed (0.000 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaTransientQueueTests testShouldNotReturnNeestMessage]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaTransientQueueTests testShouldNotReturnNeestMessage]' passed (0.000 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaTransientQueueTests testShouldNotReturnOldestMessage]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaTransientQueueTests testShouldNotReturnOldestMessage]' passed (0.000 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaTransientQueueTests testShouldReturnNewestMessage]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaTransientQueueTests testShouldReturnNewestMessage]' passed (0.000 seconds).
+Test Case '-[OMPlus_DemoTests.OMSKafkaTransientQueueTests testShouldReturnOldestMessage]' started.
+Test Case '-[OMPlus_DemoTests.OMSKafkaTransientQueueTests testShouldReturnOldestMessage]' passed (0.000 seconds).
+Test Suite 'OMSKafkaTransientQueueTests' passed at 2015-01-05 18:41:57 +0000.
+Executed 21 tests, with 0 failures (0 unexpected) in 0.074 (0.099) seconds
+Test Suite 'OMSNSUUIDTests' started at 2015-01-05 18:41:57 +0000
+Test Case '-[OMPlus_DemoTests.OMSNSUUIDTests testEquality]' started.
+Test Case '-[OMPlus_DemoTests.OMSNSUUIDTests testEquality]' passed (0.000 seconds).
+Test Suite 'OMSNSUUIDTests' passed at 2015-01-05 18:41:57 +0000.
+Executed 1 test, with 0 failures (0 unexpected) in 0.000 (0.001) seconds
+Test Suite 'OMSSpecificationIssueStoreTests' started at 2015-01-05 18:41:57 +0000
+Test Case '-[OMPlus_DemoTests.OMSSpecificationIssueStoreTests testShouldCreateIssue]' started.
+Test Case '-[OMPlus_DemoTests.OMSSpecificationIssueStoreTests testShouldCreateIssue]' passed (0.020 seconds).
+Test Suite 'OMSSpecificationIssueStoreTests' passed at 2015-01-05 18:41:57 +0000.
+Executed 1 test, with 0 failures (0 unexpected) in 0.020 (0.021) seconds
+Test Suite 'OMSTimeInHrZoneGoalAlerterTests' started at 2015-01-05 18:41:57 +0000
+Test Case '-[OMPlus_DemoTests.OMSTimeInHrZoneGoalAlerterTests testAnotherZoneAchieved]' started.
+Test Case '-[OMPlus_DemoTests.OMSTimeInHrZoneGoalAlerterTests testAnotherZoneAchieved]' passed (0.001 seconds).
+Test Case '-[OMPlus_DemoTests.OMSTimeInHrZoneGoalAlerterTests testZoneAchieved]' started.
+Test Case '-[OMPlus_DemoTests.OMSTimeInHrZoneGoalAlerterTests testZoneAchieved]' passed (0.001 seconds).
+Test Case '-[OMPlus_DemoTests.OMSTimeInHrZoneGoalAlerterTests testZoneEntered]' started.
+Test Case '-[OMPlus_DemoTests.OMSTimeInHrZoneGoalAlerterTests testZoneEntered]' passed (0.000 seconds).
+Test Case '-[OMPlus_DemoTests.OMSTimeInHrZoneGoalAlerterTests testZoneLeft]' started.
+Test Case '-[OMPlus_DemoTests.OMSTimeInHrZoneGoalAlerterTests testZoneLeft]' passed (0.001 seconds).
+Test Suite 'OMSTimeInHrZoneGoalAlerterTests' passed at 2015-01-05 18:41:57 +0000.
+Executed 4 tests, with 0 failures (0 unexpected) in 0.002 (0.040) seconds
+Test Suite 'OMSURIParserTests' started at 2015-01-05 18:41:57 +0000
+Test Case '-[OMPlus_DemoTests.OMSURIParserTests testShouldParseNoParameter]' started.
+Test Case '-[OMPlus_DemoTests.OMSURIParserTests testShouldParseNoParameter]' passed (0.000 seconds).
+Test Case '-[OMPlus_DemoTests.OMSURIParserTests testShouldParseOneParameter]' started.
+Test Case '-[OMPlus_DemoTests.OMSURIParserTests testShouldParseOneParameter]' passed (0.007 seconds).
+Test Case '-[OMPlus_DemoTests.OMSURIParserTests testShouldParseTwoParameters]' started.
+Test Case '-[OMPlus_DemoTests.OMSURIParserTests testShouldParseTwoParameters]' passed (0.039 seconds).
+Test Suite 'OMSURIParserTests' passed at 2015-01-05 18:41:57 +0000.
+Executed 3 tests, with 0 failures (0 unexpected) in 0.046 (0.048) seconds
+Test Suite 'OMSUserTraitsRegistrationTests' started at 2015-01-05 18:41:57 +0000
+Test Case '-[OMPlus_DemoTests.OMSUserTraitsRegistrationTests testShouldChangedUserTraitsHeight]' started.
+Test Case '-[OMPlus_DemoTests.OMSUserTraitsRegistrationTests testShouldChangedUserTraitsHeight]' passed (0.016 seconds).
+Test Case '-[OMPlus_DemoTests.OMSUserTraitsRegistrationTests testShouldCorrectUserTraitsHeight]' started.
+Test Case '-[OMPlus_DemoTests.OMSUserTraitsRegistrationTests testShouldCorrectUserTraitsHeight]' passed (0.015 seconds).
+Test Case '-[OMPlus_DemoTests.OMSUserTraitsRegistrationTests testShouldRegisterUserTraits]' started.
+Test Case '-[OMPlus_DemoTests.OMSUserTraitsRegistrationTests testShouldRegisterUserTraits]' passed (0.016 seconds).
+Test Suite 'OMSUserTraitsRegistrationTests' passed at 2015-01-05 18:41:58 +0000.
+Executed 3 tests, with 0 failures (0 unexpected) in 0.048 (0.049) seconds
+Test Suite 'OMSWeightUnitsConverterTests' started at 2015-01-05 18:41:58 +0000
+Test Case '-[OMPlus_DemoTests.OMSWeightUnitsConverterTests testShouldMapToInternationalMetric]' started.
+Test Case '-[OMPlus_DemoTests.OMSWeightUnitsConverterTests testShouldMapToInternationalMetric]' passed (0.000 seconds).
+Test Suite 'OMSWeightUnitsConverterTests' passed at 2015-01-05 18:41:58 +0000.
+Executed 1 test, with 0 failures (0 unexpected) in 0.000 (0.001) seconds
+Test Suite 'OMSWorkoutGeneratorTests' started at 2015-01-05 18:41:58 +0000
+Test Case '-[OMPlus_DemoTests.OMSWorkoutGeneratorTests testPacketsGoingBackInTime]' started.
+Test Case '-[OMPlus_DemoTests.OMSWorkoutGeneratorTests testPacketsGoingBackInTime]' passed (0.017 seconds).
+Test Case '-[OMPlus_DemoTests.OMSWorkoutGeneratorTests testWorkoutWithoutPackets]' started.
+Test Case '-[OMPlus_DemoTests.OMSWorkoutGeneratorTests testWorkoutWithoutPackets]' passed (0.001 seconds).
+Test Suite 'OMSWorkoutGeneratorTests' passed at 2015-01-05 18:41:58 +0000.
+Executed 2 tests, with 0 failures (0 unexpected) in 0.018 (0.019) seconds
+Test Suite 'OMSWorkoutReportProjectorTests' started at 2015-01-05 18:41:58 +0000
+Test Case '-[OMPlus_DemoTests.OMSWorkoutReportProjectorTests testGeneratesLiveReport]' started.
+Test Case '-[OMPlus_DemoTests.OMSWorkoutReportProjectorTests testGeneratesLiveReport]' passed (0.102 seconds).
+Test Case '-[OMPlus_DemoTests.OMSWorkoutReportProjectorTests testMarksForGCWhenIdle]' started.
+Test Case '-[OMPlus_DemoTests.OMSWorkoutReportProjectorTests testMarksForGCWhenIdle]' passed (0.041 seconds).
+Test Case '-[OMPlus_DemoTests.OMSWorkoutReportProjectorTests testPastReportsAreGenerated]' started.
+Test Case '-[OMPlus_DemoTests.OMSWorkoutReportProjectorTests testPastReportsAreGenerated]' passed (0.532 seconds).
+Test Case '-[OMPlus_DemoTests.OMSWorkoutReportProjectorTests testTwoLiveReportsGenerated]' started.
+Test Case '-[OMPlus_DemoTests.OMSWorkoutReportProjectorTests testTwoLiveReportsGenerated]' passed (0.038 seconds).
+Test Case '-[OMPlus_DemoTests.OMSWorkoutReportProjectorTests testUpdatesAggregateWorkoutStats]' started.
+Test Case '-[OMPlus_DemoTests.OMSWorkoutReportProjectorTests testUpdatesAggregateWorkoutStats]' passed (0.143 seconds).
+Test Case '-[OMPlus_DemoTests.OMSWorkoutReportProjectorTests testZeroesDontContributeToAggregates]' started.
+/Users/clement/Desktop/Repos/omplus-sdk/OMPlus-SDK/OMPlus-Demo-Tests/OMSWorkoutReportProjectorTests.swift:256: error: -[OMPlus_DemoTests.OMSWorkoutReportProjectorTests testZeroesDontContributeToAggregates] : XCTAssertEqual failed: ("18") is not equal to ("15") - peak HR from second workout
+Test Case '-[OMPlus_DemoTests.OMSWorkoutReportProjectorTests testZeroesDontContributeToAggregates]' failed (0.098 seconds).
+Test Suite 'OMSWorkoutReportProjectorTests' failed at 2015-01-05 18:41:59 +0000.
+Executed 6 tests, with 1 failure (0 unexpected) in 0.954 (0.956) seconds
+Test Suite 'OMSWorkoutStoreTests' started at 2015-01-05 18:41:59 +0000
+Test Case '-[OMPlus_DemoTests.OMSWorkoutStoreTests testRetrieveWorkoutReportViewModelWithBestScore]' started.
+Test Case '-[OMPlus_DemoTests.OMSWorkoutStoreTests testRetrieveWorkoutReportViewModelWithBestScore]' passed (0.018 seconds).
+Test Case '-[OMPlus_DemoTests.OMSWorkoutStoreTests testSavesAggregateWorkoutStats]' started.
+Test Case '-[OMPlus_DemoTests.OMSWorkoutStoreTests testSavesAggregateWorkoutStats]' passed (0.024 seconds).
+Test Case '-[OMPlus_DemoTests.OMSWorkoutStoreTests testShouldAssignReportToWorkout]' started.
+Test Case '-[OMPlus_DemoTests.OMSWorkoutStoreTests testShouldAssignReportToWorkout]' passed (0.021 seconds).
+Test Case '-[OMPlus_DemoTests.OMSWorkoutStoreTests testShouldBeIdempotentWhenAssigningReportToWorkout]' started.
+Test Case '-[OMPlus_DemoTests.OMSWorkoutStoreTests testShouldBeIdempotentWhenAssigningReportToWorkout]' passed (0.014 seconds).
+Test Case '-[OMPlus_DemoTests.OMSWorkoutStoreTests testShouldBeIdempotentWhenProcessingWorkoutEndTaggedEvent]' started.
+Test Case '-[OMPlus_DemoTests.OMSWorkoutStoreTests testShouldBeIdempotentWhenProcessingWorkoutEndTaggedEvent]' passed (0.011 seconds).
+Test Case '-[OMPlus_DemoTests.OMSWorkoutStoreTests testShouldBeIdempotentWhenProcessingWorkoutStartTaggedEvent]' started.
+Test Case '-[OMPlus_DemoTests.OMSWorkoutStoreTests testShouldBeIdempotentWhenProcessingWorkoutStartTaggedEvent]' passed (0.019 seconds).
+Test Case '-[OMPlus_DemoTests.OMSWorkoutStoreTests testShouldCreateWorkout]' started.
+Test Case '-[OMPlus_DemoTests.OMSWorkoutStoreTests testShouldCreateWorkout]' passed (0.011 seconds).
+Test Case '-[OMPlus_DemoTests.OMSWorkoutStoreTests testShouldGetAllWorkouts]' started.
+Test Case '-[OMPlus_DemoTests.OMSWorkoutStoreTests testShouldGetAllWorkouts]' passed (0.012 seconds).
+Test Case '-[OMPlus_DemoTests.OMSWorkoutStoreTests testShouldGetCompletedWorkouts]' started.
+Test Case '-[OMPlus_DemoTests.OMSWorkoutStoreTests testShouldGetCompletedWorkouts]' passed (0.014 seconds).
+Test Case '-[OMPlus_DemoTests.OMSWorkoutStoreTests testShouldGetCompletedWorkoutsWithoutReports]' started.
+Test Case '-[OMPlus_DemoTests.OMSWorkoutStoreTests testShouldGetCompletedWorkoutsWithoutReports]' passed (0.017 seconds).
+Test Case '-[OMPlus_DemoTests.OMSWorkoutStoreTests testShouldGetCurrentWorkout]' started.
+Test Case '-[OMPlus_DemoTests.OMSWorkoutStoreTests testShouldGetCurrentWorkout]' passed (0.014 seconds).
+Test Case '-[OMPlus_DemoTests.OMSWorkoutStoreTests testShouldGetIncompleteWorkouts]' started.
+Test Case '-[OMPlus_DemoTests.OMSWorkoutStoreTests testShouldGetIncompleteWorkouts]' passed (0.014 seconds).
+Test Case '-[OMPlus_DemoTests.OMSWorkoutStoreTests testShouldNotGetCurrentWorkout]' started.
+Test Case '-[OMPlus_DemoTests.OMSWorkoutStoreTests testShouldNotGetCurrentWorkout]' passed (0.013 seconds).
+Test Case '-[OMPlus_DemoTests.OMSWorkoutStoreTests testShouldRetrieveWorkoutsWithinTimeRange]' started.
+Test Case '-[OMPlus_DemoTests.OMSWorkoutStoreTests testShouldRetrieveWorkoutsWithinTimeRange]' passed (0.017 seconds).
+Test Suite 'OMSWorkoutStoreTests' passed at 2015-01-05 18:41:59 +0000.
+Executed 14 tests, with 0 failures (0 unexpected) in 0.218 (0.224) seconds
+Test Suite 'OMSZookeeperTests' started at 2015-01-05 18:41:59 +0000
+Test Case '-[OMPlus_DemoTests.OMSZookeeperTests testFlushesToDisk]' started.
+Test Case '-[OMPlus_DemoTests.OMSZookeeperTests testFlushesToDisk]' passed (0.007 seconds).
+Test Case '-[OMPlus_DemoTests.OMSZookeeperTests testInitialOffsetConsumedShouldBeNil]' started.
+Test Case '-[OMPlus_DemoTests.OMSZookeeperTests testInitialOffsetConsumedShouldBeNil]' passed (0.003 seconds).
+Test Case '-[OMPlus_DemoTests.OMSZookeeperTests testInitialPersistentOffsetShouldBeNil]' started.
+Test Case '-[OMPlus_DemoTests.OMSZookeeperTests testInitialPersistentOffsetShouldBeNil]' passed (0.004 seconds).
+Test Case '-[OMPlus_DemoTests.OMSZookeeperTests testInitialTransientOffsetShouldBeNil]' started.
+Test Case '-[OMPlus_DemoTests.OMSZookeeperTests testInitialTransientOffsetShouldBeNil]' passed (0.004 seconds).
+Test Case '-[OMPlus_DemoTests.OMSZookeeperTests testShouldNotifyOfLastOffsetConsumedUpdate]' started.
+Test Case '-[OMPlus_DemoTests.OMSZookeeperTests testShouldNotifyOfLastOffsetConsumedUpdate]' passed (0.005 seconds).
+Test Case '-[OMPlus_DemoTests.OMSZookeeperTests testShouldNotifyOfLastPersistentOffsetUpdate]' started.
+Test Case '-[OMPlus_DemoTests.OMSZookeeperTests testShouldNotifyOfLastPersistentOffsetUpdate]' passed (0.005 seconds).
+Test Case '-[OMPlus_DemoTests.OMSZookeeperTests testShouldNotifyOfLastTransientOffsetUpdate]' started.
+Test Case '-[OMPlus_DemoTests.OMSZookeeperTests testShouldNotifyOfLastTransientOffsetUpdate]' passed (0.004 seconds).
+Test Case '-[OMPlus_DemoTests.OMSZookeeperTests testShouldUpdateLastConsumerOffset]' started.
+Test Case '-[OMPlus_DemoTests.OMSZookeeperTests testShouldUpdateLastConsumerOffset]' passed (0.004 seconds).
+Test Case '-[OMPlus_DemoTests.OMSZookeeperTests testShouldUpdateLastPersistentOffset]' started.
+Test Case '-[OMPlus_DemoTests.OMSZookeeperTests testShouldUpdateLastPersistentOffset]' passed (0.003 seconds).
+Test Case '-[OMPlus_DemoTests.OMSZookeeperTests testShouldUpdateLastTransientOffset]' started.
+Test Case '-[OMPlus_DemoTests.OMSZookeeperTests testShouldUpdateLastTransientOffset]' passed (0.003 seconds).
+Test Suite 'OMSZookeeperTests' passed at 2015-01-05 18:41:59 +0000.
+Executed 10 tests, with 0 failures (0 unexpected) in 0.042 (0.093) seconds
+Test Suite 'OMPlus-DemoTests.xctest' failed at 2015-01-05 18:41:59 +0000.
+Executed 205 tests, with 1 failure (0 unexpected) in 19.611 (19.948) seconds
+Test Suite 'All tests' failed at 2015-01-05 18:41:59 +0000.
+Executed 205 tests, with 1 failure (0 unexpected) in 19.611 (19.949) seconds
+Failing tests:
+	-[OMPlus_DemoTests.OMSWorkoutReportProjectorTests testZeroesDontContributeToAggregates]
+** TEST FAILED **
