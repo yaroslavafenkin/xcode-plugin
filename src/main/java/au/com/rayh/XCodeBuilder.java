@@ -24,6 +24,8 @@
 
 package au.com.rayh;
 
+import com.google.common.base.Predicates;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import hudson.EnvVars;
 import hudson.Extension;
@@ -51,6 +53,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.Collection;
 
 /**
  * @author Ray Hilton
@@ -177,6 +180,7 @@ public class XCodeBuilder extends Builder {
      */
     public final String bundleIDInfoPlistPath;
 
+    public final Boolean interpretTargetAsRegEx;
     /**
      * @since 1.5
      */
@@ -190,7 +194,7 @@ public class XCodeBuilder extends Builder {
     		String keychainName, String keychainPath, String keychainPwd, String symRoot, String xcodeWorkspaceFile,
     		String xcodeSchema, String configurationBuildDir, String codeSigningIdentity, Boolean allowFailingBuildResults,
     		String ipaName, Boolean provideApplicationVersion, String ipaOutputDirectory, Boolean changeBundleID, String bundleID, 
-    		String bundleIDInfoPlistPath, String ipaManifestPlistUrl) {
+    		String bundleIDInfoPlistPath, String ipaManifestPlistUrl, Boolean interpretTargetAsRegEx) {
         this.buildIpa = buildIpa;
         this.generateArchive = generateArchive;
         this.sdk = sdk;
@@ -220,6 +224,7 @@ public class XCodeBuilder extends Builder {
         this.changeBundleID = changeBundleID;
         this.bundleID = bundleID;
         this.bundleIDInfoPlistPath = bundleIDInfoPlistPath;
+        this.interpretTargetAsRegEx = interpretTargetAsRegEx;
         this.ipaManifestPlistUrl = ipaManifestPlistUrl;
     }
 
@@ -466,6 +471,8 @@ public class XCodeBuilder extends Builder {
 
         listener.getLogger().println(Messages.XCodeBuilder_DebugInfoAvailableSDKs());
         /*returnCode =*/ launcher.launch().envs(envs).cmds(getGlobalConfiguration().getXcodebuildPath(), "-showsdks").stdout(listener).pwd(projectRoot).join();
+
+        XcodeBuildListParser xcodebuildListParser = null;
         {
             List<String> commandLine = Lists.newArrayList(getGlobalConfiguration().getXcodebuildPath());
             commandLine.add("-list");
@@ -478,8 +485,15 @@ public class XCodeBuilder extends Builder {
                 commandLine.add("-project");
                 commandLine.add(xcodeProjectFile);
             }
-            returnCode = launcher.launch().envs(envs).cmds(commandLine).stdout(listener).pwd(projectRoot).join();
+            
+            
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            returnCode = launcher.launch().envs(envs).cmds(commandLine).stdout(baos).pwd(projectRoot).join();
+            String xcodeBuildListOutput = baos.toString("UTF-8");
+            listener.getLogger().println(xcodeBuildListOutput);
             if (returnCode > 0) return false;
+
+            xcodebuildListParser = new XcodeBuildListParser(xcodeBuildListOutput);
         }
         listener.getLogger().println(Messages.XCodeBuilder_DebugInfoLineDelimiter());
 
@@ -496,6 +510,24 @@ public class XCodeBuilder extends Builder {
         } else if (StringUtils.isEmpty(target)) {
             commandLine.add("-alltargets");
             xcodeReport.append("target: ALL");
+        } else if(interpretTargetAsRegEx != null && interpretTargetAsRegEx) {
+            if(xcodebuildListParser == null || xcodebuildListParser.getTargets().isEmpty()) {
+                listener.getLogger().println(Messages.XCodeBuilder_NoTargetsFoundInConfig());
+                return false;
+            }
+            Collection<String> matchedTargets = Collections2.filter(xcodebuildListParser.getTargets(),
+                    Predicates.containsPattern(target));
+
+            if (matchedTargets.isEmpty()) {
+                listener.getLogger().println(Messages.XCodeBuilder_NoMatchingTargetsFound());
+                return false;
+            }
+
+            for (String matchedTarget : matchedTargets) {
+                commandLine.add("-target");
+                commandLine.add(matchedTarget);
+                xcodeReport.append("target: ").append(matchedTarget);
+            }
         } else {
             commandLine.add("-target");
             commandLine.add(target);

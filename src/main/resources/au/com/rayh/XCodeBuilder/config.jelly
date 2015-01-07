@@ -41,7 +41,11 @@
 	      description="Leave empty for all targets">
 	        <f:textbox/>
 	    </f:entry>
-	    
+
+        <f:entry title="" field="interpretTargetAsRegEx">
+            <f:checkbox title="${%Interpret As Regular Expression}" />
+        </f:entry>
+
 		<f:advanced title="Settings">
 		    <f:entry title="${%Clean before build?}" field="cleanBeforeBuild"
 		      description="This will delete the build directories before invoking the build.">

@@ -1,0 +1,16 @@
+Information about project "SampleXcodeProject":
+    Targets
+        SampleTarget1
+        SampleTarget2
+        TestSampleTarget1
+        TestSampleTarget2
+
+    Build Configurations
+        BuildConfiguration1
+        BuildConfiguration2
+
+    If no build configuration is specified and -scheme is not passed then "Release" is used.
+
+    Schemes
+        SampleScheme1
+        SampleScheme2
