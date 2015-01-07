@@ -45,7 +45,6 @@ import org.kohsuke.stapler.DataBoundConstructor;
 
 import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.ObjectStreamException;
 import java.text.SimpleDateFormat;
@@ -472,7 +471,7 @@ public class XCodeBuilder extends Builder {
         listener.getLogger().println(Messages.XCodeBuilder_DebugInfoAvailableSDKs());
         /*returnCode =*/ launcher.launch().envs(envs).cmds(getGlobalConfiguration().getXcodebuildPath(), "-showsdks").stdout(listener).pwd(projectRoot).join();
 
-        XcodeBuildListParser xcodebuildListParser = null;
+        XcodeBuildListParser xcodebuildListParser;
         {
             List<String> commandLine = Lists.newArrayList(getGlobalConfiguration().getXcodebuildPath());
             commandLine.add("-list");
@@ -485,8 +484,7 @@ public class XCodeBuilder extends Builder {
                 commandLine.add("-project");
                 commandLine.add(xcodeProjectFile);
             }
-            
-            
+
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             returnCode = launcher.launch().envs(envs).cmds(commandLine).stdout(baos).pwd(projectRoot).join();
             String xcodeBuildListOutput = baos.toString("UTF-8");
@@ -511,7 +509,7 @@ public class XCodeBuilder extends Builder {
             commandLine.add("-alltargets");
             xcodeReport.append("target: ALL");
         } else if(interpretTargetAsRegEx != null && interpretTargetAsRegEx) {
-            if(xcodebuildListParser == null || xcodebuildListParser.getTargets().isEmpty()) {
+            if(xcodebuildListParser.getTargets().isEmpty()) {
                 listener.getLogger().println(Messages.XCodeBuilder_NoTargetsFoundInConfig());
                 return false;
             }
