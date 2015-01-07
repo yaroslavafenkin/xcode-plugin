@@ -35,8 +35,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 
 import hudson.util.IOUtils;
-import org.apache.commons.io.FileUtils;
-import org.codehaus.plexus.util.StringOutputStream;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
