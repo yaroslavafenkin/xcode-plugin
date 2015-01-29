@@ -80,6 +80,7 @@ public class DeveloperProfileLoader extends Builder {
             args.add(id).add("-k",keyChain);
             args.add("-P").addMasked(dp.getPassword().getPlainText());
             args.add("-T","/usr/bin/codesign");
+            args.add("-T","/usr/bin/productsign");
             args.add(keyChain);
             invoke(launcher, listener, args, "Failed to import identity "+id);
         }
