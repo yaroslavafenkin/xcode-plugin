@@ -53,6 +53,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.Collection;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Ray Hilton
@@ -486,10 +487,10 @@ public class XCodeBuilder extends Builder {
             }
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            returnCode = launcher.launch().envs(envs).cmds(commandLine).stdout(baos).pwd(projectRoot).join();
+        	returnCode = launcher.launch().envs(envs).cmds(commandLine).stdout(baos).pwd(projectRoot).start().joinWithTimeout(10, TimeUnit.SECONDS, listener);
             String xcodeBuildListOutput = baos.toString("UTF-8");
             listener.getLogger().println(xcodeBuildListOutput);
-            if (returnCode > 0) return false;
+            if (returnCode > 0 && returnCode != 143) return false;
 
             xcodebuildListParser = new XcodeBuildListParser(xcodeBuildListOutput);
         }
