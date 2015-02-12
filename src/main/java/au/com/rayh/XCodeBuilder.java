@@ -60,6 +60,8 @@ import java.util.concurrent.TimeUnit;
  */
 public class XCodeBuilder extends Builder {
 
+    private static final int SIGTERM = 143;
+
     private static final String MANIFEST_PLIST_TEMPLATE = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">"
             + "<plist version=\"1.0\"><dict><key>items</key><array><dict><key>assets</key><array><dict><key>kind</key><string>software-package</string><key>url</key><string>${IPA_URL_BASE}/${IPA_NAME}</string></dict></array>"
             + "<key>metadata</key><dict><key>bundle-identifier</key><string>${BUNDLE_ID}</string><key>bundle-version</key><string>${BUNDLE_VERSION}</string><key>kind</key><string>software</string><key>title</key><string>${APP_NAME}</string></dict></dict></array></dict></plist>";
@@ -487,10 +489,11 @@ public class XCodeBuilder extends Builder {
             }
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        	returnCode = launcher.launch().envs(envs).cmds(commandLine).stdout(baos).pwd(projectRoot).start().joinWithTimeout(10, TimeUnit.SECONDS, listener);
+            returnCode = launcher.launch().envs(envs).cmds(commandLine).stdout(baos).pwd(projectRoot).start().joinWithTimeout(10, TimeUnit.SECONDS, listener);
             String xcodeBuildListOutput = baos.toString("UTF-8");
             listener.getLogger().println(xcodeBuildListOutput);
-            if (returnCode > 0 && returnCode != 143) return false;
+            boolean timedOut = returnCode == SIGTERM;
+            if (returnCode > 0 && !timedOut) return false;
 
             xcodebuildListParser = new XcodeBuildListParser(xcodeBuildListOutput);
         }
