@@ -111,26 +111,24 @@ public class XCodeBuildOutputParser {
         }
     }
 
-	private Date parseDate(String string) throws ParseException {
+	private Date parseDate(String text) throws ParseException {
 		Date date;
 		ParseException parseException;
 
 		date = null;
 		parseException = null;
 
-		if (string != null) {
-			for (DateFormat dateFormat : dateFormats) {
-				try {
-					date = dateFormat.parse(string);
-					break;
-				} catch (ParseException exception) {
-					parseException = exception;
-				}
+		for (DateFormat dateFormat : dateFormats) {
+			try {
+				date = dateFormat.parse(text);
+				break;
+			} catch (ParseException exception) {
+				parseException = exception;
 			}
+		}
 
-			if ((date == null) && (parseException != null)) {
-				throw parseException;
-			}
+		if ((date == null) && (parseException != null)) {
+			throw parseException;
 		}
 
 		return date;
