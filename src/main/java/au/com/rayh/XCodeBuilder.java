@@ -509,7 +509,7 @@ public class XCodeBuilder extends Builder {
             commandLine.add("-scheme");
             commandLine.add(xcodeSchema);
             xcodeReport.append(", scheme: ").append(xcodeSchema);
-        } else if (StringUtils.isEmpty(target)) {
+        } else if (StringUtils.isEmpty(target) && !StringUtils.isEmpty(xcodeProjectFile)) {
             commandLine.add("-alltargets");
             xcodeReport.append("target: ALL");
         } else if(interpretTargetAsRegEx != null && interpretTargetAsRegEx) {
