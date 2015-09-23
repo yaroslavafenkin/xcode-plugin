@@ -181,7 +181,7 @@
 		
 		    <f:entry title="${%Custom xcodebuild arguments}" field="xcodebuildArguments"
 		    	description="Additional xcodebuild arguments">
-		        <f:textbox name="xcode.xcodebuildArguments" value="${instance.xcodebuildArguments}" default=""/>
+		        <f:textarea name="xcode.xcodebuildArguments" value="${instance.xcodebuildArguments}" default=""/>
 		    </f:entry>
 		
 		    <f:entry title="${%Xcode Workspace File}" field="xcodeWorkspaceFile"
