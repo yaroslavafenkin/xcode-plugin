@@ -68,7 +68,7 @@
                     description="Checking this option will create a .ipa for each .app found in the build directory.">
                     <f:entry title="${%Export method}" field="ipaExportMethod"
                         description="The export method of the .app to generate the .ipa file. Should be one in 'development', 'ad-hoc', 'enterprise' or 'app-store'.">
-                        <f:textbox default="enterprise" />
+                        <f:textbox default="ad-hoc" />
                     </f:entry>
 
                     <f:entry title="${%.ipa filename pattern}" field="ipaName"
