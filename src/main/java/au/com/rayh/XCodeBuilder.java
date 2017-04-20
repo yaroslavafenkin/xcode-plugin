@@ -762,29 +762,29 @@ public class XCodeBuilder extends Builder {
                 listener.getLogger().println("Archiving dSYM");
                 List<FilePath> dSYMs = buildDirectory.absolutize().child(configuration + "-" + buildPlatform).list(new DSymFileFilter());
 
-                if (dSYMs.isEmpty()) {
+                if (dSYMs != null && dSYMs.isEmpty()) {
                     listener.getLogger().println("No dSYM file found in " + buildDirectory.absolutize().child(configuration + "-" + buildPlatform) + "!");
-                }
 
-                for(FilePath dSYM : dSYMs) {
-                    returnCode = launcher.launch()
-                            .envs(envs)
-                            .stdout(listener)
-                            .pwd(buildDirectory)
-                            .cmds("ditto",
-                                    "-c",
-                                    "-k",
-                                    "--keepParent",
-                                    "-rsrc",
-                                    dSYM.absolutize().getRemote(),
-                                    ipaOutputPath.child(baseName + "-dSYM.zip")
-                                            .absolutize()
-                                            .getRemote())
-                            .join();
+                    for (FilePath dSYM : dSYMs) {
+                        returnCode = launcher.launch()
+                                .envs(envs)
+                                .stdout(listener)
+                                .pwd(buildDirectory)
+                                .cmds("ditto",
+                                        "-c",
+                                        "-k",
+                                        "--keepParent",
+                                        "-rsrc",
+                                        dSYM.absolutize().getRemote(),
+                                        ipaOutputPath.child(baseName + "-dSYM.zip")
+                                                .absolutize()
+                                                .getRemote())
+                                .join();
 
-                    if (returnCode > 0) {
-                        listener.getLogger().println(Messages.XCodeBuilder_zipFailed(baseName));
-                        return false;
+                        if (returnCode > 0) {
+                            listener.getLogger().println(Messages.XCodeBuilder_zipFailed(baseName));
+                            return false;
+                        }
                     }
                 }
 
