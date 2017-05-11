@@ -903,6 +903,7 @@ public class XCodeBuilder extends Builder {
         private transient String agvtoolPath;
         private transient String xcrunPath;
         private transient CopyOnWriteList<Keychain> keychains;
+        private transient CopyOnWriteList<Team> teams;
 
         public DescriptorImpl() {
             load();
@@ -927,6 +928,10 @@ public class XCodeBuilder extends Builder {
                 }
                 if (keychains!=null) {
                     c.setKeychains(new ArrayList<Keychain>(keychains.getView()));
+                    modified = true;
+                }
+                if (teams!=null) {
+                    c.setTeams(new ArrayList<Team>(teams.getView()));
                     modified = true;
                 }
                 if (modified) {

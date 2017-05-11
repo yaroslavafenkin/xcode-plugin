@@ -62,8 +62,13 @@ public final class GlobalConfigurationImpl extends GlobalConfiguration {
         LOGGER.fine("[Xcode] Default constructor: " + getKeychains().size());
     }
 
-    @DataBoundConstructor
+    @Deprecated
     public GlobalConfigurationImpl(String xcodebuildPath, String xcrunPath, String agvtoolPath, String defaultKeychain, ArrayList<Keychain> keychains) {
+        this(xcodebuildPath, xcrunPath, agvtoolPath, defaultKeychain, keychains, null);
+    }
+
+    @DataBoundConstructor
+    public GlobalConfigurationImpl(String xcodebuildPath, String xcrunPath, String agvtoolPath, String defaultKeychain, ArrayList<Keychain> keychains, ArrayList<Team> teams) {
         super();
         load();
 
@@ -74,7 +79,10 @@ public final class GlobalConfigurationImpl extends GlobalConfiguration {
         this.setKeychains(keychains);
         this.setTeams(teams);
 
-        LOGGER.fine("[Xcode] DataBoundConstructor: " + keychains.size());
+        LOGGER.fine("[Xcode] DataBoundConstructor: keychains.size " + keychains.size());
+        if(teams != null) {
+            LOGGER.fine("[Xcode] DataBoundConstructor: teams.size " + teams.size());
+        }
     }
 
     public FormValidation doCheckXcodebuildPath(@QueryParameter String value) throws IOException, ServletException {
