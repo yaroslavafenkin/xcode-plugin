@@ -159,7 +159,7 @@ public class XCodeBuilder extends Builder {
     /**
      * @since 1.4.12
      */
-    public final String developmentTeam;
+    public final String developmentTeamName;
     /**
      * @since 1.4.12
      */
@@ -200,30 +200,12 @@ public class XCodeBuilder extends Builder {
     public final String ipaManifestPlistUrl;
 
     // Fields in config.jelly must match the parameter names in the "DataBoundConstructor"
-    @Deprecated
-    public XCodeBuilder(Boolean buildIpa, Boolean generateArchive, Boolean cleanBeforeBuild, Boolean cleanTestReports, String configuration,
-                        String target, String sdk, String xcodeProjectPath, String xcodeProjectFile, String xcodebuildArguments,
-                        String embeddedProfileFile, String cfBundleVersionValue, String cfBundleShortVersionStringValue, Boolean unlockKeychain,
-                        String keychainName, String keychainPath, String keychainPwd, String symRoot, String xcodeWorkspaceFile,
-                        String xcodeSchema, String configurationBuildDir, String codeSigningIdentity, Boolean allowFailingBuildResults,
-                        String ipaName, Boolean provideApplicationVersion, String ipaOutputDirectory, Boolean changeBundleID, String bundleID,
-                        String bundleIDInfoPlistPath, String ipaManifestPlistUrl, Boolean interpretTargetAsRegEx, Boolean signIpaOnXcrun) {
-
-        this(buildIpa, generateArchive, cleanBeforeBuild, cleanTestReports, configuration,
-                target, sdk, xcodeProjectPath, xcodeProjectFile, xcodebuildArguments,
-                cfBundleVersionValue, cfBundleShortVersionStringValue, unlockKeychain,
-                keychainName, keychainPath, keychainPwd, symRoot, xcodeWorkspaceFile,
-                xcodeSchema, configurationBuildDir, "", "", allowFailingBuildResults,
-                ipaName, provideApplicationVersion, ipaOutputDirectory, changeBundleID, bundleID,
-                bundleIDInfoPlistPath, ipaManifestPlistUrl, interpretTargetAsRegEx, "ad-hoc");
-    }
-
     @DataBoundConstructor
     public XCodeBuilder(Boolean buildIpa, Boolean generateArchive, Boolean cleanBeforeBuild, Boolean cleanTestReports, String configuration,
     		String target, String sdk, String xcodeProjectPath, String xcodeProjectFile, String xcodebuildArguments,
     		String cfBundleVersionValue, String cfBundleShortVersionStringValue, Boolean unlockKeychain,
     		String keychainName, String keychainPath, String keychainPwd, String symRoot, String xcodeWorkspaceFile,
-    		String xcodeSchema, String buildDir, String developmentTeam, String developmentTeamID, Boolean allowFailingBuildResults,
+    		String xcodeSchema, String buildDir, String developmentTeamName, String developmentTeamID, Boolean allowFailingBuildResults,
     		String ipaName, Boolean provideApplicationVersion, String ipaOutputDirectory, Boolean changeBundleID, String bundleID,
     		String bundleIDInfoPlistPath, String ipaManifestPlistUrl, Boolean interpretTargetAsRegEx, String ipaExportMethod) {
 
@@ -240,7 +222,7 @@ public class XCodeBuilder extends Builder {
         this.keychainName = keychainName;
         this.xcodeWorkspaceFile = xcodeWorkspaceFile;
         this.xcodeSchema = xcodeSchema;
-        this.developmentTeam = developmentTeam;
+        this.developmentTeamName = developmentTeamName;
         this.developmentTeamID = developmentTeamID;
         this.cfBundleVersionValue = cfBundleVersionValue;
         this.cfBundleShortVersionStringValue = cfBundleShortVersionStringValue;
@@ -259,6 +241,24 @@ public class XCodeBuilder extends Builder {
         this.interpretTargetAsRegEx = interpretTargetAsRegEx;
         this.ipaManifestPlistUrl = ipaManifestPlistUrl;
         this.ipaExportMethod = ipaExportMethod;
+    }
+
+    @Deprecated
+    public XCodeBuilder(Boolean buildIpa, Boolean generateArchive, Boolean cleanBeforeBuild, Boolean cleanTestReports, String configuration,
+                        String target, String sdk, String xcodeProjectPath, String xcodeProjectFile, String xcodebuildArguments,
+                        String embeddedProfileFile, String cfBundleVersionValue, String cfBundleShortVersionStringValue, Boolean unlockKeychain,
+                        String keychainName, String keychainPath, String keychainPwd, String symRoot, String xcodeWorkspaceFile,
+                        String xcodeSchema, String configurationBuildDir, String codeSigningIdentity, Boolean allowFailingBuildResults,
+                        String ipaName, Boolean provideApplicationVersion, String ipaOutputDirectory, Boolean changeBundleID, String bundleID,
+                        String bundleIDInfoPlistPath, String ipaManifestPlistUrl, Boolean interpretTargetAsRegEx, Boolean signIpaOnXcrun) {
+
+        this(buildIpa, generateArchive, cleanBeforeBuild, cleanTestReports, configuration,
+                target, sdk, xcodeProjectPath, xcodeProjectFile, xcodebuildArguments,
+                cfBundleVersionValue, cfBundleShortVersionStringValue, unlockKeychain,
+                keychainName, keychainPath, keychainPwd, symRoot, xcodeWorkspaceFile,
+                xcodeSchema, configurationBuildDir, "", "", allowFailingBuildResults,
+                ipaName, provideApplicationVersion, ipaOutputDirectory, changeBundleID, bundleID,
+                bundleIDInfoPlistPath, ipaManifestPlistUrl, interpretTargetAsRegEx, "ad-hoc");
     }
 
     @SuppressWarnings("unused")
@@ -857,9 +857,9 @@ public class XCodeBuilder extends Builder {
     }
 
     public Team getDevelopmentTeam() {
-        if(!StringUtils.isEmpty(developmentTeam)) {
+        if(!StringUtils.isEmpty(developmentTeamName)) {
             for (Team team : getGlobalConfiguration().getTeams()) {
-                if(team.getTeamName().equals(developmentTeam))
+                if(team.getTeamName().equals(developmentTeamName))
                     return team;
             }
         }

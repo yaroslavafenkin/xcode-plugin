@@ -47,6 +47,11 @@
                    field="teamID">
             <f:textbox name="team.teamID" value="${team.teamID}" />
           </f:entry>
+          <f:entry title="">
+            <div align="right">
+              <f:repeatableDeleteButton />
+            </div>
+          </f:entry>
         </table>
       </f:repeatable>
     </f:entry>
