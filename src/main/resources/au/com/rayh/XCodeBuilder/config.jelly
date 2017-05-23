@@ -183,7 +183,7 @@
                 <f:checkbox title="Yes" name="xcode.cleanTestReports" checked="${instance.cleanTestReports}" />
             </f:entry>
 
-            <f:entry title="${%Xcode Schema File}" field="xcodeSchema" description="Only needed if you want to compile for a specific schema instead of a target.">
+            <f:entry title="${%Xcode Schema File}" field="xcodeSchema" description="Needed if you want to compile for a specific schema instead of a target, or if you want to generate an archive or an IPA.">
                 <f:textbox />
             </f:entry>
 
