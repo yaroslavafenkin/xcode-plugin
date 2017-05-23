@@ -246,7 +246,7 @@ public class XCodeBuildOutputParser {
 
         m = FAILED_WITH_EXIT_CODE.matcher(line);
         if(m.matches()) {
-            exitCode = Integer.valueOf(m.group(1));
+            exitCode = Integer.parseInt(m.group(1));
             return;
         }
 

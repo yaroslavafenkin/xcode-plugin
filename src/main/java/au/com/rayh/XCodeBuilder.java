@@ -27,6 +27,7 @@ package au.com.rayh;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.EnvVars;
 import hudson.Extension;
 import hudson.FilePath;
@@ -61,6 +62,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author Ray Hilton
  */
+@SuppressFBWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")
 public class XCodeBuilder extends Builder implements SimpleBuildStep {
 
     private static final int SIGTERM = 143;
@@ -285,6 +287,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 		return _perform(build, build.getWorkspace(), launcher, build.getEnvironment(listener), listener);
 	}
 
+    @SuppressFBWarnings("DM_DEFAULT_ENCODING")
     private boolean _perform(Run<?,?> build, FilePath projectRoot, Launcher launcher, EnvVars envs, TaskListener listener) throws InterruptedException, IOException {
 
         // check that the configured tools exist
@@ -919,6 +922,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
             load();
         }
 
+        @SuppressFBWarnings("UWF_UNWRITTEN_FIELD")
         @Inject
         void setGlobalConfiguration(GlobalConfigurationImpl c) {
             this.globalConfiguration = c;

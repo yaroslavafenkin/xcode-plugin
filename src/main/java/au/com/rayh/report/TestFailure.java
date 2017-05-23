@@ -24,6 +24,8 @@
 
 package au.com.rayh.report;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -36,6 +38,7 @@ public class TestFailure {
     @XmlAttribute
     String message;
     
+    @SuppressFBWarnings("URF_UNREAD_FIELD")
     @XmlAttribute
     String type = "Failure";
     

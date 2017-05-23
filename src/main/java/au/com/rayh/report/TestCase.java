@@ -24,6 +24,8 @@
 
 package au.com.rayh.report;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -53,6 +55,7 @@ public class TestCase {
     public TestCase() {
     }
 
+    @SuppressFBWarnings("URF_UNREAD_FIELD")
     public TestCase(String classname, String name) {
         this.classname = classname;
         this.name = name;

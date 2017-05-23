@@ -1,6 +1,7 @@
 package au.com.rayh;
 
 import com.cloudbees.plugins.credentials.CredentialsProvider;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.AbortException;
 import hudson.Extension;
 import hudson.FilePath;
@@ -36,6 +37,7 @@ import java.util.UUID;
  *
  * @author Kohsuke Kawaguchi
  */
+@SuppressFBWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")
 public class DeveloperProfileLoader extends Builder {
     private final String id;
 

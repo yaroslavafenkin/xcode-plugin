@@ -24,6 +24,8 @@
 
 package au.com.rayh.report;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -67,6 +69,7 @@ public class TestSuite {
     public TestSuite() {
     }
     
+    @SuppressFBWarnings({"EI_EXPOSE_REP2", "URF_UNREAD_FIELD"})
     public TestSuite(String hostname, String name, Date startTime) {
         this.hostname = hostname;
         this.name = name;
@@ -101,13 +104,15 @@ public class TestSuite {
         return name;
     }
 
+    @SuppressFBWarnings("EI_EXPOSE_REP")
     public Date getStartTime() {
         return startTime;
     }
 
+    @SuppressFBWarnings({"EI_EXPOSE_REP2", "URF_UNREAD_FIELD"})
     public void setEndTime(Date endTime) {
         this.endTime = endTime;
-        this.time = (endTime.getTime() - startTime.getTime())/1000;
+        this.time = (endTime.getTime() - startTime.getTime())/1000f;
     }
 
     public List<TestCase> getTestCases() {
