@@ -771,7 +771,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
                 }
 
 
-                List<String> packageCommandLine = new ArrayList<String>();
+                List<String> packageCommandLine = new ArrayList<>();
                 packageCommandLine.add(getGlobalConfiguration().getXcodebuildPath());
                 packageCommandLine.addAll(Lists.newArrayList("-exportArchive", "-archivePath", archive.absolutize().getRemote(), "-exportPath", ipaOutputPath.absolutize().getRemote(), "-exportOptionsPlist", exportPlistLocation.absolutize().getRemote()));
                 returnCode = launcher.launch().envs(envs).stdout(listener).pwd(projectRoot).cmds(packageCommandLine).join();
@@ -883,11 +883,11 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 
     static List<String> splitXcodeBuildArguments(String xcodebuildArguments) {
         if (xcodebuildArguments == null || xcodebuildArguments.length() == 0) {
-            return new ArrayList<String>(0);
+            return new ArrayList<>(0);
         }
 
         final QuotedStringTokenizer tok = new QuotedStringTokenizer(xcodebuildArguments);
-        final List<String> result = new ArrayList<String>();
+        final List<String> result = new ArrayList<>();
         while(tok.hasMoreTokens())
             result.add(tok.nextToken());
 
@@ -937,11 +937,11 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
                     modified = true;
                 }
                 if (keychains!=null) {
-                    c.setKeychains(new ArrayList<Keychain>(keychains.getView()));
+                    c.setKeychains(new ArrayList<>(keychains.getView()));
                     modified = true;
                 }
                 if (teams!=null) {
-                    c.setTeams(new ArrayList<Team>(teams.getView()));
+                    c.setTeams(new ArrayList<>(teams.getView()));
                     modified = true;
                 }
                 if (modified) {

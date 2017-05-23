@@ -54,8 +54,8 @@ public final class GlobalConfigurationImpl extends GlobalConfiguration {
     private String xcrunPath = "/usr/bin/xcrun";
     private String agvtoolPath = "/usr/bin/agvtool";
     private String defaultKeychain = "";
-    private ArrayList<Keychain> keychains = new ArrayList<Keychain>();
-    private ArrayList<Team> teams = new ArrayList<Team>();
+    private ArrayList<Keychain> keychains = new ArrayList<>();
+    private ArrayList<Team> teams = new ArrayList<>();
 
     public GlobalConfigurationImpl() {
         load();
@@ -153,8 +153,8 @@ public final class GlobalConfigurationImpl extends GlobalConfiguration {
     @Override
     public boolean configure(StaplerRequest req, JSONObject formData) throws FormException {
         req.bindJSON(this, formData);
-        setKeychains(new ArrayList<Keychain>(req.bindParametersToList(Keychain.class, "keychain.")));
-        setTeams(new ArrayList<Team>(req.bindParametersToList(Team.class, "team.")));
+        setKeychains(new ArrayList<>(req.bindParametersToList(Keychain.class, "keychain.")));
+        setTeams(new ArrayList<>(req.bindParametersToList(Team.class, "team.")));
         save();
 
         return super.configure(req, formData);

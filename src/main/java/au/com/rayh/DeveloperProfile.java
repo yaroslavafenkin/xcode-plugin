@@ -77,7 +77,7 @@ public class DeveloperProfile extends BaseStandardCredentials {
      */
     public @Nonnull List<X509Certificate> getCertificates() throws IOException, GeneralSecurityException {
         try (ZipInputStream zip = new ZipInputStream(new ByteArrayInputStream(getImage()))) {
-            List<X509Certificate> r = new ArrayList<X509Certificate>();
+            List<X509Certificate> r = new ArrayList<>();
 
             ZipEntry ze;
             while ((ze = zip.getNextEntry()) != null) {

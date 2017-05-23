@@ -45,10 +45,10 @@ public class TestCase {
     float time;
     
     @XmlElement(name="failure")
-    List<TestFailure> failures = new ArrayList<TestFailure>();
+    List<TestFailure> failures = new ArrayList<>();
     
     @XmlElement(name="error")
-    List<TestError> errors = new ArrayList<TestError>();
+    List<TestError> errors = new ArrayList<>();
 
     public TestCase() {
     }

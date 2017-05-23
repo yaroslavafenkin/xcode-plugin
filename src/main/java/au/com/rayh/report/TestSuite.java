@@ -59,7 +59,7 @@ public class TestSuite {
     Date endTime;
     
     @XmlElement(name="testcase")
-    List<TestCase> testcases = new ArrayList<TestCase>();
+    List<TestCase> testcases = new ArrayList<>();
 
     @XmlTransient
     Date startTime;
