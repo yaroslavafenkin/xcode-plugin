@@ -43,7 +43,7 @@
                    field="teamName">
             <f:textbox name="team.teamName" value="${team.teamName}" />
           </f:entry>
-          <f:entry title="${%Developement Team ID}"
+          <f:entry title="${%Development Team ID}"
                    description="The ID of the Apple development team to use to sign the IPA."
                    field="teamID">
             <f:textbox name="team.teamID" value="${team.teamID}" />
