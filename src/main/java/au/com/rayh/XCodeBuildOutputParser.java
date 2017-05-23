@@ -50,7 +50,7 @@ import au.com.rayh.report.TestSuite;
  * Parse Xcode output and transform into JUnit-style xml test result files.
  * This utility class creates and manages a FilterOutputStream to parse the Xcode output to capture the
  * results of ocunit tests. 
- * @author John Bito <jwbito@gmail.com>
+ * @author John Bito &lt;jwbito@gmail.com&gt;
  */
 
 public class XCodeBuildOutputParser {
