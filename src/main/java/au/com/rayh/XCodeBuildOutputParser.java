@@ -73,6 +73,7 @@ public class XCodeBuildOutputParser {
     protected int exitCode;
     protected TestSuite currentTestSuite;
     protected TestCase currentTestCase;
+    protected boolean consoleLog;
 
     protected XCodeBuildOutputParser() {
         super();
@@ -87,6 +88,7 @@ public class XCodeBuildOutputParser {
         this();
         this.captureOutputStream = new LineBasedFilterOutputStream(log);
         this.testReportsDir = workspace;
+        this.consoleLog = true;
     }
 
     public class LineBasedFilterOutputStream extends FilterOutputStream {
@@ -173,6 +175,7 @@ public class XCodeBuildOutputParser {
     protected void handleLine(String line) throws ParseException, IOException, InterruptedException, JAXBException {
         Matcher m = START_SUITE.matcher(line);
         if(m.matches()) {
+        	  consoleLog = true;
             currentTestSuite = new TestSuite(InetAddress.getLocalHost().getHostName(), m.group(1), parseDate(m.group(2)));
             return;
         }
@@ -185,6 +188,7 @@ public class XCodeBuildOutputParser {
             writeTestReport();
 
             currentTestSuite = null;
+            consoleLog = false;
             return;
         }
 
