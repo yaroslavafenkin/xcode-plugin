@@ -834,9 +834,9 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
                 listener.getLogger().println("Archiving dSYM");
                 List<FilePath> dSYMs = buildDirectory.absolutize().child(configuration + "-" + buildPlatform).list(new DSymFileFilter());
 
-                if (dSYMs != null && dSYMs.isEmpty()) {
+                if (dSYMs == null || dSYMs.isEmpty()) {
                     listener.getLogger().println("No dSYM file found in " + buildDirectory.absolutize().child(configuration + "-" + buildPlatform) + "!");
-
+                } else {
                     for (FilePath dSYM : dSYMs) {
                         returnCode = launcher.launch()
                                 .envs(envs)
