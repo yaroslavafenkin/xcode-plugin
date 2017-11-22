@@ -28,6 +28,7 @@ import com.google.common.base.Predicates;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import hudson.AbortException;
 import hudson.EnvVars;
 import hudson.Extension;
 import hudson.FilePath;
@@ -43,6 +44,7 @@ import hudson.util.CopyOnWriteList;
 import hudson.util.QuotedStringTokenizer;
 import jenkins.tasks.SimpleBuildStep;
 import org.apache.commons.lang.StringUtils;
+import org.jenkinsci.Symbol;
 import org.jenkinsci.plugins.tokenmacro.MacroEvaluationException;
 import org.jenkinsci.plugins.tokenmacro.TokenMacro;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -309,7 +311,10 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 
     @Override
     public void perform(Run<?, ?> build, FilePath filePath, Launcher launcher, TaskListener listener) throws InterruptedException, IOException {
-		_perform(build, filePath, launcher, build.getEnvironment(listener), listener);
+		boolean result = _perform(build, filePath, launcher, build.getEnvironment(listener), listener);
+		if (!result) {
+		    throw new AbortException("xcodeBuild failed. Check the logs for details");
+        }
     }
 
     @Override
@@ -948,6 +953,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
     }
 
     @Extension
+    @Symbol("xcodeBuild")
     public static final class DescriptorImpl extends BuildStepDescriptor<Builder> {
     	GlobalConfigurationImpl globalConfiguration;
 
