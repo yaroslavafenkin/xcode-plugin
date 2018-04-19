@@ -608,16 +608,25 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
         listener.getLogger().println(Messages.XCodeBuilder_DebugInfoAvailablePProfiles());
         /*returnCode =*/ launcher.launch().envs(envs).cmds("/usr/bin/security", "find-identity", "-p", "codesigning", "-v").stdout(listener).pwd(projectRoot).join();
 
-        Team team = getDevelopmentTeam();
-        if (team == null) {
-            listener.getLogger().println(Messages.XCodeBuilder_teamNotConfigured());
-        } else {
-            String developmentTeamID = envs.expand(team.getTeamID());
-            if (!StringUtils.isEmpty(developmentTeamID)) {
-                listener.getLogger().println(Messages.XCodeBuilder_DebugInfoCanFindPProfile());
-                /*returnCode =*/
-                launcher.launch().envs(envs).cmds("/usr/bin/security", "find-certificate", "-a", "-c", developmentTeamID, "-Z", "|", "grep", "^SHA-1").stdout(listener).pwd(projectRoot).join();
-                // We could fail here, but this doesn't seem to work as it should right now (output not properly redirected. We might need a parser)
+        // If developmentTeamName is set the developmentTeamID is invalid.
+	// when already set 'this.developmentTeamID' use it.
+        String developmentTeamID = null;
+        if ( StringUtils.isEmpty(developmentTeamName) ) {
+	   // Expand envronment variable of developmentTeamID.
+           developmentTeamID = envs.expand(this.developmentTeamID);
+        }
+        if (StringUtils.isEmpty(developmentTeamID)) {
+            Team team = getDevelopmentTeam();
+            if (team == null) {
+                listener.getLogger().println(Messages.XCodeBuilder_teamNotConfigured());
+            } else {
+                developmentTeamID = envs.expand(team.getTeamID());
+                if (!StringUtils.isEmpty(developmentTeamID)) {
+                    listener.getLogger().println(Messages.XCodeBuilder_DebugInfoCanFindPProfile());
+                    /*returnCode =*/
+                    launcher.launch().envs(envs).cmds("/usr/bin/security", "find-certificate", "-a", "-c", developmentTeamID, "-Z", "|", "grep", "^SHA-1").stdout(listener).pwd(projectRoot).join();
+                    // We could fail here, but this doesn't seem to work as it should right now (output not properly redirected. We might need a parser)
+                }
             }
         }
 
@@ -822,7 +831,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
             if (manualSigning != null && manualSigning) {
                 StringBuilder plistProvisioningProfiles = new StringBuilder("");
                 for (ProvisioningProfile pp : provisioningProfiles) {
-                    plistProvisioningProfiles.append(pp.toPlist());
+                    plistProvisioningProfiles.append(pp.toPlist(envs));
                 }
 
                 exportOptionsPlist = MANUAL_EXPORT_OPTIONS_PLIST_TEMPLATE
@@ -956,6 +965,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 
                 if(!StringUtils.isEmpty(ipaManifestPlistUrl)) {
                     try {
+
                         FilePath ipaManifestLocation = ipaOutputPath.child(baseName + ".plist");
                         listener.getLogger().println("Creating Manifest Plist => " + ipaManifestLocation.absolutize().getRemote());
 
