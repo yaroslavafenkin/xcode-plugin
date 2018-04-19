@@ -1,6 +1,7 @@
 package au.com.rayh;
 
 import org.kohsuke.stapler.DataBoundConstructor;
+import hudson.EnvVars;
 
 public class ProvisioningProfile {
 
@@ -34,8 +35,8 @@ public class ProvisioningProfile {
         this.provisioningProfileUUID = provisioningProfileUUID;
     }
 
-    public String toPlist() {
-        return PLIST_FORMAT.replace("${APP_ID}", provisioningProfileAppId)
-                .replace("${UUID}", provisioningProfileUUID);
+    public String toPlist(EnvVars envs) {
+        return PLIST_FORMAT.replace("${APP_ID}", envs.expand(provisioningProfileAppId))
+                .replace("${UUID}", envs.expand(provisioningProfileUUID));
     }
 }
