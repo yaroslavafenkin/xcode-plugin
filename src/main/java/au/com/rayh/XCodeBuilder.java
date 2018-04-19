@@ -50,11 +50,18 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.io.ObjectStreamException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.UUID;
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
@@ -255,7 +262,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
     /**
      * @since 2.1
      */
-    public final Boolean manualSigning;
+    public final String signingMethod;
     /**
      * @since 2.1
      */
@@ -271,7 +278,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
     		String xcodeSchema, String buildDir, String developmentTeamName, String developmentTeamID, Boolean allowFailingBuildResults,
     		String ipaName, Boolean provideApplicationVersion, String ipaOutputDirectory, Boolean changeBundleID, String bundleID,
     		String bundleIDInfoPlistPath, String ipaManifestPlistUrl, Boolean interpretTargetAsRegEx, String ipaExportMethod,
-            Boolean manualSigning, ArrayList<ProvisioningProfile> provisioningProfiles) {
+                String signingMethod, ArrayList<ProvisioningProfile> provisioningProfiles) {
 
         this.buildIpa = buildIpa;
         this.generateArchive = generateArchive;
@@ -307,8 +314,27 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
         this.interpretTargetAsRegEx = interpretTargetAsRegEx;
         this.ipaManifestPlistUrl = ipaManifestPlistUrl;
         this.ipaExportMethod = ipaExportMethod;
-        this.manualSigning = manualSigning;
+        this.signingMethod = signingMethod;
         this.provisioningProfiles = provisioningProfiles;
+    }
+
+    @Deprecated
+    public XCodeBuilder(Boolean buildIpa, Boolean generateArchive, Boolean noConsoleLog, String logfileOutputDirectory, Boolean cleanBeforeBuild,
+                        Boolean cleanTestReports, String configuration,
+                        String target, String sdk, String xcodeProjectPath, String xcodeProjectFile, String xcodebuildArguments,
+                        String cfBundleVersionValue, String cfBundleShortVersionStringValue, Boolean unlockKeychain,
+                        String keychainName, String keychainPath, String keychainPwd, String symRoot, String xcodeWorkspaceFile,
+                        String xcodeSchema, String buildDir, String developmentTeamName, String developmentTeamID, Boolean allowFailingBuildResults,
+                        String ipaName, Boolean provideApplicationVersion, String ipaOutputDirectory, Boolean changeBundleID, String bundleID,
+                        String bundleIDInfoPlistPath, String ipaManifestPlistUrl, Boolean interpretTargetAsRegEx, String ipaExportMethod,
+                        Boolean manualSigning, ArrayList<ProvisioningProfile>provisioningProfiles) {
+        this(buildIpa, generateArchive, noConsoleLog, logfileOutputDirectory, cleanBeforeBuild, cleanTestReports, configuration,
+                target, sdk, xcodeProjectPath, xcodeProjectFile, xcodebuildArguments,
+                cfBundleVersionValue, cfBundleShortVersionStringValue, unlockKeychain,
+                keychainName, keychainPath, keychainPwd, symRoot, xcodeWorkspaceFile,
+                xcodeSchema, buildDir, developmentTeamName, developmentTeamID, allowFailingBuildResults,
+                ipaName, provideApplicationVersion, ipaOutputDirectory, changeBundleID, bundleID,
+                bundleIDInfoPlistPath, ipaManifestPlistUrl, interpretTargetAsRegEx, ipaExportMethod, (manualSigning ? "manual" : "automatic"), provisioningProfiles);
     }
 
     @Deprecated
@@ -608,26 +634,186 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
         listener.getLogger().println(Messages.XCodeBuilder_DebugInfoAvailablePProfiles());
         /*returnCode =*/ launcher.launch().envs(envs).cmds("/usr/bin/security", "find-identity", "-p", "codesigning", "-v").stdout(listener).pwd(projectRoot).join();
 
-        // If developmentTeamName is set the developmentTeamID is invalid.
-	// when already set 'this.developmentTeamID' use it.
-        String developmentTeamID = null;
-        if ( StringUtils.isEmpty(developmentTeamName) ) {
-	   // Expand envronment variable of developmentTeamID.
-           developmentTeamID = envs.expand(this.developmentTeamID);
-        }
-        if (StringUtils.isEmpty(developmentTeamID)) {
-            Team team = getDevelopmentTeam();
-            if (team == null) {
-                listener.getLogger().println(Messages.XCodeBuilder_teamNotConfigured());
-            } else {
-                developmentTeamID = envs.expand(team.getTeamID());
-                if (!StringUtils.isEmpty(developmentTeamID)) {
-                    listener.getLogger().println(Messages.XCodeBuilder_DebugInfoCanFindPProfile());
-                    /*returnCode =*/
-                    launcher.launch().envs(envs).cmds("/usr/bin/security", "find-certificate", "-a", "-c", developmentTeamID, "-Z", "|", "grep", "^SHA-1").stdout(listener).pwd(projectRoot).join();
-                    // We could fail here, but this doesn't seem to work as it should right now (output not properly redirected. We might need a parser)
+	String developmentTeamID = null;
+        Boolean archiveAutomaticSigning = false;
+        if ( signingMethod != null && signingMethod.equals("readFromProject") ) {
+	    provisioningProfiles = new ArrayList<>();
+	    listener.getLogger().println("Read signing information from Xcode Project.");
+	    XcodeProject xcodeProject = null;
+	    ArrayList<String> projectLocations = new ArrayList<String>();
+	    // Retrieve target from Xcode project.
+	    String projectLocation = null;
+	    if ( !StringUtils.isEmpty(xcodeProjectFile) ) {
+		// Retrieve provisioning profile information from Xcode project file.
+		projectLocation = projectRoot.toString()+ "/" + xcodeProjectFile;
+		Path path = Paths.get(projectLocation);
+		if ( !Files.exists(path) || !Files.isDirectory(path) ) {
+		    listener.getLogger().println("Could not read information from " + projectLocation);
+		    projectLocation = null;
+		}
+	    }
+	    if ( StringUtils.isEmpty(projectLocation) ) {
+		// Retrieve xcodeproj from current working directory.
+		List<String> files = XcodeProjectParser.fileList(projectRoot.toString());
+		for ( String file : files ) {
+		    Path path = Paths.get(file);
+		    if ( Files.isDirectory(path) && file.endsWith(".xcodeproj") ) {
+			// Xcode build generates an error if there are multiple xcodeproj.
+			projectLocation = file;
+			break;
+		    }
+		}
+	    }
+            // Retrieve provisioning profile information from specific Xcode project file.
+	    listener.getLogger().println("Read information from scheme " + xcodeSchema);
+            HashMap<String, ProjectScheme> xcodeSchemes = XcodeProjectParser.listXcodeSchemes(projectLocation);
+            if ( !StringUtils.isEmpty(xcodeSchema) ) {
+                // Retrieve target from specific Xcode scheme.
+                ProjectScheme projectScheme = xcodeSchemes.get(xcodeSchema);
+                if ( projectScheme == null ) {
+		    listener.getLogger().println("Could not get information from scheme " + xcodeSchema);
+                    return false;
                 }
+                projectLocation = projectScheme.referencedContainer.replaceAll("^container:", projectRoot.toString() + "/");
+		target = projectScheme.blueprintName;
+		listener.getLogger().println("Read project information from " + projectLocation);
+		projectLocations.add(projectLocation);
             }
+            else {
+		if ( xcodeSchemes.size() == 1 ) {
+		    for ( Map.Entry<String, ProjectScheme> entry: xcodeSchemes.entrySet() ) {
+			ProjectScheme projectScheme = entry.getValue();
+		    	xcodeSchema = projectScheme.blueprintName;
+		    }
+		}
+		if ( !StringUtils.isEmpty(xcodeWorkspaceFile) ) {
+                    // Retrieve target from Xcode workspace.
+		    listener.getLogger().println("Read information from workspace " + xcodeWorkspaceFile);
+                    List<String> projectList = XcodeProjectParser.parseXcodeWorkspace(projectRoot.toString() + "/" + xcodeWorkspaceFile + ".xcworkspace");
+                    for ( String location : projectList ) {
+                	String projectName = XcodeProjectParser.basename(location).replaceAll(".xcodeproj$", "");
+                	xcodeProject = XcodeProjectParser.parseXcodeProject(projectRoot.toString() + "/" + location);
+                	if ( !StringUtils.isEmpty(target) ) {
+			    if ( target.equals(projectName) ) {
+				// Add the location of specific projects.
+				projectLocations.add(projectRoot.toString() + "/" + location);
+				break;
+			    }
+               		}
+		        else {
+			    // Add the location of all projects.
+			    projectLocations.add(projectRoot.toString() + "/" + location);
+			}
+            	    }
+                }
+	        else {
+		    // Using Xcode project file information.
+		    listener.getLogger().println("Using Xcode project file information " + xcodeSchema);
+		    projectLocations.add(projectLocation);
+		}
+	    }
+	    for ( String examineLocation : projectLocations ) {
+                // Parse Xcode project file.
+                xcodeProject = XcodeProjectParser.parseXcodeProject(projectLocation);
+                if ( xcodeProject == null ) {
+		    listener.getLogger().println("Could not read project information from " + projectLocation);
+                    return false;
+                }
+		// Examine all targets.
+		for ( String key : xcodeProject.projectTarget.keySet() ) {
+		    ProjectTarget projectTarget = xcodeProject.projectTarget.get(key);
+		    String exportConfiguration = null;
+		    if ( !StringUtils.isEmpty(ipaExportMethod) ) {
+			if ( ipaExportMethod.equals("app-store") ) {
+			    exportConfiguration = "Release";
+			}
+                        else if ( ipaExportMethod.equals("enterprise") ) {
+                            exportConfiguration = "Enterprise";
+                        }
+			else if ( ipaExportMethod.equals("ad-hoc") ) {
+			    exportConfiguration = "AdHoc";
+			}
+			else {
+			    exportConfiguration = "Development";
+			}
+                    }
+		    else if ( StringUtils.isEmpty(configuration) ) {
+			exportConfiguration = projectTarget.defaultConfigurationName;
+		    }
+		    Boolean automaticSigning = projectTarget.provisioningStyle.equals("Automatic");
+                    if ( projectTarget.testTargetID == null ) {
+                        // The target is not a test.
+                        archiveAutomaticSigning = automaticSigning;
+                    }
+		    if ( !automaticSigning ) {
+			BuildConfiguration buildConfiguration = projectTarget.buildConfiguration.get(exportConfiguration);
+			if ( buildConfiguration == null ) {
+			    listener.getLogger().println("Could not get export configuration (" + buildConfiguration + ") from " + projectLocation);
+			    return false;
+			}
+			developmentTeamID = buildConfiguration.developmentTeamId;
+			String provisioningProfileUUID = buildConfiguration.provisioningProfileUUID;
+			String provisioningProfileSpecifier = buildConfiguration.provisioningProfileSpecifier;
+			String bundleIdentifier = null;
+			if ( buildConfiguration.bundleIdentifier != null ) {
+			    bundleIdentifier = buildConfiguration.bundleIdentifier;
+			}
+			else {
+			    // Placeholder replacement.
+			    // Currentry only support "${TARGET_NAME}" and "$(TARGET_NAME)"
+			    String productName = buildConfiguration.productName;
+			    productName = productName.replaceAll(Pattern.quote("${TARGET_NAME}"), key);
+			    productName = productName.replaceAll(Pattern.quote("$(TARGET_NAME)"), key);
+			    InfoPlist infoPlist = XcodeProjectParser.parseInfoPlist(projectRoot.toString() + "/" + buildConfiguration.infoPlistFile);
+			    if ( infoPlist == null ) {
+				listener.getLogger().println("Could not read information from " + projectRoot.toString() + "/" + buildConfiguration.infoPlistFile);
+				return false;
+			    }
+			    // Placeholder replacement.
+			    // Currentry only support "$(PRODUCT_NAME:rfc1034identifier)"
+			    bundleIdentifier = infoPlist.getCfBundleIdentifier();
+			    productName = productName.replaceAll(" ", "-");
+			    bundleIdentifier = bundleIdentifier.replaceAll(Pattern.quote("$(PRODUCT_NAME:rfc1034identifier)"), productName);
+			}
+			// PROVISIONING_PROFILE(UUID) or PROVISIONING_PROFILE_SPECIFIER
+			String provisioningProfileIdentifier = null;
+			if ( provisioningProfileSpecifier != null ) {
+			    // We will use SPECIFIE instead UUID.
+			    provisioningProfileIdentifier = provisioningProfileSpecifier;
+			}
+			else {
+			    provisioningProfileIdentifier = provisioningProfileUUID;
+			}
+			if ( provisioningProfileIdentifier != null ) {
+			    provisioningProfiles.add(new ProvisioningProfile(bundleIdentifier, provisioningProfileIdentifier));
+			}
+		    }
+		}
+	    }
+	    for ( ProvisioningProfile rp : provisioningProfiles ) {
+		listener.getLogger().println("UUID/SPECIFIER                       CFbundleIdentifier");
+		listener.getLogger().println(rp.getProvisioningProfileUUID() + " " + rp.getProvisioningProfileAppId());
+	    }
+        }
+        else {
+            // If developmentTeamName is set the developmentTeamID is invalid.
+	    if ( StringUtils.isEmpty(developmentTeamName) ) {
+                developmentTeamID = envs.expand(this.developmentTeamID);
+            }
+	    if (StringUtils.isEmpty(developmentTeamID)) {
+	        Team team = getDevelopmentTeam();
+                if (team == null) {
+		    listener.getLogger().println(Messages.XCodeBuilder_teamNotConfigured());
+	        } else {
+		    developmentTeamID = envs.expand(team.getTeamID());
+		    if (!StringUtils.isEmpty(developmentTeamID)) {
+		        listener.getLogger().println(Messages.XCodeBuilder_DebugInfoCanFindPProfile());
+		        /*returnCode =*/
+		        launcher.launch().envs(envs).cmds("/usr/bin/security", "find-certificate", "-a", "-c", developmentTeamID, "-Z", "|", "grep", "^SHA-1").stdout(listener).pwd(projectRoot).join();
+		        // We could fail here, but this doesn't seem to work as it should right now (output not properly redirected. We might need a parser)
+		    }
+	        }
+	    }
         }
 
         listener.getLogger().println(Messages.XCodeBuilder_DebugInfoAvailableSDKs());
@@ -771,7 +957,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
         }
 
         // handle code signing identities
-        if (manualSigning != null && manualSigning && !StringUtils.isEmpty(developmentTeamID)) {
+        if (!archiveAutomaticSigning && signingMethod != null && (signingMethod.equals("manual") || signingMethod.equals("readFromProject")) && !StringUtils.isEmpty(developmentTeamID)) {
             commandLine.add("DEVELOPMENT_TEAM=" + developmentTeamID);
             xcodeReport.append(", developmentTeamID: ").append(developmentTeamID);
         } else {
@@ -828,7 +1014,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 
             FilePath exportOptionsPlistLocation = ipaOutputPath.child(ipaExportMethod + developmentTeamID + "ExportOptions.plist");
             String exportOptionsPlist;
-            if (manualSigning != null && manualSigning) {
+            if (!archiveAutomaticSigning && signingMethod != null && (signingMethod.equals("manual")||signingMethod.equals("readFromProject"))) {
                 StringBuilder plistProvisioningProfiles = new StringBuilder("");
                 for (ProvisioningProfile pp : provisioningProfiles) {
                     plistProvisioningProfiles.append(pp.toPlist(envs));
@@ -918,7 +1104,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
                 List<String> packageCommandLine = new ArrayList<>();
                 packageCommandLine.add(getGlobalConfiguration().getXcodebuildPath());
                 packageCommandLine.addAll(Lists.newArrayList("-exportArchive", "-archivePath", archive.absolutize().getRemote(), "-exportPath", ipaOutputPath.absolutize().getRemote(), "-exportOptionsPlist", exportOptionsPlistLocation.absolutize().getRemote()));
-                if (manualSigning == null || !manualSigning) {
+                if (archiveAutomaticSigning || signingMethod == null || (!signingMethod.equals("manual") && !signingMethod.equals("readFromProject"))) {
                     packageCommandLine.add("-allowProvisioningUpdates");
                 }
                 returnCode = launcher.launch().envs(envs).stdout(listener).pwd(projectRoot).cmds(packageCommandLine).join();

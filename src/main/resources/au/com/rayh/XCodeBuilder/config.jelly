@@ -102,7 +102,15 @@
     <f:section title="${%Code signing &amp; OS X keychain options}">
         <f:advanced title="Code signing settings">
             <f:entry>
-                <f:optionalBlock inline="true" checked="${instance.manualSigning == true}" name="manualSigning" field="manualSigning" title="Manual signing?">
+                <f:radioBlock inline="true" checked="${instance.signingMethod.equals('automatic')}" name="signingMethod" field="automaticSigning" title="Automatic Signing" value="automatic" help="/plugin/xcode-plugin/help/help-automaticSigning.html">
+                    <f:entry>
+                    </f:entry>
+                </f:radioBlock>
+                <f:radioBlock inline="true" checked="${instance.signingMethod.equals('readFromProject')}" name="signingMethod" field="readFromProject" title="Read from Xcode Project" value="readFromProject" help="/plugin/xcode-plugin/help/help-readFromProject.html">
+                    <f:entry>
+                    </f:entry>
+                </f:radioBlock>
+                <f:radioBlock inline="true" checked="${instance.signingMethod.equals('manual')}" name="signingMethod" field="manualSigning" title="Manual signing" value="manual" help="/plugin/xcode-plugin/help/help-manualSigning.html">
                     <f:entry>
                         <j:set var="UUID" value="${descriptor.UUID}" />
                         <f:entry title="${%Development Team}" description="Override the Development Team specified in the project." field="globalDevelopmentTeam">
@@ -153,7 +161,7 @@
                             </table>
                         </f:repeatable>
                     </f:entry>
-                </f:optionalBlock>
+                </f:radioBlock>
             </f:entry>
 
 
