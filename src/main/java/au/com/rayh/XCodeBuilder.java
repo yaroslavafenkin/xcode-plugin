@@ -32,6 +32,7 @@ import hudson.EnvVars;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
+import hudson.Util;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.BuildListener;
@@ -41,11 +42,14 @@ import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
 import hudson.util.CopyOnWriteList;
 import hudson.util.QuotedStringTokenizer;
+import hudson.plugins.xcode.XcodeInstallation;
 import jenkins.tasks.SimpleBuildStep;
+import org.jenkinsci.Symbol;
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.tokenmacro.MacroEvaluationException;
 import org.jenkinsci.plugins.tokenmacro.TokenMacro;
 import org.kohsuke.stapler.DataBoundConstructor;
+import jenkins.model.Jenkins;
 
 import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
@@ -53,6 +57,7 @@ import java.io.IOException;
 import java.io.ObjectStreamException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -260,6 +265,10 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
      * @since 2.1
      */
     public ArrayList<ProvisioningProfile> provisioningProfiles = new ArrayList<>();
+    /**
+     * @since 2.2
+     */
+    public String xcodeName;
 
     // Fields in config.jelly must match the parameter names in the "DataBoundConstructor"
     @DataBoundConstructor
@@ -271,7 +280,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
     		String xcodeSchema, String buildDir, String developmentTeamName, String developmentTeamID, Boolean allowFailingBuildResults,
     		String ipaName, Boolean provideApplicationVersion, String ipaOutputDirectory, Boolean changeBundleID, String bundleID,
     		String bundleIDInfoPlistPath, String ipaManifestPlistUrl, Boolean interpretTargetAsRegEx, String ipaExportMethod,
-            Boolean manualSigning, ArrayList<ProvisioningProfile> provisioningProfiles) {
+		Boolean manualSigning, ArrayList<ProvisioningProfile> provisioningProfiles, String xcodeName) {
 
         this.buildIpa = buildIpa;
         this.generateArchive = generateArchive;
@@ -309,6 +318,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
         this.ipaExportMethod = ipaExportMethod;
         this.manualSigning = manualSigning;
         this.provisioningProfiles = provisioningProfiles;
+	this.xcodeName = xcodeName;
     }
 
     @Deprecated
@@ -326,7 +336,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
                 keychainName, keychainPath, keychainPwd, symRoot, xcodeWorkspaceFile,
                 xcodeSchema, buildDir, developmentTeamName, developmentTeamID, allowFailingBuildResults,
                 ipaName, provideApplicationVersion, ipaOutputDirectory, changeBundleID, bundleID,
-                bundleIDInfoPlistPath, ipaManifestPlistUrl, interpretTargetAsRegEx, ipaExportMethod, true, null);
+                bundleIDInfoPlistPath, ipaManifestPlistUrl, interpretTargetAsRegEx, ipaExportMethod, true, null, null);
     }
 
     @Deprecated
@@ -426,6 +436,21 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
             projectRoot = projectRoot.child(xcodeProjectPath);
         }
         listener.getLogger().println(Messages.XCodeBuilder_workingDir(projectRoot));
+
+        if (!StringUtils.isEmpty(this.xcodeName)) {
+            Jenkins jenkinsInstance = Jenkins.getInstance();
+            XcodeInstallation.DescriptorImpl descriptor = (XcodeInstallation.DescriptorImpl)jenkinsInstance.getDescriptor(XcodeInstallation.class);
+            XcodeInstallation[] installations = descriptor.getInstallations();
+            if ( installations != null ) {
+                for ( XcodeInstallation installation : installations ) {
+                    if ( installation.getName().equals(this.xcodeName) ) {
+                        envs.put("DEVELOPER_DIR", installation.getHome());
+			listener.getLogger().println(Messages.XCodeBuilder_xcodeToolsDir(installation.getHome()));
+                        break;
+                    }
+                }
+            }
+        }
 
         // Infer as best we can the build platform
         String buildPlatform = "iphoneos";
@@ -1057,7 +1082,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
         return (DescriptorImpl) super.getDescriptor();
     }
 
-    @Extension
+    @Extension @Symbol("xcode")
     public static final class DescriptorImpl extends BuildStepDescriptor<Builder> {
     	GlobalConfigurationImpl globalConfiguration;
 
@@ -1111,17 +1136,17 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
             return true;
         }
 
-        @Override
-		public String getDisplayName() {
-			return Messages.XCodeBuilder_xcode();
-		}
+	@Override
+	public String getDisplayName() {
+	    return Messages.XCodeBuilder_xcode();
+	}
 
-	    public GlobalConfigurationImpl getGlobalConfiguration() {
-	    	return globalConfiguration;
-	    }
+	public GlobalConfigurationImpl getGlobalConfiguration() {
+	    return globalConfiguration;
+	}
 
-	    public String getUUID() {
-	    	return "" + UUID.randomUUID().getMostSignificantBits();
-	    }
+	public String getUUID() {
+	    return "" + UUID.randomUUID().getMostSignificantBits();
+	}
     }
 }

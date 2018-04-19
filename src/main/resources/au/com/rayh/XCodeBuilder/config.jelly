@@ -37,6 +37,16 @@
 
     <!-- General build settings -->
     <f:section title="${%General build settings}">
+	<j:if test="${!empty(descriptor.installations)}">
+	    <f:entry title="${%Xcode Tools Version}">
+		<select class="setting-input" name="xcodeName">
+		    <option value="">${%Default}</option>
+		    <j:forEach var="inst" items="${descriptor.installations}">
+			<f:option selected="${inst.name==instance.xcodeName}" value="${inst.name}">${inst.name}</f:option>
+		    </j:forEach>
+		</select>
+	    </f:entry>
+	</j:if>
 
         <f:entry title="${%Target}" field="target" description="Leave empty for all targets">
             <f:textbox />
