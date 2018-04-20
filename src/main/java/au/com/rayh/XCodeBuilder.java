@@ -49,7 +49,6 @@ import org.kohsuke.stapler.DataBoundConstructor;
 
 import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.ObjectStreamException;
 import java.text.SimpleDateFormat;
@@ -67,16 +66,57 @@ import java.util.concurrent.TimeUnit;
 public class XCodeBuilder extends Builder implements SimpleBuildStep {
 
     private static final int SIGTERM = 143;
+    private static final String DEVELOPMENT_ENV = "Development";
+    private static final String PRODUCTION_ENV = "Production";
+    private static final String DEV_SIGNING_CERTIFICATE_SELECTOR = "iOS Developer";
+    private static final String DIST_SIGNING_CERTIFICATE_SELECTOR = "iOS Distribution";
 
     private static final String MANIFEST_PLIST_TEMPLATE = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">"
-            + "<plist version=\"1.0\"><dict><key>items</key><array><dict><key>assets</key><array><dict><key>kind</key><string>software-package</string><key>url</key><string>${IPA_URL_BASE}/${IPA_NAME}</string></dict></array>"
-            + "<key>metadata</key><dict><key>bundle-identifier</key><string>${BUNDLE_ID}</string><key>bundle-version</key><string>${BUNDLE_VERSION}</string><key>kind</key><string>software</string><key>title</key><string>${APP_NAME}</string></dict></dict></array></dict></plist>";
+            + "<plist version=\"1.0\">"
+            + "<dict>"
+            + "  <key>items</key>"
+            + "  <array>"
+            + "    <dict>"
+            + "      <key>assets</key>"
+            + "      <array>"
+            + "        <dict>"
+            + "          <key>kind</key><string>software-package</string>"
+            + "          <key>url</key><string>${IPA_URL_BASE}/${IPA_NAME}</string>"
+            + "        </dict>"
+            + "      </array>"
+            + "      <key>metadata</key>"
+            + "      <dict>"
+            + "        <key>bundle-identifier</key><string>${BUNDLE_ID}</string>"
+            + "        <key>bundle-version</key><string>${BUNDLE_VERSION}</string>"
+            + "        <key>kind</key><string>software</string>"
+            + "        <key>title</key><string>${APP_NAME}</string>"
+            + "      </dict>"
+            + "    </dict>"
+            + "  </array>"
+            + "</dict>"
+            + "</plist>";
 
-    private static final String EXPORT_PLIST_TEMPLATE = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">"
-            + "<plist version=\"1.0\"><dict>"
-            + "<key>method</key><string>${IPA_EXPORT_METHOD}</string>"
-            + "<key>teamID</key><string>${DEVELOPMENT_TEAM}</string>"
-            + "</dict></plist>";
+    private static final String AUTOMATIC_EXPORT_OPTIONS_PLIST_TEMPLATE = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">"
+            + "<plist version=\"1.0\">"
+            + "<dict>"
+            + "  <key>signingStyle</key><string>automatic</string>"
+            + "  <key>method</key><string>${IPA_EXPORT_METHOD}</string>"
+            + "  <key>iCloudContainerEnvironment</key><string>${ICLOUD_CONTAINER_ENV}</string>"
+            + "</dict>"
+            + "</plist>";
+
+    private static final String MANUAL_EXPORT_OPTIONS_PLIST_TEMPLATE = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">"
+            + "<plist version=\"1.0\">"
+            + "<dict>"
+            + "  <key>signingStyle</key><string>manual</string>"
+            + "  <key>method</key><string>${IPA_EXPORT_METHOD}</string>"
+            + "  <key>teamID</key><string>${DEVELOPMENT_TEAM}</string>"
+            + "  <key>signingCertificate</key><string>${SIGNING_CERTIFICATE}</string>"
+            + "  <key>provisioningProfiles</key><dict>${PROVISIONING_PROFILES}</dict>"
+            + "  <key>iCloudContainerEnvironment</key><string>${ICLOUD_CONTAINER_ENV}</string>"
+            + "</dict>"
+            + "</plist>";
+
 
     /**
      * @since 1.0
@@ -212,6 +252,14 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
      * @since 1.5
      */
     public final String ipaManifestPlistUrl;
+    /**
+     * @since 2.1
+     */
+    public final Boolean manualSigning;
+    /**
+     * @since 2.1
+     */
+    public ArrayList<ProvisioningProfile> provisioningProfiles = new ArrayList<>();
 
     // Fields in config.jelly must match the parameter names in the "DataBoundConstructor"
     @DataBoundConstructor
@@ -222,7 +270,8 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
     		String keychainName, String keychainPath, String keychainPwd, String symRoot, String xcodeWorkspaceFile,
     		String xcodeSchema, String buildDir, String developmentTeamName, String developmentTeamID, Boolean allowFailingBuildResults,
     		String ipaName, Boolean provideApplicationVersion, String ipaOutputDirectory, Boolean changeBundleID, String bundleID,
-    		String bundleIDInfoPlistPath, String ipaManifestPlistUrl, Boolean interpretTargetAsRegEx, String ipaExportMethod) {
+    		String bundleIDInfoPlistPath, String ipaManifestPlistUrl, Boolean interpretTargetAsRegEx, String ipaExportMethod,
+            Boolean manualSigning, ArrayList<ProvisioningProfile> provisioningProfiles) {
 
         this.buildIpa = buildIpa;
         this.generateArchive = generateArchive;
@@ -258,6 +307,26 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
         this.interpretTargetAsRegEx = interpretTargetAsRegEx;
         this.ipaManifestPlistUrl = ipaManifestPlistUrl;
         this.ipaExportMethod = ipaExportMethod;
+        this.manualSigning = manualSigning;
+        this.provisioningProfiles = provisioningProfiles;
+    }
+
+    @Deprecated
+    public XCodeBuilder(Boolean buildIpa, Boolean generateArchive, Boolean noConsoleLog, String logfileOutputDirectory, Boolean cleanBeforeBuild,
+                        Boolean cleanTestReports, String configuration,
+                        String target, String sdk, String xcodeProjectPath, String xcodeProjectFile, String xcodebuildArguments,
+                        String cfBundleVersionValue, String cfBundleShortVersionStringValue, Boolean unlockKeychain,
+                        String keychainName, String keychainPath, String keychainPwd, String symRoot, String xcodeWorkspaceFile,
+                        String xcodeSchema, String buildDir, String developmentTeamName, String developmentTeamID, Boolean allowFailingBuildResults,
+                        String ipaName, Boolean provideApplicationVersion, String ipaOutputDirectory, Boolean changeBundleID, String bundleID,
+                        String bundleIDInfoPlistPath, String ipaManifestPlistUrl, Boolean interpretTargetAsRegEx, String ipaExportMethod) {
+        this(buildIpa, generateArchive, noConsoleLog, logfileOutputDirectory, cleanBeforeBuild, cleanTestReports, configuration,
+                target, sdk, xcodeProjectPath, xcodeProjectFile, xcodebuildArguments,
+                cfBundleVersionValue, cfBundleShortVersionStringValue, unlockKeychain,
+                keychainName, keychainPath, keychainPwd, symRoot, xcodeWorkspaceFile,
+                xcodeSchema, buildDir, developmentTeamName, developmentTeamID, allowFailingBuildResults,
+                ipaName, provideApplicationVersion, ipaOutputDirectory, changeBundleID, bundleID,
+                bundleIDInfoPlistPath, ipaManifestPlistUrl, interpretTargetAsRegEx, ipaExportMethod, true, null);
     }
 
     @Deprecated
@@ -540,16 +609,16 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
         /*returnCode =*/ launcher.launch().envs(envs).cmds("/usr/bin/security", "find-identity", "-p", "codesigning", "-v").stdout(listener).pwd(projectRoot).join();
 
         Team team = getDevelopmentTeam();
-        if(team == null)
-        {
-            listener.fatalError(Messages.XCodeBuilder_teamNotConfigured());
-            return false;
-        }
-        String developmentTeamID = envs.expand(team.getTeamID());
-        if (!StringUtils.isEmpty(developmentTeamID)) {
-            listener.getLogger().println(Messages.XCodeBuilder_DebugInfoCanFindPProfile());
-            /*returnCode =*/ launcher.launch().envs(envs).cmds("/usr/bin/security", "find-certificate", "-a", "-c", developmentTeamID, "-Z", "|", "grep", "^SHA-1").stdout(listener).pwd(projectRoot).join();
-            // We could fail here, but this doesn't seem to work as it should right now (output not properly redirected. We might need a parser)
+        if (team == null) {
+            listener.getLogger().println(Messages.XCodeBuilder_teamNotConfigured());
+        } else {
+            String developmentTeamID = envs.expand(team.getTeamID());
+            if (!StringUtils.isEmpty(developmentTeamID)) {
+                listener.getLogger().println(Messages.XCodeBuilder_DebugInfoCanFindPProfile());
+                /*returnCode =*/
+                launcher.launch().envs(envs).cmds("/usr/bin/security", "find-certificate", "-a", "-c", developmentTeamID, "-Z", "|", "grep", "^SHA-1").stdout(listener).pwd(projectRoot).join();
+                // We could fail here, but this doesn't seem to work as it should right now (output not properly redirected. We might need a parser)
+            }
         }
 
         listener.getLogger().println(Messages.XCodeBuilder_DebugInfoAvailableSDKs());
@@ -693,11 +762,12 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
         }
 
         // handle code signing identities
-        if (!StringUtils.isEmpty(developmentTeamID)) {
+        if (manualSigning != null && manualSigning && !StringUtils.isEmpty(developmentTeamID)) {
             commandLine.add("DEVELOPMENT_TEAM=" + developmentTeamID);
             xcodeReport.append(", developmentTeamID: ").append(developmentTeamID);
         } else {
-            xcodeReport.append(", developmentTeamID: DEFAULT");
+            commandLine.add("-allowProvisioningUpdates");
+            xcodeReport.append(", developmentTeamID: AUTOMATIC");
         }
 
         // Additional (custom) xcodebuild arguments
@@ -747,11 +817,32 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
             listener.getLogger().println(Messages.XCodeBuilder_packagingIPA());
 
 
-            FilePath exportPlistLocation = ipaOutputPath.child(ipaExportMethod + developmentTeamID + "Export.plist");
-            String exportPlist = EXPORT_PLIST_TEMPLATE
-                    .replace("${IPA_EXPORT_METHOD}", ipaExportMethod)
-                    .replace("${DEVELOPMENT_TEAM}", developmentTeamID);
-            exportPlistLocation.write(exportPlist, "UTF-8");
+            FilePath exportOptionsPlistLocation = ipaOutputPath.child(ipaExportMethod + developmentTeamID + "ExportOptions.plist");
+            String exportOptionsPlist;
+            if (manualSigning != null && manualSigning) {
+                StringBuilder plistProvisioningProfiles = new StringBuilder("");
+                for (ProvisioningProfile pp : provisioningProfiles) {
+                    plistProvisioningProfiles.append(pp.toPlist());
+                }
+
+                exportOptionsPlist = MANUAL_EXPORT_OPTIONS_PLIST_TEMPLATE
+                        .replace("${DEVELOPMENT_TEAM}", developmentTeamID)
+                        .replace("${PROVISIONING_PROFILES}", plistProvisioningProfiles.toString());
+            } else {
+                exportOptionsPlist = AUTOMATIC_EXPORT_OPTIONS_PLIST_TEMPLATE;
+            }
+            exportOptionsPlist = exportOptionsPlist.replace("${IPA_EXPORT_METHOD}", ipaExportMethod);
+            if (("app-store").equals(ipaExportMethod)) {
+                exportOptionsPlist = exportOptionsPlist.replace("${ICLOUD_CONTAINER_ENV}", PRODUCTION_ENV);
+            } else {
+                exportOptionsPlist = exportOptionsPlist.replace("${ICLOUD_CONTAINER_ENV}", DEVELOPMENT_ENV);
+            }
+            if ("development".equals(ipaExportMethod)) {
+                exportOptionsPlist = exportOptionsPlist.replace("${SIGNING_CERTIFICATE}", DEV_SIGNING_CERTIFICATE_SELECTOR);
+            } else {
+                exportOptionsPlist = exportOptionsPlist.replace("${SIGNING_CERTIFICATE}", DIST_SIGNING_CERTIFICATE_SELECTOR);
+            }
+            exportOptionsPlistLocation.write(exportOptionsPlist, "UTF-8");
 
 
             List<FilePath> archives = buildDirectory.list(new XCArchiveFileFilter());
@@ -817,7 +908,10 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 
                 List<String> packageCommandLine = new ArrayList<>();
                 packageCommandLine.add(getGlobalConfiguration().getXcodebuildPath());
-                packageCommandLine.addAll(Lists.newArrayList("-exportArchive", "-archivePath", archive.absolutize().getRemote(), "-exportPath", ipaOutputPath.absolutize().getRemote(), "-exportOptionsPlist", exportPlistLocation.absolutize().getRemote()));
+                packageCommandLine.addAll(Lists.newArrayList("-exportArchive", "-archivePath", archive.absolutize().getRemote(), "-exportPath", ipaOutputPath.absolutize().getRemote(), "-exportOptionsPlist", exportOptionsPlistLocation.absolutize().getRemote()));
+                if (manualSigning == null || !manualSigning) {
+                    packageCommandLine.add("-allowProvisioningUpdates");
+                }
                 returnCode = launcher.launch().envs(envs).stdout(listener).pwd(projectRoot).cmds(packageCommandLine).join();
                 if (returnCode > 0) {
                     listener.getLogger().println("Failed to build " + ipaLocation.absolutize().getRemote());
