@@ -834,9 +834,9 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
                 listener.getLogger().println("Archiving dSYM");
                 List<FilePath> dSYMs = buildDirectory.absolutize().child(configuration + "-" + buildPlatform).list(new DSymFileFilter());
 
-                if (dSYMs != null && dSYMs.isEmpty()) {
+                if (dSYMs == null || dSYMs.isEmpty()) {
                     listener.getLogger().println("No dSYM file found in " + buildDirectory.absolutize().child(configuration + "-" + buildPlatform) + "!");
-
+                } else {
                     for (FilePath dSYM : dSYMs) {
                         returnCode = launcher.launch()
                                 .envs(envs)
@@ -861,32 +861,36 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
                 }
 
                 if(!StringUtils.isEmpty(ipaManifestPlistUrl)) {
-                    FilePath app = buildDirectory.absolutize().child(configuration + "-" + buildPlatform).child(archive.getBaseName() + ".app");
-                    FilePath ipaManifestLocation = ipaOutputPath.child(baseName + ".plist");
-                    listener.getLogger().println("Creating Manifest Plist => " + ipaManifestLocation.absolutize().getRemote());
+                    try {
+                        FilePath ipaManifestLocation = ipaOutputPath.child(baseName + ".plist");
+                        listener.getLogger().println("Creating Manifest Plist => " + ipaManifestLocation.absolutize().getRemote());
 
-                    String displayName = "";
-                    String bundleId = "";
+                        String displayName = "";
+                        String bundleId = "";
 
-                    output.reset();
-                    returnCode = launcher.launch().envs(envs).cmds("/usr/libexec/PlistBuddy", "-c", "Print :CFBundleIdentifier", app.absolutize().child("Info.plist").getRemote()).stdout(output).pwd(projectRoot).join();
-                    if (returnCode == 0) {
-                        bundleId = output.toString().trim();
+                        output.reset();
+                        returnCode = launcher.launch().envs(envs).cmds("/usr/libexec/PlistBuddy", "-c", "Print :ApplicationProperties:CFBundleIdentifier", archive.absolutize().child("Info.plist").getRemote()).stdout(output).pwd(projectRoot).join();
+                        if (returnCode == 0) {
+                            bundleId = output.toString().trim();
+                        }
+                        output.reset();
+                        returnCode = launcher.launch().envs(envs).cmds("/usr/libexec/PlistBuddy", "-c", "Print :Name", archive.absolutize().child("Info.plist").getRemote()).stdout(output).pwd(projectRoot).join();
+                        if (returnCode == 0) {
+                            displayName = output.toString().trim();
+                        }
+
+                        String manifest = MANIFEST_PLIST_TEMPLATE
+                                            .replace("${IPA_URL_BASE}", ipaManifestPlistUrl)
+                                            .replace("${IPA_NAME}", ipaFileName)
+                                            .replace("${BUNDLE_ID}", bundleId)
+                                            .replace("${BUNDLE_VERSION}", shortVersion)
+                                            .replace("${APP_NAME}", displayName);
+
+                        ipaManifestLocation.write(manifest, "UTF-8");
+                    } catch(RuntimeException ex) {
+                        listener.getLogger().println("No .app or .appex found in build directory (" + buildDirectory.absolutize().child(configuration + "-" + buildPlatform) + ")");
+                        return false;
                     }
-                    output.reset();
-                    returnCode = launcher.launch().envs(envs).cmds("/usr/libexec/PlistBuddy", "-c", "Print :CFBundleDisplayName", app.absolutize().child("Info.plist").getRemote()).stdout(output).pwd(projectRoot).join();
-                    if (returnCode == 0) {
-                        displayName = output.toString().trim();
-                    }
-
-                    String manifest = MANIFEST_PLIST_TEMPLATE
-                                        .replace("${IPA_URL_BASE}", ipaManifestPlistUrl)
-                                        .replace("${IPA_NAME}", ipaFileName)
-                                        .replace("${BUNDLE_ID}", bundleId)
-                                        .replace("${BUNDLE_VERSION}", shortVersion)
-                                        .replace("${APP_NAME}", displayName);
-
-                    ipaManifestLocation.write(manifest, "UTF-8");
                 }
                 payload.deleteRecursive();
             }
