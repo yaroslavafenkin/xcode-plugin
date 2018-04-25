@@ -29,9 +29,9 @@ import static hudson.init.InitMilestone.EXTENSIONS_AUGMENTED;
 import java.util.logging.Level;
 
 /**
- * Information about Git installation.
+ * Information about Xcode installation.
  *
- * @author Jyrki Puttonen
+ * @author Kazuhide Takahashi
  */
 public class XcodeInstallation extends ToolInstallation implements NodeSpecific<XcodeInstallation>, EnvironmentSpecific<XcodeInstallation> {
 
@@ -48,7 +48,11 @@ public class XcodeInstallation extends ToolInstallation implements NodeSpecific<
     }
 
     public static XcodeInstallation[] allInstallations() {
-        return Jenkins.getInstance().getDescriptorByType(DescriptorImpl.class).getInstallations();
+	XcodeInstallation[] installations = Jenkins.getInstance().getDescriptorByType(DescriptorImpl.class).getInstallations();
+ 	if ( installations == null ) {
+ 	    installations = new XcodeInstallation[0];
+	}
+	return installations;
     }
 
     /**

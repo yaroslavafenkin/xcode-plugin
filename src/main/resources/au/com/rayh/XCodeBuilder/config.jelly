@@ -37,11 +37,12 @@
 
     <!-- General build settings -->
     <f:section title="${%General build settings}">
-	<j:if test="${!empty(descriptor.installations)}">
+	<j:invokeStatic var="installations" className="hudson.plugins.xcode.XcodeInstallation" method="allInstallations"/>
+	<j:if test="${!empty(installations)}">
 	    <f:entry title="${%Xcode Tools Version}">
 		<select class="setting-input" name="xcodeName">
 		    <option value="">${%Default}</option>
-		    <j:forEach var="inst" items="${descriptor.installations}">
+		    <j:forEach var="inst" items="${installations}">
 			<f:option selected="${inst.name==instance.xcodeName}" value="${inst.name}">${inst.name}</f:option>
 		    </j:forEach>
 		</select>
