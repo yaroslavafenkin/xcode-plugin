@@ -269,12 +269,16 @@ public class XcodeProjectParser {
                         target.testTargetID = attributeDict.objectForKey("TestTargetID").toString();
                     }
 		    NSDictionary buildConfigurationList = ((NSDictionary)objectsDict.objectForKey(buildConfigurationListUUID));
-		    target.defaultConfigurationName = buildConfigurationList.objectForKey("defaultConfigurationName").toString();
-		    NSObject[] buildConfigurationUUIDs = ((NSArray)buildConfigurationList.objectForKey("buildConfigurations")).getArray();
-		    // Parse each build configurations.
-		    for ( NSObject buildConfigurationUUID : buildConfigurationUUIDs ) {
-			BuildConfiguration buildConfiguration = new BuildConfiguration(objectsDict, buildConfigurationUUID.toString(), target.provisioningStyle.equals("Automatic"));
-			target.buildConfiguration.put(buildConfiguration.name, buildConfiguration);
+		    if ( buildConfigurationList != null ) {
+			if ( buildConfigurationList.objectForKey("defaultConfigurationName") != null ) {
+			    target.defaultConfigurationName = buildConfigurationList.objectForKey("defaultConfigurationName").toString();
+			}
+			NSObject[] buildConfigurationUUIDs = ((NSArray)buildConfigurationList.objectForKey("buildConfigurations")).getArray();
+			// Parse each build configurations.
+			for ( NSObject buildConfigurationUUID : buildConfigurationUUIDs ) {
+			    BuildConfiguration buildConfiguration = new BuildConfiguration(objectsDict, buildConfigurationUUID.toString(), target.provisioningStyle.equals("Automatic"));
+			    target.buildConfiguration.put(buildConfiguration.name, buildConfiguration);
+			}
 		    }
 		    project.projectTarget.put(targetName, target);
 		}
