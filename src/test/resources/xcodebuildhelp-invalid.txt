@@ -1,0 +1,4 @@
+xcodebuild -help output
+    SampleTarget1 Extra text here.
+    TestSampleTarget1 Extra text here.
+    Extra text here.
