@@ -39,9 +39,9 @@
     <f:section title="${%General build settings}">
 	<j:invokeStatic var="installations" className="hudson.plugins.xcode.XcodeInstallation" method="allInstallations"/>
 	<j:if test="${!empty(installations)}">
-	    <f:entry title="${%Xcode Tools Version}">
+	    <f:entry title="${%Xcode Tools Version}" field="xcodeToolsVersion" description="Xcode Tools version. (if you need to override System Default)" >
 		<select class="setting-input" name="xcodeName">
-		    <option value="">${%Default}</option>
+		    <option value="">${%System Default}</option>
 		    <j:forEach var="inst" items="${installations}">
 			<f:option selected="${inst.name==instance.xcodeName}" value="${inst.name}">${inst.name}</f:option>
 		    </j:forEach>
