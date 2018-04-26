@@ -48,12 +48,18 @@ public class XcodeInstallation extends ToolInstallation implements NodeSpecific<
     }
 
     public static XcodeInstallation[] allInstallations() {
-	XcodeInstallation[] installations = Jenkins.getInstance().getDescriptorByType(DescriptorImpl.class).getInstallations();
- 	if ( installations == null ) {
- 	    installations = new XcodeInstallation[0];
-	}
-	return installations;
-    }
+	Jenkins instance = Jenkins.getInstance();
+	if ( instance != null ) {
+	    DescriptorImpl descriptor = instance.getDescriptorByType(DescriptorImpl.class);
+	    if ( descriptor != null ) {
+    		XcodeInstallation[] installations = descriptor.getInstallations();
+    		if ( installations != null ) {
+		    return installations;
+		}
+	    }
+    	}
+ 	return new XcodeInstallation[0];
+   }
 
     /**
      * getXcodebuild.
