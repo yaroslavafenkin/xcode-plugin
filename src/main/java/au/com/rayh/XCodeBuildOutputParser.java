@@ -200,12 +200,25 @@ public class XCodeBuildOutputParser {
 
         m = END_TESTCASE.matcher(line);
         if(m.matches()) {
-            requireTestSuite();
-            requireTestCase(m.group(1));
-
-            currentTestCase.setTime(Float.valueOf(m.group(2)));
-            currentTestSuite.getTestCases().add(currentTestCase);
-            currentTestSuite.addTest();
+            
+        		String currentTestCaseName = m.group(1);
+        		TestCase localTestCase = null;
+        		
+            if(currentTestSuite == null) {
+            		currentTestSuite = new TestSuite(InetAddress.getLocalHost().getHostName(), "UnknownSuite", new Date());
+            }
+                  
+            if(currentTestCase == null) {
+            		localTestCase = new TestCase(currentTestSuite.getName(), currentTestCaseName);
+            }else {
+            		localTestCase = currentTestCase;
+            }
+            
+            localTestCase.setTime(Float.valueOf(m.group(2)));
+        		currentTestSuite.getTestCases().add(localTestCase);
+        		currentTestSuite.addTest();
+            
+            
             currentTestCase = null;
             return;
         }
