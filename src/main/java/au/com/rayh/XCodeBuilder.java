@@ -701,7 +701,8 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
             commandLine.add("-scheme");
             commandLine.add(xcodeSchema);
             xcodeReport.append(", scheme: ").append(xcodeSchema);
-        } else if (StringUtils.isEmpty(target) && !StringUtils.isEmpty(xcodeProjectFile)) {
+        } else if (StringUtils.isEmpty(target)) {
+	    // When target is empty always build all targets.
             commandLine.add("-alltargets");
             xcodeReport.append("target: ALL");
         } else if(interpretTargetAsRegEx != null && interpretTargetAsRegEx) {
