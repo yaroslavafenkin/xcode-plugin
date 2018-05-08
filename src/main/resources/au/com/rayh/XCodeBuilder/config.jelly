@@ -101,11 +101,9 @@
     <!-- Code signing section -->
     <f:section title="${%Code signing &amp; OS X keychain options}">
         <f:advanced title="Code signing settings">
-
-            <j:set var="UUID" value="${descriptor.UUID}" />
-
             <f:entry>
                 <f:optionalBlock inline="true" checked="${instance.manualSigning == true}" name="manualSigning" field="manualSigning" title="Manual signing?">
+		    <j:set var="UUID" value="${descriptor.UUID}" />
                     <f:entry>
                         <f:entry title="${%Development Team}" description="Override the Development Team specified in the project." field="globalDevelopmentTeam">
                             <select class="setting-input" name="developmentTeamName" foo="${UID}" id="global-team-select-${UUID}" onchange="showOrHideAttributeInput('global-team-select-', '${UUID}')">
@@ -158,7 +156,6 @@
                 </f:optionalBlock>
             </f:entry>
 
-
             <f:entry>
                 <f:optionalBlock inline="true" checked="${instance.changeBundleID == true}" name="changeBundleID" field="changeBundleID" title="Change bundle ID?">
                     <f:nested>
@@ -176,6 +173,7 @@
 
             <f:entry>
                 <f:optionalBlock inline="true" checked="${instance.unlockKeychain == true}" name="unlockKeychain" title="${%Unlock Keychain?}" field="unlockKeychain">
+		    <j:set var="UUID" value="${descriptor.UUID}" />
                     <f:entry title="${%Keychain}" description="The globally configured keychain to unlock for this build." field="globalKeychainName">
                         <select class="setting-input" name="keychainName" foo="${UID}" id="global-keychain-select-${UUID}" onchange="showOrHideAttributeInput('global-keychain-select-', '${UUID}')">
                             <f:option selected="${instance.keychainName==null}" value="">none (specify one below)</f:option>
