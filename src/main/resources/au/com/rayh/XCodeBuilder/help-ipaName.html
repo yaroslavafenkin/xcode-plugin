@@ -1,0 +1,38 @@
+<!--
+  ~ The MIT License
+  ~
+  ~ Copyright (c) 2011 Ray Yamamoto Hilton
+  ~
+  ~ Permission is hereby granted, free of charge, to any person obtaining a copy
+  ~ of this software and associated documentation files (the "Software"), to deal
+  ~ in the Software without restriction, including without limitation the rights
+  ~ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  ~ copies of the Software, and to permit persons to whom the Software is
+  ~ furnished to do so, subject to the following conditions:
+  ~
+  ~ The above copyright notice and this permission notice shall be included in
+  ~ all copies or substantial portions of the Software.
+  ~
+  ~ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  ~ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  ~ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  ~ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  ~ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  ~ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+  ~ THE SOFTWARE.
+  -->
+
+<div>
+    <p>
+        Specify the file name pattern of the ipa file to be output.<br/>
+        If nothing is specified, the base name of the archive plus the value of 'CFBundleShortVersionString'<br/>
+        plus the value of 'CFBundleVersion' in the Info.plist file is used.<br/>
+        In addition, the values in the following table can be used in the string.< br/>
+        <table>
+        <tr><td>${BASE_NAME}</td><td>It is replaced with the base name of the archive</td></tr>
+        <tr><td>${VERSION}</td><td>It is replaced with CFBundleVersion in Info.plist</td></tr>
+        <tr><td>${SHORT_VERSION}</td><td>It is replaced with CFBundleShortVersionString in Info.plist</td></tr>
+        <tr><td>${BUILD_DATE}</td><td>It is replaced with date on which the application was built (yyyy.MM.dd)</td></tr>
+        </table>
+    </p>
+</div>

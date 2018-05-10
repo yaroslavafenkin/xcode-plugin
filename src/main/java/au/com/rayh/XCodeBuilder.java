@@ -878,27 +878,30 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
             List<String> commandLine = Lists.newArrayList(getGlobalConfiguration().getXcodebuildPath());
             commandLine.add("-help");
             // xcodebuild -help
-            listener.getLogger().println(Messages.XCodeBuilder_DebugInfoAvailableSchemes());
+            listener.getLogger().println(Messages.XCodeBuilder_DebugInfoAvailableParameters());
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             returnCode = launcher.launch().envs(envs).cmds(commandLine).stdout(baos).pwd(projectRoot).start().joinWithTimeout(10, TimeUnit.SECONDS, listener);
             String xcodeBuildHelpOutput = baos.toString("UTF-8");
-            listener.getLogger().println(xcodeBuildHelpOutput);
+            //listener.getLogger().println(xcodeBuildHelpOutput);
             boolean timedOut = returnCode == SIGTERM;
             if (returnCode > 0 && !timedOut) return false;
 
             xcodebuildHelpParser = new XcodeBuildHelpParser(xcodeBuildHelpOutput);
         }
-        listener.getLogger().println(Messages.XCodeBuilder_DebugInfoLineDelimiter());
 	Boolean haveAllowProvisioningUpdates = false;
-	if (xcodebuildHelpParser.getParameters().isEmpty()) {
+	List<String> availableParameters = xcodebuildHelpParser.getParameters();
+	if (availableParameters.isEmpty()) {
+	    listener.getLogger().println(Messages.XCodeBuilder_NoAvailableParameters());
 	    haveAllowProvisioningUpdates = false;
 	}
 	else {
-	    if(Arrays.asList(xcodebuildHelpParser.getParameters()).contains("allowProvisioningUpdates")){
+	    listener.getLogger().println(StringUtils.join(availableParameters, "\n"));
+	    if(availableParameters.contains("allowProvisioningUpdates")){
 		haveAllowProvisioningUpdates = true;
 	    }
 	}
+	listener.getLogger().println(Messages.XCodeBuilder_DebugInfoLineDelimiter());
 
         // Build
         StringBuilder xcodeReport = new StringBuilder(Messages.XCodeBuilder_invokeXcodebuild());
@@ -910,7 +913,8 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
             commandLine.add("-scheme");
             commandLine.add(xcodeSchema);
             xcodeReport.append(", scheme: ").append(xcodeSchema);
-        } else if (StringUtils.isEmpty(target) && !StringUtils.isEmpty(xcodeProjectFile)) {
+        } else if (StringUtils.isEmpty(target)) {
+	    // When target is empty always build all targets.
             commandLine.add("-alltargets");
             xcodeReport.append("target: ALL");
         } else if(interpretTargetAsRegEx != null && interpretTargetAsRegEx) {
