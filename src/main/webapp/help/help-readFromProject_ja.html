@@ -1,0 +1,38 @@
+<!--
+  ~ The MIT License
+  ~
+  ~ Copyright (c) 2017 Kazuhide Takahashi
+  ~
+  ~ Permission is hereby granted, free of charge, to any person obtaining a copy
+  ~ of this software and associated documentation files (the "Software"), to deal
+  ~ in the Software without restriction, including without limitation the rights
+  ~ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  ~ copies of the Software, and to permit persons to whom the Software is
+  ~ furnished to do so, subject to the following conditions:
+  ~
+  ~ The above copyright notice and this permission notice shall be included in
+  ~ all copies or substantial portions of the Software.
+  ~
+  ~ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  ~ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  ~ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  ~ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  ~ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  ~ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+  ~ THE SOFTWARE.
+  -->
+
+<div>
+  <p>
+    このオプションを使用するとBundleIDとプロビジョニングプロファイルUUIDの組み合わせがXcodeプロジェクトファイルから自動的に取得され設定されます。<br/>
+    これは、Xcodeプロジェクト(GUI)で使用したBundleIDとプロビジョニングプロファイルUUIDの組み合わせを引き継ぐ場合に便利です。<br/>
+    「Xcodeプロジェクトから読み込む」を使うには「全体のビルド設定」の「エクスポート方法」に対応する以下の「ビルド構成」が必要です。<br/>
+    <table border="1">
+      <tr><th>エクスポート方法</th><th>ビルド構成</th></tr>
+      <tr><td>development</td><td>Debug</td></tr>
+      <tr><td>ad-hoc</td><td>AdHoc</td></tr>
+      <tr><td>enterprise</td><td>Enterprise</td></tr>
+      <tr><td>app-store</td><td>Release</td></tr>
+    </table>
+  </p>
+</div>
