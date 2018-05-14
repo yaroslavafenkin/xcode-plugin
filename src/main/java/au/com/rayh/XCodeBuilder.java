@@ -527,6 +527,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
             // Assume its a build for the handset, not the simulator.
             buildDirectory = projectRoot.child("build").child(configuration + "-" + buildPlatform);
         }
+	listener.getLogger().println("buildDirectory: " + buildDirectory.absolutize());
 
         // XCode Version
         int returnCode = launcher.launch().envs(envs).cmds(getGlobalConfiguration().getXcodebuildPath(), "-version").stdout(listener).pwd(projectRoot).join();
@@ -912,7 +913,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
         if (!StringUtils.isEmpty(xcodeSchema)) {
             commandLine.add("-scheme");
             commandLine.add(xcodeSchema);
-            xcodeReport.append(", scheme: ").append(xcodeSchema);
+            xcodeReport.append("target: IGNORE, scheme: ").append(xcodeSchema);
         } else if (StringUtils.isEmpty(target)) {
 	    // When target is empty always build all targets.
             commandLine.add("-alltargets");
