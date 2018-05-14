@@ -66,9 +66,11 @@ public class JenkinsXCodeBuildOutputParser extends XCodeBuildOutputParser {
     }
     
     public void setLogfilePath(final FilePath buildDirectory, final String logfileOutputDirectory) throws IOException, InterruptedException {
-        if(buildDirectory.exists() && buildDirectory.isDirectory() && !StringUtils.isEmpty(logfileOutputDirectory)) {
-            final SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyyMMdd_hhmmssSSS");
-            final String logfileName = dateFormatter.format(new GregorianCalendar().getTime());
+	// Remove buildDirectory.exists() && buildDirectory.isDirectory() from condition.
+	// Because If Generate archive is not specified, directory was not created.
+        if(!StringUtils.isEmpty(logfileOutputDirectory)) {
+	    // Fix not to use timestamp for log file name. (Use "xcodebuild.log" as a fixed file name)
+	    // Because using a timestamp as a filename, No way to know it with a script etc.
             FilePath logFilePath = buildDirectory.child(logfileOutputDirectory);
             // clean Directory
             if(logFilePath.exists()) {
@@ -78,7 +80,7 @@ public class JenkinsXCodeBuildOutputParser extends XCodeBuildOutputParser {
             if (!logFilePath.exists()) {
                 logFilePath.mkdirs();
             }
-            logFileOutputStream = new BufferedOutputStream(logFilePath.child(logfileName + ".log").write(),1024*512);
+            logFileOutputStream = new BufferedOutputStream(logFilePath.child("xcodebuild.log").write(),1024*512);
         }
     }
     
