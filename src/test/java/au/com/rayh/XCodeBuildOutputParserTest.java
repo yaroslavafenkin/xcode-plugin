@@ -139,4 +139,18 @@ public class XCodeBuildOutputParserTest {
         IOUtils.copy(getClass().getResourceAsStream(outputFileName), parser.captureOutputStream);
         return parser;
     }
+
+    // JENKINS-37072
+    @Test
+    public void shouldParseFullXCPassingTestComplex1() throws IOException {
+	XCodeBuildOutputParser parser = parseTestOutput("/XCTest_output_complex_1.txt");
+	assertEquals(-1, parser.getExitCode());
+    }
+
+    // JENKINS-37072
+    @Test
+    public void shouldParseFullXCPassingTestComplex2() throws IOException {
+	XCodeBuildOutputParser parser = parseTestOutput("/XCTest_output_complex_2.txt");
+	assertEquals(-1, parser.getExitCode());
+    }
 }

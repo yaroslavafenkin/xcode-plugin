@@ -92,6 +92,7 @@ public class JenkinsXCodeBuildOutputParserTest {
     @After
     public void tearDown() {
     }
+
     @Test
     public void shouldIgnoreStartSuiteLineThatContainsFullPath() throws Exception {
     	test.shouldIgnoreStartSuiteLineThatContainsFullPath();
