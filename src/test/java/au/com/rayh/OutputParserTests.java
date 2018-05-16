@@ -49,13 +49,13 @@ class OutputParserTests {
     	parser = theParser;
     }
 
-	void shouldIgnoreStartSuiteLineThatContainsFullPath() throws Exception {
+    void shouldIgnoreStartSuiteLineThatContainsFullPath() throws Exception {
         String line = "Test Suite '/Users/ray/Development/Projects/Java/xcodebuild-hudson-plugin/work/jobs/PBS Streamer/workspace/build/Debug-iphonesimulator/TestSuite.octest(Tests)' started at 2010-10-02 13:39:22 GMT 0000";
         parser.handleLine(line);
         assertNull(parser.currentTestSuite);
     }
 
-	void shouldParseStartTestSuite() throws Exception {
+    void shouldParseStartTestSuite() throws Exception {
         String line = "Test Suite 'PisClientTestCase' started at 2010-10-02 13:39:23 GMT 0000";
         parser.handleLine(line);
         assertNotNull(parser.currentTestSuite);
@@ -63,15 +63,16 @@ class OutputParserTests {
         assertEquals(new Date(Date.UTC(110, 9, 2, 13, 39, 23)), parser.currentTestSuite.getStartTime());
     }
 
-	void shouldParseEndTestSuite() throws Exception {
+    void shouldParseEndTestSuite() throws Exception {
         parser.currentTestSuite = new TestSuite("host", "PisClientTestCase", new Date());
+	parser.testSuitesHash.put("PisClientTestCase", parser.currentTestSuite);
         String line = "Test Suite 'PisClientTestCase' finished at 2010-10-02 13:41:23 GMT 0000.";
         parser.handleLine(line);
         assertNull(parser.currentTestSuite);
         assertEquals(0, parser.exitCode);
     }
 
-	void shouldParseStartTestSuiteXC() throws Exception {
+    void shouldParseStartTestSuiteXC() throws Exception {
         String line = "Test Suite 'All tests' started at 2014-12-12 05:12:52 +0000";
         parser.handleLine(line);
         assertNotNull(parser.currentTestSuite);
@@ -79,25 +80,29 @@ class OutputParserTests {
         assertEquals(new Date(Date.UTC(114, 11, 12, 05, 12, 52)), parser.currentTestSuite.getStartTime());
     }
 
-	void shouldParseEndTestSuiteXC() throws Exception {
+    void shouldParseEndTestSuiteXC() throws Exception {
         parser.currentTestSuite = new TestSuite("host", "All tests", new Date());
+	parser.testSuitesHash.put("All tests", parser.currentTestSuite);
         String line = "Test Suite 'All tests' passed at 2014-12-12 05:12:52 +0000.";
         parser.handleLine(line);
         assertNull(parser.currentTestSuite);
         assertEquals(0, parser.exitCode);
     }
 
-	void shouldParseStartTestCase() throws Exception {
+    void shouldParseStartTestCase() throws Exception {
         parser.currentTestSuite = new TestSuite("host", "PisClientTestCase", new Date());
+	parser.testSuitesHash.put("PisClientTestCase", parser.currentTestSuite);
         String line = "Test Case '-[PisClientTestCase testThatFails]' started.";
         parser.handleLine(line);
         assertNotNull(parser.currentTestCase);
         assertEquals("testThatFails", parser.currentTestCase.getName());
     }
 
-	void shouldAddErrorToTestCase() throws Exception {
+    void shouldAddErrorToTestCase() throws Exception {
         parser.currentTestSuite = new TestSuite("host", "PisClientTestCase", new Date());
+	parser.testSuitesHash.put("PisClientTestCase", parser.currentTestSuite);
         parser.currentTestCase = new TestCase("PisClientTestCase", "testThatFails");
+	parser.currentTestSuite.getTestCasesHash().put("testThatFails", parser.currentTestCase);
         String line = "/Users/ray/Development/Projects/Java/xcodebuild-hudson-plugin/work/jobs/PBS Streamer/workspace/PisClientTestCase.m:21: error: -[PisClientTestCase testThatFails] : \"((nil) != nil)\" should be true. This always fails";
         parser.handleLine(line);
         assertEquals(1, parser.currentTestCase.getFailures().size());
@@ -105,9 +110,11 @@ class OutputParserTests {
         assertEquals("\"((nil) != nil)\" should be true. This always fails", parser.currentTestCase.getFailures().get(0).getMessage());
     }
 	
-	void shouldAddUIErrorToTestCase() throws Exception {
+    void shouldAddUIErrorToTestCase() throws Exception {
         parser.currentTestSuite = new TestSuite("host", "PisClientTestCase", new Date());
+	parser.testSuitesHash.put("PisClientTestCase", parser.currentTestSuite);
         parser.currentTestCase = new TestCase("PisClientTestCase", "testThatFails");
+	parser.currentTestSuite.getTestCasesHash().put("testThatFails", parser.currentTestCase);
         String line = "t =    29.77s             Assertion Failure: AppUITests.m:31: UI Testing Failure - No matches found for Alert";
         parser.handleLine(line);
         assertEquals(1, parser.currentTestCase.getFailures().size());
@@ -115,9 +122,11 @@ class OutputParserTests {
         assertEquals("UI Testing Failure - No matches found for Alert", parser.currentTestCase.getFailures().get(0).getMessage());
     }
 
-	void shouldParsePassedTestCase() throws Exception {
+    void shouldParsePassedTestCase() throws Exception {
         parser.currentTestSuite = new TestSuite("host", "PisClientTestCase", new Date());
+	parser.testSuitesHash.put("PisClientTestCase", parser.currentTestSuite);
         parser.currentTestCase = new TestCase("PisClientTestCase","testThatPasses");
+	parser.currentTestSuite.getTestCasesHash().put("testThatPasses", parser.currentTestCase);
         String line = "Test Case '-[PisClientTestCase testThatPasses]' passed (1.234 seconds).";
         parser.handleLine(line);
         assertNull(parser.currentTestCase);
@@ -128,9 +137,11 @@ class OutputParserTests {
         assertEquals(0,parser.currentTestSuite.getFailures());
     }
 
-	void shouldParseFailedTestCase() throws Exception {
+    void shouldParseFailedTestCase() throws Exception {
         parser.currentTestSuite = new TestSuite("host", "PisClientTestCase", new Date());
+	parser.testSuitesHash.put("PisClientTestCase", parser.currentTestSuite);
         parser.currentTestCase = new TestCase("PisClientTestCase","testThatFails");
+	parser.currentTestSuite.getTestCasesHash().put("testThatFails", parser.currentTestCase);
         String line = "Test Case '-[PisClientTestCase testThatFails]' failed (1.234 seconds).";
         parser.handleLine(line);
         assertNull(parser.currentTestCase);

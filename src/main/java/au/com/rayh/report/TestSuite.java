@@ -28,6 +28,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -66,6 +67,8 @@ public class TestSuite {
     @XmlTransient
     Date startTime;
 
+    HashMap <String, TestCase> testCasesHash = new HashMap <String, TestCase>();
+
     public TestSuite() {
     }
     
@@ -74,6 +77,14 @@ public class TestSuite {
         this.hostname = hostname;
         this.name = name;
         this.startTime = startTime;
+    }
+
+    public HashMap<String, TestCase> getTestCasesHash() {
+	return testCasesHash;
+    }
+
+    public void setTestCasesHash(HashMap<String, TestCase> testCasesHash) {
+	this.testCasesHash = testCasesHash;
     }
 
     public int getFailures() {
