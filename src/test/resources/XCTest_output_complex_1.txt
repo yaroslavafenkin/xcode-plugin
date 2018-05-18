@@ -1,0 +1,385 @@
+Test Suite 'All tests' started at 2018-05-17 07:07:31.814
+Test Suite 'XCUITests-ExampleTests.xctest' started at 2018-05-17 07:07:31.815
+Test Suite 'Objc_Test_Under_Score_Tests' started at 2018-05-17 07:07:31.816
+Test Case '-[Objc_Test_Under_Score_Tests testExample]' started.
+Test Case '-[Objc_Test_Under_Score_Tests testExample]' passed (0.001 seconds).
+Test Case '-[Objc_Test_Under_Score_Tests testPerformanceExample]' started.
+Test Case '-[Objc_Test_Under_Score_Tests testPerformanceExample]' passed (0.339 seconds).
+Test Suite 'Objc_Test_Under_Score_Tests' passed at 2018-05-17 07:07:32.157.
+Test Suite 'Objec_SubTests' started at 2018-05-17 07:07:32.157
+Test Case '-[Objec_SubTests testExample]' started.
+Test Case '-[Objec_SubTests testExample]' passed (0.000 seconds).
+Test Case '-[Objec_SubTests testPerformanceExample]' started.
+Test Case '-[Objec_SubTests testPerformanceExample]' passed (0.252 seconds).
+Test Suite 'Objec_SubTests' passed at 2018-05-17 07:07:32.410.
+Test Suite 'RaiseAnExceptionTests' started at 2018-05-17 07:07:32.411
+Test Case '-[RaiseAnExceptionTests testExample1]' started.
+/Volumes/RAID10HDD/iOS/XCUITests_Example/XCUITests_ExampleTests/RaiseAnExceptionTests.m:32: error: -[RaiseAnExceptionTests testExample1] : failed: caught "NSRangeException", "*** -[__NSArrayI objectAtIndex:]: index 11 beyond bounds [0 .. 2]"
+Test Case '-[RaiseAnExceptionTests testExample1]' failed (0.015 seconds).
+Test Case '-[RaiseAnExceptionTests testExample2]' started.
+/Volumes/RAID10HDD/iOS/XCUITests_Example/XCUITests_ExampleTests/RaiseAnExceptionTests.m:40: error: -[RaiseAnExceptionTests testExample2] : ((result) equal to (@"value1")) failed: ("value2") is not equal to ("value1")
+Test Case '-[RaiseAnExceptionTests testExample2]' failed (0.001 seconds).
+Test Case '-[RaiseAnExceptionTests testExample3]' started.
+Test Case '-[RaiseAnExceptionTests testExample3]' passed (0.000 seconds).
+Test Case '-[RaiseAnExceptionTests testPerformanceExample]' started.
+Test Case '-[RaiseAnExceptionTests testPerformanceExample]' passed (0.252 seconds).
+Test Suite 'RaiseAnExceptionTests' failed at 2018-05-17 07:07:32.681.
+Test Suite 'Swift_SubTests' started at 2018-05-17 07:07:32.682
+Test Case '-[XCUITests_ExampleTests.Swift_SubTests testExample1]' started.
+<unknown>:0: error: -[XCUITests_ExampleTests.Swift_SubTests testExample1] : failed: caught "NSRangeException", "*** -[__NSArrayI objectAtIndex:]: index 10 beyond bounds [0 .. 2]"
+Test Case '-[XCUITests_ExampleTests.Swift_SubTests testExample1]' failed (0.013 seconds).
+Test Case '-[XCUITests_ExampleTests.Swift_SubTests testExample2]' started.
+/Volumes/RAID10HDD/iOS/XCUITests_Example/XCUITests_ExampleTests/SubTests/Swift_SubTests.swift:36: error: -[XCUITests_ExampleTests.Swift_SubTests testExample2] : XCTAssertEqual failed: ("Optional("value2")") is not equal to ("Optional("value1")") - 
+Test Case '-[XCUITests_ExampleTests.Swift_SubTests testExample2]' failed (0.005 seconds).
+Test Case '-[XCUITests_ExampleTests.Swift_SubTests testExample3]' started.
+Test Case '-[XCUITests_ExampleTests.Swift_SubTests testExample3]' passed (0.000 seconds).
+Test Case '-[XCUITests_ExampleTests.Swift_SubTests testPerformanceExample]' started.
+Test Case '-[XCUITests_ExampleTests.Swift_SubTests testPerformanceExample]' passed (0.252 seconds).
+Test Suite 'Swift_SubTests' failed at 2018-05-17 07:07:32.955.
+Test Suite 'Swift_Test_Under_Score_Tests' started at 2018-05-17 07:07:32.956
+Test Case '-[XCUITests_ExampleTests.Swift_Test_Under_Score_Tests testExample]' started.
+Test Case '-[XCUITests_ExampleTests.Swift_Test_Under_Score_Tests testExample]' passed (0.001 seconds).
+Test Case '-[XCUITests_ExampleTests.Swift_Test_Under_Score_Tests testPerformanceExample]' started.
+Test Case '-[XCUITests_ExampleTests.Swift_Test_Under_Score_Tests testPerformanceExample]' passed (0.252 seconds).
+Test Suite 'Swift_Test_Under_Score_Tests' passed at 2018-05-17 07:07:33.210.
+Test Suite 'XCUITests_AnotherTests' started at 2018-05-17 07:07:33.210
+Test Case '-[XCUITests_AnotherTests testExample]' started.
+Test Case '-[XCUITests_AnotherTests testExample]' passed (0.001 seconds).
+Test Case '-[XCUITests_AnotherTests testPerformanceExample]' started.
+Test Case '-[XCUITests_AnotherTests testPerformanceExample]' passed (0.253 seconds).
+Test Suite 'XCUITests_AnotherTests' passed at 2018-05-17 07:07:33.464.
+Test Suite 'XCUITests_ExampleTests' started at 2018-05-17 07:07:33.465
+Test Case '-[XCUITests_ExampleTests testExample]' started.
+Test Case '-[XCUITests_ExampleTests testExample]' passed (0.001 seconds).
+Test Case '-[XCUITests_ExampleTests testPerformanceExample]' started.
+Test Case '-[XCUITests_ExampleTests testPerformanceExample]' passed (0.252 seconds).
+Test Suite 'XCUITests_ExampleTests' passed at 2018-05-17 07:07:33.718.
+Test Suite 'XCUITests_SubTests' started at 2018-05-17 07:07:33.719
+Test Case '-[XCUITests_SubTests testExample]' started.
+Test Case '-[XCUITests_SubTests testExample]' passed (0.000 seconds).
+Test Case '-[XCUITests_SubTests testPerformanceExample]' started.
+Test Case '-[XCUITests_SubTests testPerformanceExample]' passed (0.252 seconds).
+Test Suite 'XCUITests_SubTests' passed at 2018-05-17 07:07:33.972.
+Test Suite 'XCUITests_SwiftTests' started at 2018-05-17 07:07:33.973
+Test Case '-[XCUITests_ExampleTests.XCUITests_SwiftTests testExample]' started.
+Test Case '-[XCUITests_ExampleTests.XCUITests_SwiftTests testExample]' passed (0.001 seconds).
+Test Case '-[XCUITests_ExampleTests.XCUITests_SwiftTests testPerformanceExample]' started.
+Test Case '-[XCUITests_ExampleTests.XCUITests_SwiftTests testPerformanceExample]' passed (0.252 seconds).
+Test Suite 'XCUITests_SwiftTests' passed at 2018-05-17 07:07:34.227.
+Test Suite 'XCUITests-ExampleTests.xctest' failed at 2018-05-17 07:07:34.227.
+Test Suite 'All tests' failed at 2018-05-17 07:07:34.228.
+Test Suite 'All tests' started at 2018-05-17 07:07:40.691
+Test Suite 'XCUITests-ExampleUITests.xctest' started at 2018-05-17 07:07:40.692
+Test Suite 'XCUITests_ExampleUITests' started at 2018-05-17 07:07:40.693
+Test Case '-[XCUITests_ExampleUITests testExample]' started.
+    t =     0.00s Start Test at 2018-05-17 07:07:40.693
+    t =     0.07s Set Up
+    t =     0.07s     Open net.hoge2.XCUITests-Example
+    t =     0.12s         Launch net.hoge2.XCUITests-Example
+    t =     5.04s             Wait for net.hoge2.XCUITests-Example to idle
+    t =     6.21s Tap "Add" Button
+    t =     6.22s     Wait for net.hoge2.XCUITests-Example to idle
+    t =     6.26s     Find the "Add" Button
+    t =     6.26s         Snapshot accessibility hierarchy for app with pid 39901
+    t =     6.30s         Find: Descendants matching type NavigationBar
+    t =     6.30s         Find: Elements matching predicate '"Master" IN identifiers'
+    t =     6.31s         Find: Descendants matching type Button
+    t =     6.31s         Find: Elements matching predicate '"Add" IN identifiers'
+    t =     6.41s         Wait for net.hoge2.XCUITests-Example to idle
+    t =     6.46s     Synthesize event
+    t =     6.59s     Wait for net.hoge2.XCUITests-Example to idle
+    t =     7.08s Tap "Add" Button
+    t =     7.08s     Wait for net.hoge2.XCUITests-Example to idle
+    t =     7.12s     Find the "Add" Button
+    t =     7.13s         Snapshot accessibility hierarchy for app with pid 39901
+    t =     7.15s         Find: Descendants matching type NavigationBar
+    t =     7.15s         Find: Elements matching predicate '"Master" IN identifiers'
+    t =     7.16s         Find: Descendants matching type Button
+    t =     7.16s         Find: Elements matching predicate '"Add" IN identifiers'
+    t =     7.26s         Wait for net.hoge2.XCUITests-Example to idle
+    t =     7.31s     Synthesize event
+    t =     7.43s     Wait for net.hoge2.XCUITests-Example to idle
+    t =     7.90s Tap Cell
+    t =     7.90s     Wait for net.hoge2.XCUITests-Example to idle
+    t =     7.95s     Find the Cell
+    t =     7.95s         Snapshot accessibility hierarchy for app with pid 39901
+    t =     7.98s         Find: Descendants matching type Table
+    t =     7.98s         Find: Descendants matching type Cell
+    t =     7.98s         Find: Element at index 0
+    t =     8.08s         Wait for net.hoge2.XCUITests-Example to idle
+    t =     8.13s     Synthesize event
+    t =     8.26s     Wait for net.hoge2.XCUITests-Example to idle
+    t =     8.79s Tap "Master" Button
+    t =     8.79s     Wait for net.hoge2.XCUITests-Example to idle
+    t =     8.85s     Find the "Master" Button
+    t =     8.85s         Snapshot accessibility hierarchy for app with pid 39901
+    t =     8.87s         Find: Descendants matching type NavigationBar
+    t =     8.87s         Find: Elements matching predicate '"Detail" IN identifiers'
+    t =     8.87s         Find: Descendants matching type Button
+    t =     8.87s         Find: Elements matching predicate '"Master" IN identifiers'
+    t =     8.98s         Wait for net.hoge2.XCUITests-Example to idle
+    t =     9.03s     Synthesize event
+    t =     9.15s     Wait for net.hoge2.XCUITests-Example to idle
+    t =     9.67s Tap Cell
+    t =     9.67s     Wait for net.hoge2.XCUITests-Example to idle
+    t =     9.73s     Find the Cell
+    t =     9.73s         Snapshot accessibility hierarchy for app with pid 39901
+    t =     9.75s         Find: Descendants matching type Table
+    t =     9.75s         Find: Descendants matching type Cell
+    t =     9.75s         Find: Element at index 1
+    t =     9.86s         Wait for net.hoge2.XCUITests-Example to idle
+    t =     9.91s     Synthesize event
+    t =    10.03s     Wait for net.hoge2.XCUITests-Example to idle
+    t =    10.56s Tap "Master" Button
+    t =    10.56s     Wait for net.hoge2.XCUITests-Example to idle
+    t =    10.62s     Find the "Master" Button
+    t =    10.62s         Snapshot accessibility hierarchy for app with pid 39901
+    t =    10.64s         Find: Descendants matching type NavigationBar
+    t =    10.64s         Find: Elements matching predicate '"Detail" IN identifiers'
+    t =    10.64s         Find: Descendants matching type Button
+    t =    10.64s         Find: Elements matching predicate '"Master" IN identifiers'
+    t =    10.75s         Wait for net.hoge2.XCUITests-Example to idle
+    t =    10.80s     Synthesize event
+    t =    10.92s     Wait for net.hoge2.XCUITests-Example to idle
+    t =    11.44s Tap "Edit" Button
+    t =    11.44s     Wait for net.hoge2.XCUITests-Example to idle
+    t =    11.49s     Find the "Edit" Button
+    t =    11.50s         Snapshot accessibility hierarchy for app with pid 39901
+    t =    11.52s         Find: Descendants matching type NavigationBar
+    t =    11.52s         Find: Elements matching predicate '"Master" IN identifiers'
+    t =    11.52s         Find: Descendants matching type Button
+    t =    11.52s         Find: Elements matching predicate '"Edit" IN identifiers'
+    t =    11.63s         Wait for net.hoge2.XCUITests-Example to idle
+    t =    11.67s     Synthesize event
+    t =    11.79s     Wait for net.hoge2.XCUITests-Example to idle
+    t =    12.28s Tap "Done" Button
+    t =    12.28s     Wait for net.hoge2.XCUITests-Example to idle
+    t =    12.33s     Find the "Done" Button
+    t =    12.33s         Snapshot accessibility hierarchy for app with pid 39901
+    t =    12.36s         Find: Descendants matching type NavigationBar
+    t =    12.36s         Find: Elements matching predicate '"Master" IN identifiers'
+    t =    12.36s         Find: Descendants matching type Button
+    t =    12.36s         Find: Elements matching predicate '"Done" IN identifiers'
+    t =    12.47s         Wait for net.hoge2.XCUITests-Example to idle
+    t =    12.52s     Synthesize event
+    t =    12.64s     Wait for net.hoge2.XCUITests-Example to idle
+    t =    13.11s Tear Down
+Test Case '-[XCUITests_ExampleUITests testExample]' passed (13.316 seconds).
+Test Suite 'XCUITests_ExampleUITests' passed at 2018-05-17 07:07:54.010.
+Test Suite 'XCUITests_ExampleUITestsFail' started at 2018-05-17 07:07:54.011
+Test Case '-[XCUITests_ExampleUITestsFail testExample]' started.
+    t =     0.00s Start Test at 2018-05-17 07:07:54.012
+    t =     0.05s Set Up
+    t =     0.15s     Open net.hoge2.XCUITests-Example
+    t =     0.19s         Launch net.hoge2.XCUITests-Example
+    t =     0.19s             Terminate net.hoge2.XCUITests-Example:39901
+    t =     5.29s             Wait for net.hoge2.XCUITests-Example to idle
+    t =     6.45s Tap "Add" Button
+    t =     6.45s     Wait for net.hoge2.XCUITests-Example to idle
+    t =     6.49s     Find the "Add" Button
+    t =     6.50s         Snapshot accessibility hierarchy for app with pid 39907
+    t =     6.53s         Find: Descendants matching type NavigationBar
+    t =     6.54s         Find: Elements matching predicate '"Master" IN identifiers'
+    t =     6.54s         Find: Descendants matching type Button
+    t =     6.54s         Find: Elements matching predicate '"Add" IN identifiers'
+    t =     6.64s         Wait for net.hoge2.XCUITests-Example to idle
+    t =     6.69s     Synthesize event
+    t =     6.82s     Wait for net.hoge2.XCUITests-Example to idle
+    t =     7.30s Tap "Add" Button
+    t =     7.30s     Wait for net.hoge2.XCUITests-Example to idle
+    t =     7.35s     Find the "Add" Button
+    t =     7.35s         Snapshot accessibility hierarchy for app with pid 39907
+    t =     7.38s         Find: Descendants matching type NavigationBar
+    t =     7.38s         Find: Elements matching predicate '"Master" IN identifiers'
+    t =     7.38s         Find: Descendants matching type Button
+    t =     7.38s         Find: Elements matching predicate '"Add" IN identifiers'
+    t =     7.49s         Wait for net.hoge2.XCUITests-Example to idle
+    t =     7.54s     Synthesize event
+    t =     7.66s     Wait for net.hoge2.XCUITests-Example to idle
+    t =     8.13s Tap Cell
+    t =     8.13s     Wait for net.hoge2.XCUITests-Example to idle
+    t =     8.18s     Find the Cell
+    t =     8.18s         Snapshot accessibility hierarchy for app with pid 39907
+    t =     8.20s         Find: Descendants matching type Table
+    t =     8.20s         Find: Descendants matching type Cell
+    t =     8.21s         Find: Element at index 0
+    t =     8.31s         Wait for net.hoge2.XCUITests-Example to idle
+    t =     8.36s     Synthesize event
+    t =     8.49s     Wait for net.hoge2.XCUITests-Example to idle
+    t =     9.02s Tap "Master" Button
+    t =     9.02s     Wait for net.hoge2.XCUITests-Example to idle
+    t =     9.08s     Find the "Master" Button
+    t =     9.08s         Snapshot accessibility hierarchy for app with pid 39907
+    t =     9.10s         Find: Descendants matching type NavigationBar
+    t =     9.10s         Find: Elements matching predicate '"Detail" IN identifiers'
+    t =     9.10s         Find: Descendants matching type Button
+    t =     9.10s         Find: Elements matching predicate '"Master" IN identifiers'
+    t =     9.21s         Wait for net.hoge2.XCUITests-Example to idle
+    t =     9.26s     Synthesize event
+    t =     9.38s     Wait for net.hoge2.XCUITests-Example to idle
+    t =     9.90s Tap Cell
+    t =     9.90s     Wait for net.hoge2.XCUITests-Example to idle
+    t =     9.95s     Find the Cell
+    t =     9.95s         Snapshot accessibility hierarchy for app with pid 39907
+    t =     9.98s         Find: Descendants matching type Table
+    t =     9.98s         Find: Descendants matching type Cell
+    t =     9.98s         Find: Element at index 1
+    t =    10.08s         Wait for net.hoge2.XCUITests-Example to idle
+    t =    10.13s     Synthesize event
+    t =    10.26s     Wait for net.hoge2.XCUITests-Example to idle
+    t =    10.78s Tap "Master" Button
+    t =    10.78s     Wait for net.hoge2.XCUITests-Example to idle
+    t =    10.83s     Find the "Master" Button
+    t =    10.83s         Snapshot accessibility hierarchy for app with pid 39907
+    t =    10.85s         Find: Descendants matching type NavigationBar
+    t =    10.85s         Find: Elements matching predicate '"Detail" IN identifiers'
+    t =    10.85s         Find: Descendants matching type Button
+    t =    10.85s         Find: Elements matching predicate '"Master" IN identifiers'
+    t =    10.96s         Wait for net.hoge2.XCUITests-Example to idle
+    t =    11.01s     Synthesize event
+    t =    11.12s     Wait for net.hoge2.XCUITests-Example to idle
+    t =    11.64s Tap "Edit" Button
+    t =    11.64s     Wait for net.hoge2.XCUITests-Example to idle
+    t =    11.69s     Find the "Edit" Button
+    t =    11.69s         Snapshot accessibility hierarchy for app with pid 39907
+    t =    11.71s         Find: Descendants matching type NavigationBar
+    t =    11.71s         Find: Elements matching predicate '"Master" IN identifiers'
+    t =    11.72s         Find: Descendants matching type Button
+    t =    11.72s         Find: Elements matching predicate '"Edit" IN identifiers'
+    t =    11.82s         Wait for net.hoge2.XCUITests-Example to idle
+    t =    11.87s     Synthesize event
+    t =    11.99s     Wait for net.hoge2.XCUITests-Example to idle
+    t =    12.47s Tap Cell
+    t =    12.47s     Wait for net.hoge2.XCUITests-Example to idle
+    t =    12.52s     Find the Cell
+    t =    12.52s         Snapshot accessibility hierarchy for app with pid 39907
+    t =    12.54s         Find: Descendants matching type Table
+    t =    12.54s         Find: Descendants matching type Cell
+    t =    12.54s         Find: Element at index 0
+    t =    12.65s         Wait for net.hoge2.XCUITests-Example to idle
+    t =    12.70s     Synthesize event
+    t =    12.82s     Wait for net.hoge2.XCUITests-Example to idle
+    t =    12.87s Tap "Delete" Button
+    t =    12.87s     Wait for net.hoge2.XCUITests-Example to idle
+    t =    12.91s     Find the "Delete" Button
+    t =    12.92s         Snapshot accessibility hierarchy for app with pid 39907
+    t =    12.94s         Find: Descendants matching type Table
+    t =    12.94s         Find: Descendants matching type Button
+    t =    12.94s         Find: Elements matching predicate '"Delete" IN identifiers'
+    t =    13.05s         Wait for net.hoge2.XCUITests-Example to idle
+    t =    14.10s         Find the "Delete" Button (retry 1)
+    t =    14.10s             Snapshot accessibility hierarchy for app with pid 39907
+    t =    14.12s             Find: Descendants matching type Table
+    t =    14.13s             Find: Descendants matching type Button
+    t =    14.13s             Find: Elements matching predicate '"Delete" IN identifiers'
+    t =    14.23s             Wait for net.hoge2.XCUITests-Example to idle
+    t =    15.28s         Find the "Delete" Button (retry 2)
+    t =    15.29s             Snapshot accessibility hierarchy for app with pid 39907
+    t =    15.31s             Find: Descendants matching type Table
+    t =    15.31s             Find: Descendants matching type Button
+    t =    15.31s             Find: Elements matching predicate '"Delete" IN identifiers'
+    t =    15.42s             Wait for net.hoge2.XCUITests-Example to idle
+    t =    15.52s         Assertion Failure: XCUITests_ExampleUITestsFail.m:57: No matches found for Find: Elements matching predicate '"Delete" IN identifiers' from input {(
+** TEST FAILED **
+    t =    15.56s Tear Down
+Test Case '-[XCUITests_ExampleUITestsFail testExample]' failed (15.769 seconds).
+Test Suite 'XCUITests_ExampleUITestsFail' failed at 2018-05-17 07:08:09.782.
+Test Suite 'XCUITests_SubUITests' started at 2018-05-17 07:08:09.783
+Test Case '-[XCUITests_SubUITests testExample]' started.
+    t =     0.00s Start Test at 2018-05-17 07:08:09.784
+    t =     0.04s Set Up
+    t =     0.14s     Open net.hoge2.XCUITests-Example
+    t =     0.18s         Launch net.hoge2.XCUITests-Example
+    t =     0.18s             Terminate net.hoge2.XCUITests-Example:39907
+    t =     5.27s             Wait for net.hoge2.XCUITests-Example to idle
+    t =     6.46s Tap "Add" Button
+    t =     6.46s     Wait for net.hoge2.XCUITests-Example to idle
+    t =     6.51s     Find the "Add" Button
+    t =     6.51s         Snapshot accessibility hierarchy for app with pid 39915
+    t =     6.55s         Find: Descendants matching type NavigationBar
+    t =     6.55s         Find: Elements matching predicate '"Master" IN identifiers'
+    t =     6.55s         Find: Descendants matching type Button
+    t =     6.56s         Find: Elements matching predicate '"Add" IN identifiers'
+    t =     6.66s         Wait for net.hoge2.XCUITests-Example to idle
+    t =     6.71s     Synthesize event
+    t =     6.85s     Wait for net.hoge2.XCUITests-Example to idle
+    t =     7.33s Tap "Add" Button
+    t =     7.33s     Wait for net.hoge2.XCUITests-Example to idle
+    t =     7.39s     Find the "Add" Button
+    t =     7.39s         Snapshot accessibility hierarchy for app with pid 39915
+    t =     7.42s         Find: Descendants matching type NavigationBar
+    t =     7.42s         Find: Elements matching predicate '"Master" IN identifiers'
+    t =     7.42s         Find: Descendants matching type Button
+    t =     7.42s         Find: Elements matching predicate '"Add" IN identifiers'
+    t =     7.53s         Wait for net.hoge2.XCUITests-Example to idle
+    t =     7.57s     Synthesize event
+    t =     7.69s     Wait for net.hoge2.XCUITests-Example to idle
+    t =     8.17s Tap Cell
+    t =     8.17s     Wait for net.hoge2.XCUITests-Example to idle
+    t =     8.22s     Find the Cell
+    t =     8.22s         Snapshot accessibility hierarchy for app with pid 39915
+    t =     8.24s         Find: Descendants matching type Table
+    t =     8.24s         Find: Descendants matching type Cell
+    t =     8.24s         Find: Element at index 0
+    t =     8.35s         Wait for net.hoge2.XCUITests-Example to idle
+    t =     8.40s     Synthesize event
+    t =     8.52s     Wait for net.hoge2.XCUITests-Example to idle
+    t =     9.06s Tap "Master" Button
+    t =     9.06s     Wait for net.hoge2.XCUITests-Example to idle
+    t =     9.12s     Find the "Master" Button
+    t =     9.12s         Snapshot accessibility hierarchy for app with pid 39915
+    t =     9.15s         Find: Descendants matching type NavigationBar
+    t =     9.15s         Find: Elements matching predicate '"Detail" IN identifiers'
+    t =     9.15s         Find: Descendants matching type Button
+    t =     9.15s         Find: Elements matching predicate '"Master" IN identifiers'
+    t =     9.26s         Wait for net.hoge2.XCUITests-Example to idle
+    t =     9.31s     Synthesize event
+    t =     9.44s     Wait for net.hoge2.XCUITests-Example to idle
+    t =     9.95s Tap Cell
+    t =     9.95s     Wait for net.hoge2.XCUITests-Example to idle
+    t =    10.01s     Find the Cell
+    t =    10.01s         Snapshot accessibility hierarchy for app with pid 39915
+    t =    10.03s         Find: Descendants matching type Table
+    t =    10.04s         Find: Descendants matching type Cell
+    t =    10.04s         Find: Element at index 1
+    t =    10.14s         Wait for net.hoge2.XCUITests-Example to idle
+    t =    10.20s     Synthesize event
+    t =    10.33s     Wait for net.hoge2.XCUITests-Example to idle
+    t =    10.85s Tap "Master" Button
+    t =    10.85s     Wait for net.hoge2.XCUITests-Example to idle
+    t =    10.90s     Find the "Master" Button
+    t =    10.90s         Snapshot accessibility hierarchy for app with pid 39915
+    t =    10.92s         Find: Descendants matching type NavigationBar
+    t =    10.93s         Find: Elements matching predicate '"Detail" IN identifiers'
+    t =    10.93s         Find: Descendants matching type Button
+    t =    10.93s         Find: Elements matching predicate '"Master" IN identifiers'
+    t =    11.04s         Wait for net.hoge2.XCUITests-Example to idle
+    t =    11.09s     Synthesize event
+    t =    11.21s     Wait for net.hoge2.XCUITests-Example to idle
+    t =    11.72s Tap "Edit" Button
+    t =    11.72s     Wait for net.hoge2.XCUITests-Example to idle
+    t =    11.78s     Find the "Edit" Button
+    t =    11.78s         Snapshot accessibility hierarchy for app with pid 39915
+    t =    11.81s         Find: Descendants matching type NavigationBar
+    t =    11.81s         Find: Elements matching predicate '"Master" IN identifiers'
+    t =    11.81s         Find: Descendants matching type Button
+    t =    11.81s         Find: Elements matching predicate '"Edit" IN identifiers'
+    t =    11.91s         Wait for net.hoge2.XCUITests-Example to idle
+    t =    11.96s     Synthesize event
+    t =    12.08s     Wait for net.hoge2.XCUITests-Example to idle
+    t =    12.56s Tap "Done" Button
+    t =    12.56s     Wait for net.hoge2.XCUITests-Example to idle
+    t =    12.62s     Find the "Done" Button
+    t =    12.62s         Snapshot accessibility hierarchy for app with pid 39915
+    t =    12.65s         Find: Descendants matching type NavigationBar
+    t =    12.65s         Find: Elements matching predicate '"Master" IN identifiers'
+    t =    12.65s         Find: Descendants matching type Button
+    t =    12.65s         Find: Elements matching predicate '"Done" IN identifiers'
+    t =    12.76s         Wait for net.hoge2.XCUITests-Example to idle
+    t =    12.81s     Synthesize event
+    t =    12.93s     Wait for net.hoge2.XCUITests-Example to idle
+    t =    13.41s Tear Down
+Test Case '-[XCUITests_SubUITests testExample]' passed (13.610 seconds).
+Test Suite 'XCUITests_SubUITests' passed at 2018-05-17 07:08:23.394.
+Test Suite 'XCUITests-ExampleUITests.xctest' failed at 2018-05-17 07:08:23.395.
+Test Suite 'All tests' failed at 2018-05-17 07:08:23.396.

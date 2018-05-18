@@ -34,6 +34,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -55,24 +56,25 @@ import au.com.rayh.report.TestSuite;
 
 public class XCodeBuildOutputParser {
 
-	private static DateFormat[] dateFormats = {
-		new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z"),
-		new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS")
-	};
-    private static Pattern START_SUITE = Pattern.compile("Test Suite '([^/].+)'.*started at\\s+(.*)");
-    private static Pattern END_SUITE = Pattern.compile("Test Suite '([^/].+)'.*\\S+ at\\s+(.*).");
-    private static Pattern START_TESTCASE = Pattern.compile("Test Case '-\\[\\S+\\s+(\\S+)\\]' started.");
-    private static Pattern END_TESTCASE = Pattern.compile("Test Case '-\\[\\S+\\s+(\\S+)\\]' passed \\((.*) seconds\\).");
-    private static Pattern ERROR_TESTCASE = Pattern.compile("(.*): error: -\\[(\\S+) (\\S+)\\] : (.*)");
+    private static DateFormat[] dateFormats = {
+	new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z"),
+	new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS")
+    };
+    private static Pattern START_SUITE = Pattern.compile("Test Suite '([^\\/](?:\\.|[^'\\\\])*)'\\s+started at\\s+(.*)");
+    private static Pattern END_SUITE = Pattern.compile("Test Suite '([^\\/](?:\\.|[^'\\\\])*)'\\s+\\S+\\s+at\\s+(.*).");
+    private static Pattern START_TESTCASE = Pattern.compile("Test Case '-\\[(\\S+)\\s+(\\S+)\\]' started.");
+    private static Pattern END_TESTCASE = Pattern.compile("Test Case '-\\[(\\S+)\\s+(\\S+)\\]' passed \\((.*) seconds\\).");
+    private static Pattern ERROR_TESTCASE = Pattern.compile("(.*): error: -\\[(\\S+)\\s+(\\S+)\\] : (.*)");
     private static Pattern ERROR_UI_TESTCASE = Pattern.compile(".*?Assertion Failure: (.+:\\d+): (.*)");
-    private static Pattern FAILED_TESTCASE = Pattern.compile("Test Case '-\\[\\S+ (\\S+)\\]' failed \\((\\S+) seconds\\).");
+    private static Pattern FAILED_TESTCASE = Pattern.compile("Test Case '-\\[(\\S+)\\s+(\\S+)\\]' failed \\((\\S+) seconds\\).");
     private static Pattern FAILED_WITH_EXIT_CODE = Pattern.compile("failed with exit code (\\d+)");
     private static Pattern TERMINATING_EXCEPTION = Pattern.compile(".*\\*\\*\\* Terminating app due to uncaught exception '(\\S+)', reason: '(.+[^\\\\])'.*");
     private File testReportsDir;
     protected OutputStream captureOutputStream;
     protected int exitCode;
-    protected TestSuite currentTestSuite;
-    protected TestCase currentTestCase;
+    protected HashMap<String, TestSuite> testSuitesHash = new HashMap<String, TestSuite>();
+    protected TestSuite currentTestSuite = null;
+    protected TestCase currentTestCase = null;
     protected boolean consoleLog;
 
     protected XCodeBuildOutputParser() {
@@ -114,47 +116,61 @@ public class XCodeBuildOutputParser {
         }
     }
 
-	private Date parseDate(String text) throws ParseException {
-		Date date;
-		ParseException parseException;
+    private Date parseDate(String text) throws ParseException {
+	Date date;
+	ParseException parseException;
 
-		date = null;
-		parseException = null;
+	date = null;
+	parseException = null;
 
-		for (DateFormat dateFormat : dateFormats) {
-			try {
-				date = dateFormat.parse(text);
-				break;
-			} catch (ParseException exception) {
-				parseException = exception;
-			}
-		}
-
-		if ((date == null) && (parseException != null)) {
-			throw parseException;
-		}
-
-		return date;
+	for (DateFormat dateFormat : dateFormats) {
+	    try {
+		date = dateFormat.parse(text);
+		break;
+	    } catch (ParseException exception) {
+		parseException = exception;
+	    }
 	}
 
-	private void requireTestSuite() {
-        if(currentTestSuite==null) {
-            throw new RuntimeException("Log statements out of sync: current test suite was null");
-        }
+	if ((date == null) && (parseException != null)) {
+	    throw parseException;
+	}
+
+	return date;
+    }
+
+    private void requireTestSuite() {
+	if(testSuitesHash.size()==0) {
+	    throw new RuntimeException("Log statements out of sync: current test suite was empty");
+	}
+	if(currentTestSuite==null) {
+	    throw new RuntimeException("Log statements out of sync: current test suite was null");
+	}
     }
 
     private void requireTestSuite(String name) {
-        requireTestSuite();
-        if(name == null || !name.endsWith(currentTestSuite.getName())) {
-            throw new RuntimeException("Log statements out of sync: current test suite was '" + currentTestSuite.getName() + "' and not '" + name + "'");
-        }
+        currentTestSuite = testSuitesHash.get(name);
+	if(currentTestSuite==null) {
+	    // Swift 
+	    String[] testSuites = name.split(Pattern.quote("."));
+	    if ( testSuites.length == 2 ) {
+		String xctestName = testSuites[0] + ".xctest";
+		String testSuite = testSuites[1];
+		if ( !testSuitesHash.containsKey(xctestName) ) {
+		    throw new RuntimeException("Log statements out of sync: current test suite '" + xctestName + "' not exists");
+		}
+		currentTestSuite = testSuitesHash.get(testSuite);
+		if ( currentTestSuite == null ) {
+	    	    throw new RuntimeException("Log statements out of sync: current test suite '" + testSuite + "' not exists");
+		}
+	    }
+	}
     }
 
     private void requireTestCase(String name) {
+	currentTestCase = currentTestSuite.getTestCasesHash().get(name);
         if(currentTestCase==null) {
-            throw new RuntimeException("Log statements out of sync: current test case was null");
-        } else if(!currentTestCase.getName().equals(name)) {
-            throw new RuntimeException("Log statements out of sync: current test case was '" + currentTestCase.getName() + "'");
+            throw new RuntimeException("Log statements out of sync: current test case '" + currentTestSuite.getName() + "." + name + "' not exists");
         }
     }
 
@@ -175,89 +191,121 @@ public class XCodeBuildOutputParser {
     protected void handleLine(String line) throws ParseException, IOException, InterruptedException, JAXBException {
         Matcher m = START_SUITE.matcher(line);
         if(m.matches()) {
-        	  consoleLog = true;
+	    if (testSuitesHash.isEmpty()) {
+	    	consoleLog = true;
+	    }
+	    String suite_name = m.group(1);
+	    if ( m.group(1).endsWith(".xctest") ) {
+		suite_name = suite_name.replaceAll("-", "_");
+	    }
             currentTestSuite = new TestSuite(InetAddress.getLocalHost().getHostName(), m.group(1), parseDate(m.group(2)));
+	    testSuitesHash.put(suite_name, currentTestSuite);
             return;
         }
 
         m = END_SUITE.matcher(line);
         if(m.matches()) {
-            if(currentTestSuite==null) return; // if there is no current suite, do nothing
-
+            String suite_name = m.group(1);
+            if ( m.group(1).endsWith(".xctest") ) {
+                suite_name = suite_name.replaceAll("-", "_");
+            }
+	    requireTestSuite(suite_name);
             currentTestSuite.setEndTime(parseDate(m.group(2)));
             writeTestReport();
-
-            currentTestSuite = null;
-            consoleLog = false;
+            testSuitesHash.remove(suite_name);
+	    currentTestSuite = null;
+	    if ( testSuitesHash.size() == 1 ) {
+		// If the last test suitev in nhash is Unknown, process it and exit.
+		currentTestSuite = testSuitesHash.get("UnknownSuite");
+		if ( currentTestSuite != null ) {
+		    currentTestSuite.setEndTime(parseDate(m.group(2)));
+		    writeTestReport();
+		    testSuitesHash.remove(suite_name);
+		    currentTestSuite = null;
+		}
+	    }
+	    if (testSuitesHash.isEmpty()) {
+                consoleLog = false;
+	    }
             return;
         }
 
         m = START_TESTCASE.matcher(line);
         if(m.matches()) {
-            currentTestCase = new TestCase(currentTestSuite.getName(), m.group(1));
+	    requireTestSuite(m.group(1));
+	    currentTestCase = new TestCase(m.group(1), m.group(2));
+            currentTestSuite.getTestCasesHash().put(m.group(2), currentTestCase);
             return;
         }
 
         m = END_TESTCASE.matcher(line);
         if(m.matches()) {
-            
-        		String currentTestCaseName = m.group(1);
-        		TestCase localTestCase = null;
-        		
-            if(currentTestSuite == null) {
-            		currentTestSuite = new TestSuite(InetAddress.getLocalHost().getHostName(), "UnknownSuite", new Date());
-            }
-                  
-            if(currentTestCase == null) {
-            		localTestCase = new TestCase(currentTestSuite.getName(), currentTestCaseName);
-            }else {
-            		localTestCase = currentTestCase;
-            }
-            
-            localTestCase.setTime(Float.valueOf(m.group(2)));
-        		currentTestSuite.getTestCases().add(localTestCase);
-        		currentTestSuite.addTest();
-            
-            
-            currentTestCase = null;
-            return;
-        }
+            requireTestSuite(m.group(1));
+            requireTestCase(m.group(2));
+            currentTestCase.setTime(Float.valueOf(m.group(3)));
+            currentTestSuite.getTestCases().add(currentTestCase);
+            currentTestSuite.addTest();
+	    // Actually, I think that the test case should be closed and deleted here.
+	    // In case the error is reported late without synchronization.
+	    //currentTestSuite.getTestCasesHash().remove(m.group(2));
+	    currentTestCase = null;
+	    return;
+	}
 
         m = ERROR_TESTCASE.matcher(line);
         if(m.matches()) {
-
             String errorLocation = m.group(1);
             String testSuite = m.group(2);
             String testCase = m.group(3);
             String errorMessage = m.group(4);
-
             requireTestSuite(testSuite);
             requireTestCase(testCase);
-
             TestFailure failure = new TestFailure(errorMessage, errorLocation);
             currentTestCase.getFailures().add(failure);
             return;
         }
-	
+
+	// If the test result is returned asynchronously, there is a possibility
+	//  that in this case the target test can not be decided and information
+	//  is recorded in the wrong place.
         m = ERROR_UI_TESTCASE.matcher(line);
         if(m.matches()) {
             String errorLocation = m.group(1);
             String errorMessage = m.group(2);
-
             TestFailure failure = new TestFailure(errorMessage, errorLocation);
+
+ 	    if ( currentTestSuite == null ) {
+		currentTestSuite = testSuitesHash.get("UnknownSuite");
+		if ( currentTestSuite == null ) {
+ 		    currentTestSuite = new TestSuite(InetAddress.getLocalHost().getHostName(), "UnknownSuite", new Date());
+		    testSuitesHash.put("UnknownSuite", currentTestSuite);
+		}
+ 	    }
+                  
+	    if ( currentTestCase == null ) {
+		currentTestCase = currentTestSuite.getTestCasesHash().get("UnknownTestCase");
+		if ( currentTestCase == null ) {
+		    currentTestCase = new TestCase(currentTestSuite.getName(), "UnknownTestCase");
+		    currentTestSuite.getTestCasesHash().put("UnknownTestCase", currentTestCase);
+		    currentTestSuite.getTestCases().add(currentTestCase);
+		    currentTestSuite.addTest();
+		}
+	    }
+
             currentTestCase.getFailures().add(failure);
             return;
         }
 
         m = FAILED_TESTCASE.matcher(line);
         if(m.matches()) {
-            requireTestSuite();
-            requireTestCase(m.group(1));
+            requireTestSuite(m.group(1));
+            requireTestCase(m.group(2));
             currentTestSuite.addTest();
             currentTestSuite.addFailure();
-            currentTestCase.setTime(Float.valueOf(m.group(2)));
+            currentTestCase.setTime(Float.valueOf(m.group(3)));
             currentTestSuite.getTestCases().add(currentTestCase);
-            currentTestCase = null;
+	    //currentTestSuite.getTestCasesHash().remove(m.group(2));
+	    currentTestCase = null;
             return;
         }
 
@@ -274,16 +322,14 @@ public class XCodeBuildOutputParser {
         m = TERMINATING_EXCEPTION.matcher(line);
         if(m.matches()) {
             exitCode = -1;
-            
             requireTestSuite();
             if (currentTestCase != null) {
                 TestError error = new TestError(m.group(2), m.group(1));
                 currentTestCase.getErrors().add(error);
-                
                 currentTestSuite.getTestCases().add(currentTestCase);
                 currentTestSuite.addTest();
                 currentTestSuite.addError();
-                
+		//currentTestSuite.getTestCasesHash().remove(currentTestCase.getName());
                 currentTestCase = null;
             }
             writeTestReport();
