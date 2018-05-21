@@ -765,7 +765,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 			    exportConfiguration = "AdHoc";
 			}
 			else {
-			    exportConfiguration = "Development";
+			    exportConfiguration = "Debug";
 			}
                     }
 		    else if ( StringUtils.isEmpty(configuration) ) {
@@ -779,7 +779,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 		    if ( !automaticSigning ) {
 			BuildConfiguration buildConfiguration = projectTarget.buildConfiguration.get(exportConfiguration);
 			if ( buildConfiguration == null ) {
-			    listener.getLogger().println("Could not get export configuration (" + buildConfiguration + ") from " + projectLocation);
+			    listener.getLogger().println("Could not get build configuration (" + exportConfiguration + ") from " + projectLocation);
 			    return false;
 			}
 			developmentTeamID = buildConfiguration.developmentTeamId;
@@ -963,11 +963,11 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
             xcodeReport.append(", project: DEFAULT");
         }
 
-		if (!StringUtils.isEmpty(configuration)) {
-			commandLine.add("-configuration");
-			commandLine.add(configuration);
-			xcodeReport.append(", configuration: ").append(configuration);
-		}
+	if (!StringUtils.isEmpty(configuration)) {
+	    commandLine.add("-configuration");
+	    commandLine.add(configuration);
+	    xcodeReport.append(", configuration: ").append(configuration);
+	}
 
         if (cleanBeforeBuild) {
             commandLine.add("clean");
