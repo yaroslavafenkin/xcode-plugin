@@ -191,11 +191,11 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
      */
     public final Boolean generateArchive;
     /**
-     * @since 2.1.0
+     * @since 2.0.1
      */
     public final Boolean noConsoleLog;
     /**
-     * @since 2.1.0
+     * @since 2.0.1
      */
     public final String logfileOutputDirectory;
     /**
@@ -250,20 +250,30 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
      * @since 1.4
      */
     public final String bundleIDInfoPlistPath;
-
+    /**
+     * @since 1.4
+     */
     public final Boolean interpretTargetAsRegEx;
     /**
      * @since 1.5
      */
     public final String ipaManifestPlistUrl;
     /**
-     * @since 2.1
+     * @since 2.0.1
      */
     public final Boolean manualSigning;
     /**
-     * @since 2.1
+     * @since 2.0.1
      */
     public ArrayList<ProvisioningProfile> provisioningProfiles = new ArrayList<>();
+    /**
+     * @since 2.0.3
+     */
+    Boolean skipBuildStep;
+
+    public void setSkipBuildStep(Boolean skipBuildStep) {
+        this.skipBuildStep = skipBuildStep;
+    }
 
     // Fields in config.jelly must match the parameter names in the "DataBoundConstructor"
     @DataBoundConstructor
@@ -313,6 +323,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
         this.ipaExportMethod = ipaExportMethod;
         this.manualSigning = manualSigning;
         this.provisioningProfiles = provisioningProfiles;
+	this.skipBuildStep = false;
     }
 
     @Deprecated
@@ -695,6 +706,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 	listener.getLogger().println(Messages.XCodeBuilder_DebugInfoLineDelimiter());
 
         // Build
+	if ( skipBuildStep == null || !skipBuildStep ) {
         StringBuilder xcodeReport = new StringBuilder(Messages.XCodeBuilder_invokeXcodebuild());
         JenkinsXCodeBuildOutputParser reportGenerator = new JenkinsXCodeBuildOutputParser(projectRoot, listener);
         List<String> commandLine = Lists.newArrayList(getGlobalConfiguration().getXcodebuildPath());
@@ -828,6 +840,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
             if (reportGenerator.getExitCode() != 0) return false;
             if (returnCode > 0) return false;
         }
+	}
 
         // Package IPA
         if (buildIpa) {
