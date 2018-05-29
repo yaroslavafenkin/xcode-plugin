@@ -898,7 +898,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 	}
 	else {
 	    listener.getLogger().println(StringUtils.join(availableParameters, "\n"));
-	    if(availableParameters.contains("allowProvisioningUpdates")){
+	    if(availableParameters.contains("-allowProvisioningUpdates")){
 		haveAllowProvisioningUpdates = true;
 	    }
 	}
