@@ -55,7 +55,7 @@ public class DeveloperProfileLoader extends Builder implements SimpleBuildStep {
     public void perform(@Nonnull Run<?, ?> run, @Nonnull FilePath workspace, @Nonnull Launcher launcher, @Nonnull TaskListener listener) throws InterruptedException, IOException {
         DeveloperProfile dp = getProfile(run.getParent());
         if (dp==null)
-            throw new AbortException("No Apple developer profile is configured");
+            throw new AbortException(Messages.DeveloperProfile_NoDeveloperProfileConfigured());
 
         // Note: keychain are usualy suffixed with .keychain. If we change we should probably clean up the ones we created
         String keyChain = "jenkins-"+run.getParent().getFullName().replace('/', '-');
@@ -109,7 +109,7 @@ public class DeveloperProfileLoader extends Builder implements SimpleBuildStep {
         profiles.mkdirs();
 
         for (FilePath mp : secret.list("**/*.mobileprovision")) {
-            listener.getLogger().println("Installing  "+mp.getName());
+            listener.getLogger().println(Messages.DeveloperProfile_Installing(mp.getName()));
             mp.copyTo(profiles.child(mp.getName()));
         }
     }
@@ -163,7 +163,7 @@ public class DeveloperProfileLoader extends Builder implements SimpleBuildStep {
 
         @Override
         public String getDisplayName() {
-            return "Import developer profile";
+            return Messages.DeveloperProfile_ImportDeveloperProfile();
         }
 
         public ListBoxModel doFillProfileIdItems(@AncestorInPath Item context) {

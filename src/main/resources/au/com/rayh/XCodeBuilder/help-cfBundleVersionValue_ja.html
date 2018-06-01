@@ -1,0 +1,33 @@
+<!--
+  ~ The MIT License
+  ~
+  ~ Copyright (c) 2011 Ray Yamamoto Hilton
+  ~
+  ~ Permission is hereby granted, free of charge, to any person obtaining a copy
+  ~ of this software and associated documentation files (the "Software"), to deal
+  ~ in the Software without restriction, including without limitation the rights
+  ~ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  ~ copies of the Software, and to permit persons to whom the Software is
+  ~ furnished to do so, subject to the following conditions:
+  ~
+  ~ The above copyright notice and this permission notice shall be included in
+  ~ all copies or substantial portions of the Software.
+  ~
+  ~ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  ~ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  ~ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  ~ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  ~ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  ~ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+  ~ THE SOFTWARE.
+  -->
+
+<div>
+  <p>
+    CFBundleVersionを指定された文字列に設定します。<br/>
+    <a href="http://ci.jenkins-ci.org/env-vars.html" target="_blank">ビルド変数</a>で説明されている全ての環境変数と<a href="https://wiki.jenkins-ci.org/display/JENKINS/Token+Macro+Plugin" target="_blank">Token Macro Plugin</a>で説明されている全て>のマクロを使うことができます。<br/>
+    例えば ${BUILD_NUMBER} を指定すると、これは現在のビルド番号に置き換えられます。<br/>
+    例えばプライベートストアにアプリをデプロイする場合はなどには各ビルドで固有の値を生成する必要があるはずです。<br/>
+    このような場合には次の様にするとよいでしょう: ${JOB_NAME}-${BUILD_NUMBER}
+  </p>
+</div>

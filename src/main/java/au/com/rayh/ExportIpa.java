@@ -6,14 +6,18 @@ import hudson.model.*;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
 import hudson.util.ArgumentListBuilder;
+import hudson.util.FormValidation;
 import jenkins.tasks.SimpleBuildStep;
+import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.QueryParameter;
 
 import javax.inject.Inject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -49,21 +53,33 @@ public class ExportIpa extends Builder implements SimpleBuildStep {
     public final Boolean changeBundleID;
     public final String bundleID;
     public final String bundleIDInfoPlistPath;
-    public final String ipaManifestPlistUrl;
     public final Boolean interpretTargetAsRegEx;
     public final String ipaExportMethod;
     public final Boolean manualSigning;
     public final ArrayList<ProvisioningProfile> provisioningProfiles;
-
-    public boolean result;
+    public final String xcodeName;
+    public final Boolean uploadBitcode;
+    public final Boolean uploadSymbols;
+    public final Boolean compileBitcode;
+    public final String thinning;
+    public final Boolean packResourcesAsset;
+    public final String resourcesAssetURL;
+    public final String appURL;
+    public final String displayImageURL;
+    public final String fullSizeImageURL;
+    public final String assetPackManifestURL;
 
     @DataBoundConstructor
     public ExportIpa(String xcodeProjectPath, String xcodeProjectFile,
                 Boolean unlockKeychain, String keychainName, String keychainPath, String keychainPwd, String symRoot, String xcodeWorkspaceFile,
                 String xcodeSchema, String archiveDir, String developmentTeamName, String developmentTeamID,
                 String ipaName, String ipaOutputDirectory,
-                String ipaManifestPlistUrl, String ipaExportMethod,
-                Boolean manualSigning, ArrayList<ProvisioningProfile> provisioningProfiles) {
+                String ipaExportMethod,
+                Boolean manualSigning, ArrayList<ProvisioningProfile> provisioningProfiles, String xcodeName,
+		Boolean uploadBitcode, Boolean uploadSymbols, Boolean compileBitcode, String thinning,
+		Boolean packResourcesAsset, String resourcesAssetURL,
+		String appURL, String displayImageURL, String fullSizeImageURL,
+		String assetPackManifestURL) {
         this.buildIpa = true;
         this.generateArchive = false;
         this.noConsoleLog = true;
@@ -96,34 +112,40 @@ public class ExportIpa extends Builder implements SimpleBuildStep {
         this.bundleID = null;
         this.bundleIDInfoPlistPath = null;
         this.interpretTargetAsRegEx = false;
-        this.ipaManifestPlistUrl = ipaManifestPlistUrl;
         this.ipaExportMethod = ipaExportMethod;
         this.manualSigning = manualSigning;
         this.provisioningProfiles = provisioningProfiles;
+	this.xcodeName = xcodeName;
+        this.uploadBitcode = uploadBitcode;
+        this.uploadSymbols = uploadSymbols;
+        this.compileBitcode = compileBitcode;
+        this.thinning = thinning;
+        this.packResourcesAsset = packResourcesAsset;
+        this.resourcesAssetURL = resourcesAssetURL;
+        this.appURL = appURL;
+        this.displayImageURL = displayImageURL;
+        this.fullSizeImageURL = fullSizeImageURL;
+        this.assetPackManifestURL = assetPackManifestURL;
     }
 
     @Override
     public void perform(Run<?, ?> build, FilePath filePath, Launcher launcher, TaskListener listener) throws InterruptedException, IOException {
-        this.result = _perform(build, filePath, launcher, build.getEnvironment(listener), listener);
-    }
-
-    @Override
-    public boolean perform(AbstractBuild build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
-        boolean res = _perform(build, build.getWorkspace(), launcher, build.getEnvironment(listener), listener);
-        this.result = res;
-        return res;
+        _perform(build, filePath, launcher, build.getEnvironment(listener), listener);
     }
 
     @SuppressFBWarnings("DM_DEFAULT_ENCODING")
     private boolean _perform(Run<?,?> build, FilePath filePath, Launcher launcher, EnvVars envs, TaskListener listener) throws InterruptedException, IOException {
-
 	XCodeBuilder builder = new XCodeBuilder(buildIpa, generateArchive, noConsoleLog, logfileOutputDirectory, cleanBeforeBuild, cleanTestReports, configuration,
                 target, sdk, xcodeProjectPath, xcodeProjectFile, xcodebuildArguments,
                 cfBundleVersionValue, cfBundleShortVersionStringValue, unlockKeychain,
                 keychainName, keychainPath, keychainPwd, symRoot, xcodeWorkspaceFile,
                 xcodeSchema, archiveDir, developmentTeamName, developmentTeamID, allowFailingBuildResults,
                 ipaName, provideApplicationVersion, ipaOutputDirectory, changeBundleID, bundleID,
-                bundleIDInfoPlistPath, ipaManifestPlistUrl, interpretTargetAsRegEx, ipaExportMethod, this.manualSigning, provisioningProfiles);
+                bundleIDInfoPlistPath, interpretTargetAsRegEx, ipaExportMethod, manualSigning, provisioningProfiles, xcodeName,
+		uploadBitcode, uploadSymbols, compileBitcode, thinning,
+		packResourcesAsset, resourcesAssetURL,
+		appURL, displayImageURL, fullSizeImageURL, assetPackManifestURL);
+		
 	builder.setSkipBuildStep(true);
 	builder.perform(build, filePath, launcher, listener);
 	return true;
@@ -165,6 +187,24 @@ public class ExportIpa extends Builder implements SimpleBuildStep {
         @Override
         public boolean isApplicable(Class<? extends AbstractProject> aClass) {
             return true;
+        }
+
+        public String getUUID() {
+            return "" + UUID.randomUUID().getMostSignificantBits();
+        }
+
+        public FormValidation doCheckXcodeSchema(@QueryParameter String value) {
+            if ( value.isEmpty() ) {
+                return FormValidation.warning(Messages.XCodeBuilder_NeedSchema());
+            }
+            return FormValidation.ok();
+        }
+
+        public FormValidation doCheckResourcesAssetURL(@QueryParameter String value, @QueryParameter Boolean packResourcesAsset) {
+            if ( StringUtils.isEmpty(value) && !packResourcesAsset ) {
+                return FormValidation.error(Messages.XCodeBuilder_NeedOnDemandResourcesURL());
+            }
+            return FormValidation.ok();
         }
     }
 }
