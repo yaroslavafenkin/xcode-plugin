@@ -1071,14 +1071,6 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 		    if (haveAllowProvisioningUpdates)
                 	packageCommandLine.add("-allowProvisioningUpdates");
                 }
-           	// Additional (custom) xcodebuild arguments
-            	if (!StringUtils.isEmpty(xcodebuildArguments)) {
-                    packageCommandLine.addAll(splitXcodeBuildArguments(xcodebuildArguments));
-            	}
-                // Additional (custom) xcodebuild arguments
-                if (!StringUtils.isEmpty(xcodebuildArguments)) {
-                    packageCommandLine.addAll(splitXcodeBuildArguments(xcodebuildArguments));
-                }
                 returnCode = launcher.launch().envs(envs).stdout(listener).pwd(projectRoot).cmds(packageCommandLine).join();
                 if (returnCode > 0) {
                     listener.getLogger().println(Messages.XCodeBuilder_FailedToBuildIpa(ipaLocation.absolutize().getRemote()));
