@@ -1,7 +1,7 @@
 <!--
   ~ The MIT License
   ~
-  ~ Copyright (c) 2011 Ray Yamamoto Hilton
+  ~ Copyright (c) 2017 Bryan Lahartinger
   ~
   ~ Permission is hereby granted, free of charge, to any person obtaining a copy
   ~ of this software and associated documentation files (the "Software"), to deal
@@ -23,11 +23,7 @@
   -->
 
 <div>
-  <p>
-    Select the version of Xcode Tools to use for building the project.
-
-    You can select the version of Xcode set by 'Global Tool Configuration' by plugin setting.
-    If you choose the 'System Default' for Xcode version, plugin will not do anything,
-    so you can switch Xcode using environment variable 'DEVELOPER_DIR' as well.
-  </p>
+    <p>パッケージに署名するために利用する開発者チームの名前を指定します。
+    Xcode 8.3以降では.ipaに署名(これには現在xcodebuilderを使用しています)するために必要です。</p>
+    <p>開発者チームは開発者チームIDを指定するか、「Jenkinsの管理」で作成したものをここで設定できます</p>
 </div>

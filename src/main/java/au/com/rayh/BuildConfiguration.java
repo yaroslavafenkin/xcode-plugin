@@ -39,9 +39,11 @@ public class BuildConfiguration {
         this.productName = buildSettingsDict.objectForKey("PRODUCT_NAME").toString();
     }
     this.infoPlistFile = buildSettingsDict.objectForKey("INFOPLIST_FILE").toString();
+    //this.codeSignStyle = buildSettingsDict.objectForKey("CODE_SIGN_STYLE").toString();
+    if ( buildSettingsDict.objectForKey("BUNDLE_LOADER") == null && buildSettingsDict.objectForKey("TEST_TARGET_NAME") == null ) {
+	this.developmentTeamId = buildSettingsDict.objectForKey("DEVELOPMENT_TEAM").toString();
+    }
     if ( !automatic ) {
-      //this.codeSignStyle = buildSettingsDict.objectForKey("CODE_SIGN_STYLE").toString();
-      this.developmentTeamId = buildSettingsDict.objectForKey("DEVELOPMENT_TEAM").toString();
       this.provisioningProfileUUID = buildSettingsDict.objectForKey("PROVISIONING_PROFILE").toString();
       this.provisioningProfileSpecifier = buildSettingsDict.objectForKey("PROVISIONING_PROFILE_SPECIFIER").toString();
     }
