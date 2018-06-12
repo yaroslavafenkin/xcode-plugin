@@ -159,17 +159,19 @@
         <f:advanced title="${%Code signing settings}">
             <f:entry>
                 <f:optionalBlock inline="true" checked="${instance.manualSigning == true}" name="manualSigning" field="manualSigning" title="${%Manual signing?}" help="/plugin/xcode-plugin/help/help-manualSigning.html">
-                    <f:entry title="${%Provisioning Profiles}" description="${%Set a combination of 'Bundle ID' and 'UUID or Specifire' of 'provisioning profiles' used when exporting .ipa files.}">
+                    <f:entry title="${%Provisioning Profiles}" description="${%Set a combination of 'Bundle ID' and 'UUID or Specifire' of 'provisioning profiles' used when exporting .ipa files.}" help="/plugin/xcode-plugin/help/help-appIDandProvisionUUID.html" >
                         <f:repeatable var="provisioningProfile" name="provisioningProfiles" items="${instance.provisioningProfiles}" minimum="1">
                             <table width="100%">
                                 <f:entry title="${%Bundle ID}"
                                     description="${%The bundle identifier} (App ID) ${%for this provisioning profile}"
-                                    field="provisioningProfileAppId">
+                                    field="provisioningProfileAppId"
+                                    help="/plugin/xcode-plugin/help/help-bundleID.html" >
                                     <f:textbox name="provisioningProfile.provisioningProfileAppId" value="${provisioningProfile.provisioningProfileAppId}" />
                                 </f:entry>
                                 <f:entry title="${%Provisioning profile UUID}"
                                     description="${%The UUID or Specifire of the provisioning profile associated to this bundle identifier.}"
-                                    field="teamID">
+                                    field="provisioningProfileUUID"
+                                    help="/plugin/xcode-plugin/help/help-provisioningUUID.html" >
                                     <f:textbox name="provisioningProfile.provisioningProfileUUID" value="${provisioningProfile.provisioningProfileUUID}" />
                                 </f:entry>
                                 <f:entry title="">
