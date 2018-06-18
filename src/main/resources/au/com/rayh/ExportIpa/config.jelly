@@ -1,0 +1,249 @@
+<?jelly escape-by-default='true'?>
+<!--
+  ~ The MIT License
+  ~
+  ~ Copyright (c) 2011 Ray Yamamoto Hilton
+  ~
+  ~ Permission is hereby granted, free of charge, to any person obtaining a copy
+  ~ of this software and associated documentation files (the "Software"), to deal
+  ~ in the Software without restriction, including without limitation the rights
+  ~ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  ~ copies of the Software, and to permit persons to whom the Software is
+  ~ furnished to do so, subject to the following conditions:
+  ~
+  ~ The above copyright notice and this permission notice shall be included in
+  ~ all copies or substantial portions of the Software.
+  ~
+  ~ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  ~ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  ~ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  ~ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  ~ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  ~ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+  ~ THE SOFTWARE.
+  -->
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:html="jelly:html">
+    <![CDATA[
+		<script type="text/javascript">
+		<!--
+			var showOrHideAttributeInput = function(prefix, uuid) {
+				var defaultChosen = (document.getElementById(prefix + uuid).selectedIndex == 0);
+
+				document.getElementById("" + uuid).style.display = defaultChosen ? "block" : "none";
+			};
+		-->
+		</script>
+	]]>
+
+    <!-- General export settings -->
+    <f:section title="${%General export settings}">
+        <f:entry>
+            <j:set var="UUID" value="${descriptor.UUID}" />
+            <f:entry title="${%Development Team}" description="${%Override the Development Team specified in the project.}" field="globalDevelopmentTeam"
+                help="/plugin/xcode-plugin/help/help-globalDevelopmentTeam.html" >
+                <select class="setting-input" name="developmentTeamName" foo="${UID}" id="global-team-select-${UUID}" onchange="showOrHideAttributeInput('global-team-select-', '${UUID}')">
+                    <f:option selected="${instance.developmentTeamName==null}" value="">${%none} (${%specify one below})</f:option>
+
+                    <j:forEach var="team" items="${descriptor.globalConfiguration.teams}">
+                        <j:if test="${team.teamName==instance.developmentTeamName}">
+                            <j:set var="displayCustomTeamData" value="none" scope="parent" />
+                        </j:if>
+
+                        <f:option selected="${team.teamName==instance.developmentTeamName}">${team.teamName}</f:option>
+                    </j:forEach>
+                </select>
+            </f:entry>
+
+            <f:nested>
+                <j:if test="${displayCustomTeamData==null}">
+                    <j:set var="displayCustomTeamData" value="block" />
+                </j:if>
+
+                <table id="${UUID}" style="display: ${displayCustomTeamData}">
+                    <f:entry title="${%Development Team ID}" field="developmentTeamID" description="${%The ID of the Apple development team to use to sign the IPA.}"
+                    help="/plugin/xcode-plugin/help/help-developmentTeamID.html" >
+                        <f:textbox />
+                    </f:entry>
+                </table>
+            </f:nested>
+        </f:entry>
+
+        <j:invokeStatic var="installations" className="hudson.plugins.xcode.XcodeInstallation" method="allInstallations"/>
+        <j:if test="${!empty(installations)}">
+            <f:entry title="${%Xcode Tools Version}" field="xcodeToolsVersion" description="${%Xcode Tools version.} (${%if you need to override System Default})" help="/plugin/xcode-plugin/help/help-xcodeToolsVersion.html" >
+                <select class="setting-input" name="xcodeName">
+                    <option value="">${%System Default}</option>
+                    <j:forEach var="inst" items="${installations}">
+                        <f:option selected="${inst.name==instance.xcodeName}" value="${inst.name}">${inst.name}</f:option>
+                    </j:forEach>
+                </select>
+            </f:entry>
+        </j:if>
+
+        <f:entry title="${%Archive directory}" field="archiveDir" description="${%Specify the location of the path to read the Archive for exporting the IPA file.}">
+            <f:textbox />
+        </f:entry>
+
+        <f:entry>
+            <f:entry title="${%Export method}" field="ipaExportMethod"
+                description="${%The export method of the .app to generate the .ipa file. Should be one in 'development', 'ad-hoc', 'enterprise' or 'app-store'.}" help="/plugin/xcode-plugin/help/help-ipaExportMethod.html">
+                <f:textbox default="ad-hoc" />
+            </f:entry>
+
+            <f:entry title="${%.ipa filename pattern}" field="ipaName"
+                description="${%A pattern for the ipa file name. You may use} $${VERSION} ${%and} $${BUILD_DATE} (yyyy.MM.dd) ${%in this string}" help="/plugin/xcode-plugin/help/help-ipaName.html">
+                <f:textbox />
+            </f:entry>
+
+            <f:entry title="${%Output directory}" field="ipaOutputDirectory" description="${%The output directory for the .ipa file, relative to the build directory.}" help="/plugin/xcode-plugin/help/help-ipaOutputDirectory.html">
+                <f:textbox />
+            </f:entry>
+
+            <f:advanced title="${%Settings}">
+                <f:entry title="${%Upload Bitcode?}" field="uploadBitcode"
+                    description="${%If checked, include Bitcode when exporting applications to IPA.}" help="/plugin/xcode-plugin/help/help-uploadBitcode.html">
+                    <f:checkbox title="${%Yes}" name="uploadBitcode" checked="${instance.uploadBitcode}" default="true" />
+                </f:entry>
+
+                <f:entry title="${%Upload Symbols?}" field="uploadSymbols"
+                    description="${%If checked, include symbols when exporting applications to IPA.}" help="/plugin/xcode-plugin/help/help-uploadSymbols.html">
+                    <f:checkbox title="${%Yes}" name="uploadSymbols" checked="${instance.uploadSymbols}" default="true" />
+                </f:entry>
+
+                <f:entry title="${%Compile Bitcode?}" field="compileBitcode"
+                    description="${%If checked, recompile from Bitcode when exporting the application to IPA.}" help="/plugin/xcode-plugin/help/help-compileBitcode.html">
+                    <f:checkbox title="${%Yes}" name="compileBitcode" checked="${instance.compileBitcode}" default="true" />
+                </f:entry>
+
+                <f:entry title="${%Thinning}" field="thinning"
+                    description="${%When doing Thinning, specify the target device for thinning.}" help="/plugin/xcode-plugin/help/help-thinning.html">
+                    <f:textbox />
+                </f:entry>
+
+                <f:entry title="${%Pack on demand resources?}" field="packResourcesAsset"
+                    description="${%If checked, include on demand resource assets to the bundle.}" help="/plugin/xcode-plugin/help/help-embedOnDemandResources.html">
+                    <f:checkbox title="${%Yes}" name="packResourcesAsset" checked="${instance.packResourcesAsset}" default="true" />
+                </f:entry>
+
+                <f:entry title="${%On demand resources asset URL}" field="resourcesAssetURL"
+                    description="${%Set the base URL for downloading resource assets when the resource asset is not included in the bundle in the application using the on demand resource.}" help="/plugin/xcode-plugin/help/help-onDemandResourcesURL.html">
+                    <f:textbox />
+                </f:entry>
+
+                <f:entry title="${%Application URL}" field="appURL"
+                    description="${%The base URL to use to create a Manifest Plist. If omitted no Manifest Plist will be generated}" help="/plugin/xcode-plugin/help/help-manifestPlistURL.html">
+                    <f:textbox />
+                </f:entry>
+
+                <f:entry title="${%Display image URL}" field="displayImageURL"
+                    description="${%Specify the URL of the 57 pixel size png image to be displayed in the IPA installation.}" help="/plugin/xcode-plugin/help/help-displayImageURL.html">
+                    <f:textbox />
+                </f:entry>
+
+                <f:entry title="${%Full size image URL}" field="fullSizeImageURL"
+                    description="${%Specify the URL of the 512 pixel size png image to be displayed in the IPA installation.}" help="/plugin/xcode-plugin/help/help-fullSizeImageURL.html">
+                    <f:textbox />
+                </f:entry>
+
+                <f:entry title="${%Asset pack URL}" field="assetPackManifestURL"
+                    description="${%Specify the base URL of the downloading asset pack.}" help="/plugin/xcode-plugin/help/help-assetPackManifestURL.html">
+                    <f:textbox />
+                </f:entry>
+	    </f:advanced>
+
+        </f:entry>
+    </f:section>
+
+    <!-- Code signing section -->
+    <f:section title="${%Code signing &amp; OS X keychain options}">
+        <f:advanced title="${%Code signing settings}">
+            <f:entry>
+                <f:optionalBlock inline="true" checked="${instance.manualSigning == true}" name="manualSigning" field="manualSigning" title="${%Manual signing?}" help="/plugin/xcode-plugin/help/help-manualSigning.html">
+                    <f:entry title="${%Provisioning Profiles}" description="${%Set a combination of 'Bundle ID' and 'UUID or Specifire' of 'provisioning profiles' used when exporting .ipa files.}" help="/plugin/xcode-plugin/help/help-appIDandProvisionUUID.html" >
+                        <f:repeatable var="provisioningProfile" name="provisioningProfiles" items="${instance.provisioningProfiles}" minimum="1">
+                            <table width="100%">
+                                <f:entry title="${%Bundle ID}"
+                                    description="${%The bundle identifier} (App ID) ${%for this provisioning profile}"
+                                    field="provisioningProfileAppId"
+                                    help="/plugin/xcode-plugin/help/help-bundleID.html" >
+                                    <f:textbox name="provisioningProfile.provisioningProfileAppId" value="${provisioningProfile.provisioningProfileAppId}" />
+                                </f:entry>
+                                <f:entry title="${%Provisioning profile UUID}"
+                                    description="${%The UUID or Specifire of the provisioning profile associated to this bundle identifier.}"
+                                    field="provisioningProfileUUID"
+                                    help="/plugin/xcode-plugin/help/help-provisioningUUID.html" >
+                                    <f:textbox name="provisioningProfile.provisioningProfileUUID" value="${provisioningProfile.provisioningProfileUUID}" />
+                                </f:entry>
+                                <f:entry title="">
+                                    <div align="right">
+                                        <f:repeatableDeleteButton />
+                                    </div>
+                                </f:entry>
+                            </table>
+                        </f:repeatable>
+                    </f:entry>
+                </f:optionalBlock>
+            </f:entry>
+
+            <f:entry>
+                <f:optionalBlock inline="true" checked="${instance.unlockKeychain == true}" name="unlockKeychain" title="${%Unlock Keychain?}" field="unlockKeychain" help="/plugin/xcode-plugin/help/help-unlockKeychain.html">
+		    <j:set var="UUID" value="${descriptor.UUID}" />
+                    <f:entry title="${%Keychain}" description="${%The globally configured keychain to unlock for this build.}" field="globalKeychainName" help="/plugin/xcode-plugin/help/help-globalKeychainName.html">
+                        <select class="setting-input" name="keychainName" foo="${UID}" id="global-keychain-select-${UUID}" onchange="showOrHideAttributeInput('global-keychain-select-', '${UUID}')">
+                            <f:option selected="${instance.keychainName==null}" value="">${%none} (${%specify one below})</f:option>
+
+                            <j:forEach var="keychain" items="${descriptor.globalConfiguration.keychains}">
+                                <j:if test="${keychain.keychainName==instance.keychainName}">
+                                    <j:set var="displayCustomKeychainData" value="none" scope="parent" />
+                                </j:if>
+
+                                <f:option selected="${keychain.keychainName==instance.keychainName}">${keychain.keychainName}</f:option>
+                            </j:forEach>
+                        </select>
+                    </f:entry>
+
+                    <f:nested>
+                        <j:if test="${displayCustomKeychainData==null}">
+                            <j:set var="displayCustomKeychainData" value="block" />
+                        </j:if>
+
+                        <table id="${UUID}" style="display: ${displayCustomKeychainData}">
+                            <f:entry title="${%Keychain path}" field="keychainPath" description="${%The path of the keychain to use to sign the IPA.}">
+                                <f:textbox />
+                            </f:entry>
+
+                            <f:entry title="${%Keychain password}" field="keychainPwd" description="${%The password to use to unlock the keychain.}">
+                                <f:password />
+                            </f:entry>
+                        </table>
+                    </f:nested>
+                </f:optionalBlock>
+            </f:entry>
+
+        </f:advanced>
+    </f:section>
+
+    <!-- Advanced project options -->
+    <f:section title="${%Advanced Xcode project options}">
+        <f:advanced title="${%Advanced project settings}">
+            <f:entry title="${%Xcode Schema File}" field="xcodeSchema" description="${%Needed if you want to compile for a specific schema instead of a target, or if you want to generate an archive or an IPA.}" help="/plugin/xcode-plugin/help/help-xcodeSchema.html">
+                <f:textbox />
+            </f:entry>
+
+            <f:entry title="${%Xcode Workspace File}" field="xcodeWorkspaceFile" description="${%Only needed if you want to compile a workspace instead of a project.}" help="/plugin/xcode-plugin/help/help-xcodeWorkspaceFile.html">
+                <f:textbox />
+            </f:entry>
+
+            <f:entry title="${%Xcode Project Directory}" field="xcodeProjectPath" description="${%Relative path within the workspace that contains the xcode project files.}" help="/plugin/xcode-plugin/help/help-xcodeProjectPath.html">
+                <f:textbox />
+            </f:entry>
+
+            <f:entry title="${%Xcode Project File}" field="xcodeProjectFile" description="${%Only needed if there is more than one project file in the Xcode Project Directory}" help="/plugin/xcode-plugin/help/help-xcodeProjectFile.html">
+                <f:textbox />
+            </f:entry>
+
+        </f:advanced>
+
+    </f:section>
+
+</j:jelly>
