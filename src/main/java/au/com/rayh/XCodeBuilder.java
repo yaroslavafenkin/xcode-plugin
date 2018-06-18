@@ -694,7 +694,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 
         // display useful setup information
         listener.getLogger().println(Messages.XCodeBuilder_DebugInfoLineDelimiter());
-        listener.getLogger().println(Messages.XCodeBuilder_DebugInfoAvailablePProfiles());
+        listener.getLogger().println(Messages.XCodeBuilder_DebugInfoAvailableCertificates());
         /*returnCode =*/ launcher.launch().envs(envs).cmds("/usr/bin/security", "find-identity", "-p", "codesigning", "-v").stdout(listener).pwd(projectRoot).join();
 
         // If developmentTeamName is set the developmentTeamID is invalid.
@@ -711,7 +711,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
             } else {
                 developmentTeamID = envs.expand(team.getTeamID());
                 if (!StringUtils.isEmpty(developmentTeamID)) {
-                    listener.getLogger().println(Messages.XCodeBuilder_DebugInfoCanFindPProfile());
+                    listener.getLogger().println(Messages.XCodeBuilder_DebugInfoCanFindCertificates());
                     /*returnCode =*/
                     launcher.launch().envs(envs).cmds("/usr/bin/security", "find-certificate", "-a", "-c", developmentTeamID, "-Z", "|", "grep", "^SHA-1").stdout(listener).pwd(projectRoot).join();
                     // We could fail here, but this doesn't seem to work as it should right now (output not properly redirected. We might need a parser)
