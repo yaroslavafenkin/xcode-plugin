@@ -1,10 +1,12 @@
 package au.com.rayh;
 
+import hudson.FilePath;
+
 //import org.kohsuke.stapler.DataBoundConstructor;
 
 public class InfoPlist {
 
-    private String infoPlistFile;
+    private FilePath infoPlistFile;
     private String cfBundleIdentifier;
     private String cfBundleVersion;
     private String cfBundleShortVersionString;
@@ -17,18 +19,18 @@ public class InfoPlist {
     }
 
     //@DataBoundConstructor
-    InfoPlist(String infoPlistFile, String cfBundleIdentifier, String cfBundleVersion, String cfBundleShortVersionString) {
+    InfoPlist(FilePath infoPlistFile, String cfBundleIdentifier, String cfBundleVersion, String cfBundleShortVersionString) {
         this.infoPlistFile = infoPlistFile;
         this.cfBundleIdentifier = cfBundleIdentifier;
         this.cfBundleVersion = cfBundleVersion;
         this.cfBundleShortVersionString = cfBundleShortVersionString;
     }
 
-    public String getInfoPlistFile() {
+    public FilePath getInfoPlistFile() {
         return this.infoPlistFile;
     }
 
-    public void setInfoPlistFile(String infoPlistFile) {
+    public void setInfoPlistFile(FilePath infoPlistFile) {
         this.infoPlistFile = infoPlistFile;
     }
 

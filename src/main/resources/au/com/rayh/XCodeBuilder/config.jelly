@@ -195,7 +195,7 @@
     <f:section title="${%Code signing &amp; OS X keychain options}">
         <f:advanced title="${%Code signing settings}">
             <f:entry>
-                <f:radioBlock inline="true" checked="${instance.signingMethod==null||instance.signingMethod.equals('automatic')}" field="signingMethod" title="${%Automatic Signing}" value="automatic" help="/plugin/xcode-plugin/help/help-automaticSigning.html">
+                <f:radioBlock inline="true" checked="${instance.signingMethod.equals('automatic')}" field="signingMethod" title="${%Automatic Signing}" value="automatic" help="/plugin/xcode-plugin/help/help-automaticSigning.html">
                     <f:entry>
                     </f:entry>
                 </f:radioBlock>

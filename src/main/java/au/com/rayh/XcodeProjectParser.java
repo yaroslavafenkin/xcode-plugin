@@ -10,11 +10,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
 import java.text.ParseException;
+import java.io.ByteArrayInputStream;
+import hudson.FilePath;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 //import javax.xml.parsers.ParserException;
 import javax.xml.parsers.ParserConfigurationException;
+import java.lang.InterruptedException;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -35,44 +38,37 @@ import com.dd.plist.PropertyListParser;
  * @author Kazuhide Takahashi
  */
 public class XcodeProjectParser {
-    public static String basename(String path) {
-	File file = new File(path);
-	return file.getName();
-    }
-
-    public static List<String> fileList(String directory) {
-        List<String> fileNames = new ArrayList<>();
-        try {
-            DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get(directory));
-            for ( Path path : directoryStream ) {
-                fileNames.add(path.toString());
-            }
-        }
-        catch (IOException ex) {
-        }
-        return fileNames;
-    }
 
     /**
      * Retrieve all Xcode scheme file from project directory.
      * @param projectLocation Xcode project file location (directory path)
      * @return the list of schema files found in the project directory and the result (ProjectScheme) of analysis of the contents as a HashMap. If analysis fails, it is empty
      */
-    public static HashMap<String, ProjectScheme> listXcodeSchemes(String projectLocation) {
+    public static HashMap<String, ProjectScheme> listXcodeSchemes(FilePath projectLocation) {
 	String currentUser = System.getProperty("user.name") ;
 	HashMap<String, ProjectScheme> schemeList = new HashMap<String, ProjectScheme>();
-	List<String> schemeFilesDirList = new ArrayList<>();
-	schemeFilesDirList.add(projectLocation + "/xcuserdata/" + currentUser + ".xcuserdatad/xcschemes");
-	schemeFilesDirList.add(projectLocation + "/xcshareddata/xcschemes");
-	for ( String schemeFilesDir : schemeFilesDirList ) {
-	    List<String> files = fileList(schemeFilesDir);
-	    for ( String file : files ) {
-		Path path = Paths.get(file);
-		if ( Files.exists(path) && file.endsWith(".xcscheme") ) {
+	List<FilePath> schemeFilesDirList = new ArrayList<FilePath>();
+	schemeFilesDirList.add(projectLocation.child("xcuserdata/" + currentUser + ".xcuserdatad/xcschemes"));
+	schemeFilesDirList.add(projectLocation.child("xcshareddata/xcschemes"));
+	for ( FilePath schemeFilesDir : schemeFilesDirList ) {
+	    try {
+		List<FilePath> files = schemeFilesDir.list(new XcodeSchemeFileFilter());
+		if ( files == null ) {
+		    return null;
+		}
+		for ( FilePath file : files ) {
 		    ProjectScheme scheme = parseXcodeScheme(file);
-		    String schemeName = basename(file).replaceAll(".xcscheme$", "");
+		    String schemeName = file.getBaseName().replaceAll(".xcscheme$", "");
 		    schemeList.put(schemeName, scheme);
 		}
+	    }
+	    catch ( IOException ex ) {
+		ex.printStackTrace();
+		schemeList = null;
+	    }
+	    catch ( InterruptedException ex ) {
+		ex.printStackTrace();
+		schemeList = null;
 	    }
 	}
 	return schemeList;
@@ -82,12 +78,12 @@ public class XcodeProjectParser {
      * @param schemeFile Xcode schieme file location
      * @return analysis result of Xcode projectscheme file. If analysis fails, it is null
      */
-    public static ProjectScheme parseXcodeScheme(String schemeFile) {
+    public static ProjectScheme parseXcodeScheme(FilePath schemeFile) {
 	ProjectScheme projectScheme = new ProjectScheme();
 	try {
 	    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 	    DocumentBuilder documentBuilder = factory.newDocumentBuilder();
-	    Document document = documentBuilder.parse(schemeFile);
+	    Document document = documentBuilder.parse(schemeFile.read());
 
 	    Element root = document.getDocumentElement();
 	    if ( root.getNodeName().equals("Scheme") ) {
@@ -153,6 +149,10 @@ public class XcodeProjectParser {
 	    ex.printStackTrace();
 	    projectScheme = null;
 	}
+        catch ( InterruptedException ex ) {
+            ex.printStackTrace();
+            projectScheme = null;
+        }
 	return projectScheme;
     }
     
@@ -160,13 +160,13 @@ public class XcodeProjectParser {
      * @param workspaceFileLocation Xcode workspace file location (directory)
      * @return list of project files obtained as a result of analyzing workspaceFile. If analysis fails, it is empty
      */
-    public static List<String> parseXcodeWorkspace(String workspaceFileLocation) {
+    public static List<String> parseXcodeWorkspace(FilePath workspaceFileLocation) {
 	List<String> projectList = new ArrayList<>();
 	try {
-	    String workspaceFilePath = workspaceFileLocation + "/contents.xcworkspacedata";
+	    FilePath workspaceFilePath = workspaceFileLocation.child("contents.xcworkspacedata");
 	    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 	    DocumentBuilder documentBuilder = factory.newDocumentBuilder();
-	    Document document = documentBuilder.parse(workspaceFilePath);
+	    Document document = documentBuilder.parse(workspaceFilePath.read());
 
 	    Element root = document.getDocumentElement();
 	    if ( root.getNodeName().equals("Workspace") ) {
@@ -199,6 +199,10 @@ public class XcodeProjectParser {
 	    ex.printStackTrace();
 	    projectList = null;
 	}
+        catch ( InterruptedException ex ) {
+            ex.printStackTrace();
+            projectList = null;
+        }
 	return projectList;
     }
 
@@ -206,12 +210,10 @@ public class XcodeProjectParser {
      * @param infoPlistFile Xcode Info.plist file location
      * @return analysis result of Info.plist file. If analysis fails, it is null
      */
-    public static InfoPlist parseInfoPlist(String infoPlistFile) {
+    public static InfoPlist parseInfoPlist(FilePath infoPlistFile) {
 	InfoPlist infoPlist = null;
 	try {
-	    File file = new File(infoPlistFile);
-	    //project.name = file.getName();
-	    NSDictionary rootDict = (NSDictionary)PropertyListParser.parse(file);
+	    NSDictionary rootDict = (NSDictionary)PropertyListParser.parse(infoPlistFile.read());
 	    String cfBundleIdentifier = rootDict.objectForKey("CFBundleIdentifier").toString();
 	    String cfBundleVersion = rootDict.objectForKey("CFBundleVersion").toString();
 	    String cfBundleShortVersionString = rootDict.objectForKey("CFBundleShortVersionString").toString();
@@ -227,13 +229,11 @@ public class XcodeProjectParser {
      * @param projectLocation Xcode project file location (directory)
      * @return analysis result of Xcode project file. If analysis fails, it is null
      */
-    public static XcodeProject parseXcodeProject(String projectLocation) {
+    public static XcodeProject parseXcodeProject(FilePath projectLocation) {
 	XcodeProject project = new XcodeProject();
+	FilePath xcodeProjectFile = projectLocation.child("project.pbxproj");
 	try {
-	    project.file = projectLocation + "/project.pbxproj";
-	    File file = new File(project.file);
-	    //project.name = file.getName();
-	    NSDictionary rootDict = (NSDictionary)PropertyListParser.parse(file);
+	    NSDictionary rootDict = (NSDictionary)PropertyListParser.parse(xcodeProjectFile.read());
 	    String rootObjectsUUID = rootDict.objectForKey("rootObject").toString();
 	    NSDictionary objectsDict = ((NSDictionary)rootDict.objectForKey("objects"));
 	    NSDictionary pbxProjectSectionDict = ((NSDictionary)objectsDict.objectForKey(rootObjectsUUID));
@@ -306,6 +306,10 @@ public class XcodeProjectParser {
             ex.printStackTrace();
             project = null;
         }
+	catch ( InterruptedException ex ) {
+	    ex.printStackTrace();
+	    project = null;
+	}
 	return project;
     }
 }

@@ -55,6 +55,7 @@ import org.kohsuke.stapler.QueryParameter;
 import jenkins.model.Jenkins;
 
 import javax.inject.Inject;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
@@ -720,7 +721,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 
         // display useful setup information
         listener.getLogger().println(Messages.XCodeBuilder_DebugInfoLineDelimiter());
-        listener.getLogger().println(Messages.XCodeBuilder_DebugInfoAvailablePProfiles());
+        listener.getLogger().println(Messages.XCodeBuilder_DebugInfoAvailableCertificates());
         /*returnCode =*/ launcher.launch().envs(envs).cmds("/usr/bin/security", "find-identity", "-p", "codesigning", "-v").stdout(listener).pwd(projectRoot).join();
 
 	String developmentTeamID = null;
@@ -729,43 +730,45 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 	    provisioningProfiles = new ArrayList<>();
 	    listener.getLogger().println("Read signing information from Xcode Project.");
 	    XcodeProject xcodeProject = null;
-	    ArrayList<String> projectLocations = new ArrayList<String>();
+	    ArrayList<FilePath> projectLocations = new ArrayList<FilePath>();
 	    // Retrieve target from Xcode project.
-	    String projectLocation = null;
+	    FilePath projectLocation = null;
 	    if ( !StringUtils.isEmpty(xcodeProjectFile) ) {
 		// Retrieve provisioning profile information from Xcode project file.
-		projectLocation = projectRoot.toString()+ "/" + xcodeProjectFile;
-		Path path = Paths.get(projectLocation);
-		if ( !Files.exists(path) || !Files.isDirectory(path) ) {
-		    listener.getLogger().println("Could not read information from " + projectLocation);
+		projectLocation = projectRoot.child(xcodeProjectFile);
+		if ( !projectLocation.exists() || !projectLocation.isDirectory() ) {
+		    listener.getLogger().println("Could not read information from " + projectLocation.absolutize().getRemote());
 		    projectLocation = null;
 		}
 	    }
-	    if ( StringUtils.isEmpty(projectLocation) ) {
+	    if ( projectLocation == null ) {
 		// Retrieve xcodeproj from current working directory.
-		List<String> files = XcodeProjectParser.fileList(projectRoot.toString());
-		for ( String file : files ) {
-		    Path path = Paths.get(file);
-		    if ( Files.isDirectory(path) && file.endsWith(".xcodeproj") ) {
-			// Xcode build generates an error if there are multiple xcodeproj.
-			projectLocation = file;
-			break;
-		    }
+		List<FilePath> xcodeProjects = projectRoot.list(new XcodeProjectFileFilter());
+		if (xcodeProjects == null) {
+		    listener.fatalError(Messages.XCodeBuilder_NoArchivesInBuildDirectory(projectRoot.absolutize().getRemote()));
+		    return false;
+		}
+
+            	for (FilePath xcodeProjectDir : xcodeProjects) {
+		    // Xcode build generates an error if there are multiple xcodeproj.
+		    projectLocation = xcodeProjectDir;
+		    break;
 		}
 	    }
             // Retrieve provisioning profile information from specific Xcode project file.
-	    listener.getLogger().println("Read information from scheme " + xcodeSchema);
             HashMap<String, ProjectScheme> xcodeSchemes = XcodeProjectParser.listXcodeSchemes(projectLocation);
             if ( !StringUtils.isEmpty(xcodeSchema) ) {
+		listener.getLogger().println("Read information from scheme " + xcodeSchema);
                 // Retrieve target from specific Xcode scheme.
                 ProjectScheme projectScheme = xcodeSchemes.get(xcodeSchema);
                 if ( projectScheme == null ) {
 		    listener.getLogger().println("Could not get information from scheme " + xcodeSchema);
                     return false;
                 }
-                projectLocation = projectScheme.referencedContainer.replaceAll("^container:", projectRoot.toString() + "/");
+		String referencedContainerLocation = projectScheme.referencedContainer.replaceAll("^container:", "");
+                projectLocation = projectRoot.child(referencedContainerLocation);
 		target = projectScheme.blueprintName;
-		listener.getLogger().println("Read project information from " + projectLocation);
+		listener.getLogger().println("Read project information from " + projectLocation.absolutize().getRemote());
 		projectLocations.add(projectLocation);
             }
             else {
@@ -778,20 +781,20 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 		if ( !StringUtils.isEmpty(xcodeWorkspaceFile) ) {
                     // Retrieve target from Xcode workspace.
 		    listener.getLogger().println("Read information from workspace " + xcodeWorkspaceFile);
-                    List<String> projectList = XcodeProjectParser.parseXcodeWorkspace(projectRoot.toString() + "/" + xcodeWorkspaceFile + ".xcworkspace");
+                    List<String> projectList = XcodeProjectParser.parseXcodeWorkspace(projectRoot.child("/" + xcodeWorkspaceFile + ".xcworkspace"));
                     for ( String location : projectList ) {
-                	String projectName = XcodeProjectParser.basename(location).replaceAll(".xcodeproj$", "");
-                	xcodeProject = XcodeProjectParser.parseXcodeProject(projectRoot.toString() + "/" + location);
+			xcodeProject = XcodeProjectParser.parseXcodeProject(projectRoot.child("/" + location));
+                	String projectName = projectRoot.child("/" + location).getBaseName().replaceAll(".xcodeproj$", "");
                 	if ( !StringUtils.isEmpty(target) ) {
 			    if ( target.equals(projectName) ) {
 				// Add the location of specific projects.
-				projectLocations.add(projectRoot.toString() + "/" + location);
+				projectLocations.add(projectRoot.child("/" + location));
 				break;
 			    }
                		}
 		        else {
 			    // Add the location of all projects.
-			    projectLocations.add(projectRoot.toString() + "/" + location);
+			    projectLocations.add(projectRoot.child("/" + location));
 			}
             	    }
                 }
@@ -801,12 +804,12 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 		    projectLocations.add(projectLocation);
 		}
 	    }
-	    for ( String examineLocation : projectLocations ) {
+	    for ( FilePath examineLocation : projectLocations ) {
                 // Parse Xcode project file.
-                xcodeProject = XcodeProjectParser.parseXcodeProject(projectLocation);
+                xcodeProject = XcodeProjectParser.parseXcodeProject(examineLocation);
                 if ( xcodeProject == null ) {
-		    listener.getLogger().println("Could not read project information from " + projectLocation);
-                    return false;
+		    listener.getLogger().println("Could not read project information from " + examineLocation.absolutize().getRemote());
+                    return false;      
                 }
 		// Examine all targets.
 		for ( String key : xcodeProject.projectTarget.keySet() ) {
@@ -836,7 +839,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
                     }
 		    BuildConfiguration buildConfiguration = projectTarget.buildConfiguration.get(exportConfiguration);
 		    if ( buildConfiguration == null ) {
-			listener.getLogger().println("Could not get build configuration (" + exportConfiguration + ") from " + projectLocation);
+			listener.getLogger().println("Could not get build configuration (" + exportConfiguration + ") from " + examineLocation.absolutize().getRemote());
 			buildConfiguration = projectTarget.buildConfiguration.get("Release");
 			if ( buildConfiguration == null ) {
 			    return false;
@@ -848,7 +851,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 		    }
 		    if ( buildConfiguration.developmentTeamId != null ) {
 			developmentTeamID = buildConfiguration.developmentTeamId;
-			listener.getLogger().println("Found developmentTeamID (" + developmentTeamID + ") from " + projectLocation);
+			listener.getLogger().println("Found developmentTeamID (" + developmentTeamID + ") from " + examineLocation.absolutize().getRemote());
 		    }
 		    if ( !automaticSigning ) {
 			String provisioningProfileUUID = buildConfiguration.provisioningProfileUUID;
@@ -863,7 +866,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 			    String productName = buildConfiguration.productName;
 			    productName = productName.replaceAll(Pattern.quote("${TARGET_NAME}"), key);
 			    productName = productName.replaceAll(Pattern.quote("$(TARGET_NAME)"), key);
-			    InfoPlist infoPlist = XcodeProjectParser.parseInfoPlist(projectRoot.toString() + "/" + buildConfiguration.infoPlistFile);
+			    InfoPlist infoPlist = XcodeProjectParser.parseInfoPlist(projectRoot.child("/" + buildConfiguration.infoPlistFile));
 			    if ( infoPlist == null ) {
 				listener.getLogger().println("Could not read information from " + projectRoot.toString() + "/" + buildConfiguration.infoPlistFile);
 				return false;
@@ -906,7 +909,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 	        } else {
 		    developmentTeamID = envs.expand(team.getTeamID());
 		    if (!StringUtils.isEmpty(developmentTeamID)) {
-		        listener.getLogger().println(Messages.XCodeBuilder_DebugInfoCanFindPProfile());
+		        listener.getLogger().println(Messages.XCodeBuilder_DebugInfoCanFindCertificates());
 		        /*returnCode =*/
 		        launcher.launch().envs(envs).cmds("/usr/bin/security", "find-certificate", "-a", "-c", developmentTeamID, "-Z", "|", "grep", "^SHA-1").stdout(listener).pwd(projectRoot).join();
 		        // We could fail here, but this doesn't seem to work as it should right now (output not properly redirected. We might need a parser)
@@ -1159,7 +1162,52 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 		if ( provisioningProfiles.size() > 0 ) {
 		    NSDictionary provisioningProfileDict = new NSDictionary();
 		    for ( ProvisioningProfile pp : provisioningProfiles ) {
-			provisioningProfileDict.put(envs.expand(pp.getProvisioningProfileAppId()), envs.expand(pp.getProvisioningProfileUUID()));
+			String provisioningProfileAppId = envs.expand(pp.getProvisioningProfileAppId());
+			if ( !StringUtils.isEmpty(provisioningProfileAppId) &&
+			     provisioningProfileAppId.endsWith(".plist") ) {
+			    // If provisioningProfileAppId is an Info.plist file,
+			    //  obtain the Bundle ID from Info.plist and use it.
+			    try {
+				output.reset();
+				returnCode = launcher.launch().envs(envs).cmds("/usr/libexec/PlistBuddy", "-c", "Print :CFBundleIdentifier", projectRoot.absolutize().child(provisioningProfileAppId).getRemote()).stdout(output).pwd(projectRoot).join();
+				if (returnCode == 0) {
+				    provisioningProfileAppId = output.toString().trim();
+				    listener.getLogger().println(Messages.XCodeBuilder_CFBundleIdReplaceWith(provisioningProfileAppId));
+				}
+				else {
+				    // When Info.plist generated by Xcodebuild is specified.
+				    output.reset();
+				    returnCode = launcher.launch().envs(envs).cmds("/usr/libexec/PlistBuddy", "-c", "Print :ApplicationProperties:CFBundleIdentifier", projectRoot.absolutize().child(provisioningProfileAppId).getRemote()).stdout(output).pwd(projectRoot).join();
+				    if (returnCode == 0) {
+					provisioningProfileAppId = output.toString().trim();
+					listener.getLogger().println(Messages.XCodeBuilder_CFBundleIdReplaceWith(provisioningProfileAppId));
+				    }
+				}
+			    }
+			    catch(Exception ex) {
+				listener.getLogger().println(Messages.XCodeBuilder_CFBundleIdFailedGetInInfoPlist(projectRoot.absolutize().child(provisioningProfileAppId).getRemote(), ex.toString()));
+			    }
+			}
+			String provisioningProfileUUID = envs.expand(pp.getProvisioningProfileUUID());
+			if ( !StringUtils.isEmpty(provisioningProfileUUID) &&
+			     provisioningProfileUUID.endsWith(".mobileprovision") ) {
+			    // If provisioningProfileUUID  is an .mobileprovision file,
+			    //  obtain the profile UUID from .mobileprovision and use it.
+			    try {
+				output.reset();
+				returnCode = launcher.launch().envs(envs).cmds("/bin/sh", "-c", "/usr/libexec/PlistBuddy -c \"Print :UUID\" /dev/stdin <<< $(/usr/bin/security cms -D -i \"" + projectRoot.absolutize().child(provisioningProfileUUID).getRemote() + "\")").stdout(output).pwd(projectRoot).join();
+				if (returnCode == 0) {
+				    // Perhaps it is useful to copy the mobileprovision to the library here.
+				    // /Users/${HOME}/Library/MobileDevice/Provisioning Profiles/
+				    provisioningProfileUUID = output.toString().trim();
+				    listener.getLogger().println(Messages.XCodeBuilder_ProfileUUIDReplaceWith(provisioningProfileUUID));
+				}
+			    }
+			    catch(Exception ex) {
+				listener.getLogger().println(Messages.XCodeBuilder_CFBundleIdFailedGetInMobileProvision(projectRoot.absolutize().child(provisioningProfileAppId).getRemote(), ex.toString()));
+			    }
+			}
+			provisioningProfileDict.put(provisioningProfileAppId, provisioningProfileUUID);
 		    }
 		    exportOptionsPlist.put("provisioningProfiles", provisioningProfileDict);
 		}
