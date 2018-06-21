@@ -81,7 +81,10 @@ public class DeveloperProfileLoader extends Builder implements SimpleBuildStep {
         invoke(launcher, listener, args, "Failed to unlock keychain");
 
         final FilePath secret = getSecretDir(workspace, keychainPass);
-        secret.unzipFrom(new ByteArrayInputStream(dp.getImage()));
+	final byte[] dpImage = dp.getImage();
+	if ( dpImage == null )
+	    throw new AbortException(Messages.DeveloperProfile_NoDeveloperProfileConfigured());
+        secret.unzipFrom(new ByteArrayInputStream(dpImage));
 
         // import identities
         for (FilePath id : secret.list("**/*.p12")) {

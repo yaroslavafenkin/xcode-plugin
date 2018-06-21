@@ -7,13 +7,13 @@ public class XcodeProject {
  
     //public String uuid;
     //public String name;
-    public String file;
+    //public String file;
     public HashMap<String, ProjectTarget> projectTarget;
 
     XcodeProject() {
 	//uuid = null;
 	//name = null;
-	file = null;
+	//file = null;
 	projectTarget = new HashMap<String, ProjectTarget>();
     }
 }
