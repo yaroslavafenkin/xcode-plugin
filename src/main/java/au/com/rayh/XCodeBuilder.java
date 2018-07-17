@@ -51,10 +51,12 @@ import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.tokenmacro.MacroEvaluationException;
 import org.jenkinsci.plugins.tokenmacro.TokenMacro;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
 import jenkins.model.Jenkins;
 
 import javax.inject.Inject;
+import javax.annotation.CheckForNull;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -92,197 +94,668 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
     /**
      * @since 1.0
      */
-    public final Boolean cleanBeforeBuild;
+    private Boolean cleanBeforeBuild;
     /**
      * @since 1.3
      */
-    public final Boolean cleanTestReports;
+    private Boolean cleanTestReports;
     /**
      * @since 1.0
      */
-    public final String configuration;
+    @CheckForNull
+    private String configuration;
     /**
      * @since 1.0
      */
-    public final String target;
+    @CheckForNull
+    private String target;
     /**
      * @since 1.0
      */
-    public final String sdk;
+    @CheckForNull
+    private String sdk;
     /**
      * @since 1.1
      */
-    public final String symRoot;
+    @CheckForNull
+    private String symRoot;
     /**
      * @since 1.2
      */
-    public final String buildDir;
+    @CheckForNull
+    private String buildDir;
     /**
      * @since 1.0
      */
-    public final String xcodeProjectPath;
+    @CheckForNull
+    private String xcodeProjectPath;
     /**
      * @since 1.0
      */
-    public final String xcodeProjectFile;
+    @CheckForNull
+    private String xcodeProjectFile;
     /**
      * @since 1.3
      */
-    public final String xcodebuildArguments;
+    @CheckForNull
+    private String xcodebuildArguments;
     /**
      * @since 1.2
      */
-    public final String xcodeSchema;
+    @CheckForNull
+    private String xcodeSchema;
     /**
      * @since 1.2
      */
-    public final String xcodeWorkspaceFile;
+    @CheckForNull
+    private String xcodeWorkspaceFile;
     /**
      * @since 1.0
      */
-    public final String cfBundleVersionValue;
+    @CheckForNull
+    private String cfBundleVersionValue;
     /**
      * @since 1.0
      */
-    public final String cfBundleShortVersionStringValue;
+    @CheckForNull
+    private String cfBundleShortVersionStringValue;
     /**
      * @since 1.0
      */
-    public final Boolean buildIpa;
+    private Boolean buildIpa;
     /**
      * @since 1.4.12
      */
-    public final String ipaExportMethod;
+    @CheckForNull
+    private String ipaExportMethod;
     /**
      * @since 1.0
      */
-    public final Boolean generateArchive;
+    private Boolean generateArchive;
     /**
      * @since 2.0.1
      */
-    public final Boolean noConsoleLog;
+    private Boolean noConsoleLog;
     /**
      * @since 2.0.1
      */
-    public final String logfileOutputDirectory;
+    @CheckForNull
+    private String logfileOutputDirectory;
     /**
      * @since 1.5
      **/
-    public final Boolean unlockKeychain;
+    private Boolean unlockKeychain;
     /**
      * @since 1.4
      */
-    public final String keychainName;
+    @CheckForNull
+    private String keychainName;
     /**
      * @since 1.0
      */
-    public final String keychainPath;
+    @CheckForNull
+    private String keychainPath;
     /**
      * @since 1.0
      */
-    public final String keychainPwd;
+    @CheckForNull
+    private String keychainPwd;
     /**
      * @since 1.4.12
      */
-    public final String developmentTeamName;
+    @CheckForNull
+    private String developmentTeamName;
     /**
      * @since 1.4.12
      */
-    public final String developmentTeamID;
+    @CheckForNull
+    private String developmentTeamID;
     /**
      * @since 1.4
      */
-    public final Boolean allowFailingBuildResults;
+    private Boolean allowFailingBuildResults;
     /**
      * @since 1.4
      */
-    public final String ipaName;
+    @CheckForNull
+    private String ipaName;
     /**
      * @since 1.4
      */
-    public final String ipaOutputDirectory;
+    @CheckForNull
+    private String ipaOutputDirectory;
     /**
      * @since 1.4
      */
-    public Boolean provideApplicationVersion;
+    private Boolean provideApplicationVersion;
     /**
      * @since 1.4
      */
-    public final Boolean changeBundleID;
+    private Boolean changeBundleID;
     /**
      * @since 1.4
      */
-    public final String bundleID;
+    @CheckForNull
+    private String bundleID;
     /**
      * @since 1.4
      */
-    public final String bundleIDInfoPlistPath;
+    @CheckForNull
+    private String bundleIDInfoPlistPath;
     /**
      * @since 1.4
      */
-    public final Boolean interpretTargetAsRegEx;
+    private Boolean interpretTargetAsRegEx;
     /**
      * @deprecated 2.0.3
      *
-    public final String ipaManifestPlistUrl;
+    @CheckForNull
+    private String ipaManifestPlistUrl;
      */
     /**
      * @since 2.0.1
      */
-    public final Boolean manualSigning;
+    private Boolean manualSigning;
     /**
      * @since 2.0.1
      */
-    public ArrayList<ProvisioningProfile> provisioningProfiles = new ArrayList<>();
+    @CheckForNull
+    private ArrayList<ProvisioningProfile> provisioningProfiles = new ArrayList<>();
     /*
      * @since 2.0.3
      */
-    public final String xcodeName;
+    @CheckForNull
+    private String xcodeName;
     /*
      * @since 2.0.3
      */
-    public final Boolean uploadBitcode;
+    private Boolean uploadBitcode;
     /*
      * @since 2.0.3
      */
-    public final Boolean uploadSymbols;
+    private Boolean uploadSymbols;
     /*
      * @since 2.0.3
      */
-    public final Boolean compileBitcode;
+    private Boolean compileBitcode;
     /*
      * @since 2.0.3
      */
-    public final String thinning;
+    @CheckForNull
+    private String thinning;
     /*
      * @since 2.0.3
      */
-    public final Boolean embedOnDemandResourcesAssetPacksInBundle;
+    private Boolean embedOnDemandResourcesAssetPacksInBundle;
     /*
      * @since 2.0.3
      */
-    public final String onDemandResourcesAssetPacksBaseURL;
+    @CheckForNull
+    private String onDemandResourcesAssetPacksBaseURL;
     /*
      * @since 2.0.3
      */
-    public final String appURL;
+    @CheckForNull
+    private String appURL;
     /*
      * @since 2.0.3
      */
-    public final String displayImageURL;
+    @CheckForNull
+    private String displayImageURL;
     /*
      * @since 2.0.3
      */
-    public final String fullSizeImageURL;
+    @CheckForNull
+    private String fullSizeImageURL;
     /*
      * @since 2.0.3
      */
-    public final String assetPackManifestURL;
+    @CheckForNull
+    private String assetPackManifestURL;
+    /**
+     * @since 2.0.3
+     */
+    private Boolean skipBuildStep;
 
-    /**
-     * @since 2.0.3
-     */
-    Boolean skipBuildStep;
+    public Boolean getCleanBeforeBuild() {
+	return cleanBeforeBuild;
+    }
+
+    @DataBoundSetter
+    public void setCleanBeforeBuild(Boolean cleanBeforeBuild) {
+	this.cleanBeforeBuild = cleanBeforeBuild;
+    }
+
+    public Boolean getCleanTestReports() {
+	return cleanTestReports;
+    }
+
+    @DataBoundSetter
+    public void setCleanTestReports(Boolean cleanTestReports) {
+	this.cleanTestReports = cleanTestReports;
+    }
+
+    @CheckForNull
+    public String getConfiguration() {
+	return configuration;
+    }
+
+    @DataBoundSetter
+    public void setConfiguration(String configuration) {
+	this.configuration = configuration;
+    }
+
+    @CheckForNull
+    public String getTarget() {
+	return target;
+    }
+
+    @DataBoundSetter
+    public void setTarget(String target) {
+	this.target = target;
+    }
+
+    @CheckForNull
+    public String getSdk() {
+	return sdk;
+    }
+
+    @DataBoundSetter
+    public void setSdk(String sdk) {
+	this.sdk = sdk;
+    }
+
+    @CheckForNull
+    public String getSymRoot() {
+	return symRoot;
+    }
+
+    @DataBoundSetter
+    public void setSymRoot(String symRoot) {
+	this.symRoot = symRoot;
+    }
+
+    @CheckForNull
+    public String getBuildDir() {
+	return buildDir;
+    }
+
+    @DataBoundSetter
+    public void setBuildDir(String buildDir) {
+	this.buildDir = buildDir;
+    }
+
+    @CheckForNull
+    public String getXcodeProjectPath() {
+	return xcodeProjectPath;
+    }
+
+    @DataBoundSetter
+    public void setXcodeProjectPath(String xcodeProjectPath) {
+	this.xcodeProjectPath = xcodeProjectPath;
+    }
+
+    @CheckForNull
+    public String getXcodeProjectFile() {
+	return xcodeProjectFile;
+    }
+
+    @DataBoundSetter
+    public void setXcodeProjectFile(String xcodeProjectFile) {
+	this.xcodeProjectFile = xcodeProjectFile;
+    }
+
+    @CheckForNull
+    public String getXcodebuildArguments() {
+	return xcodebuildArguments;
+    }
+
+    @DataBoundSetter
+    public void setXcodebuildArguments(String xcodebuildArguments) {
+	this.xcodebuildArguments = xcodebuildArguments;
+    }
+
+    @CheckForNull
+    public String getXcodeSchema() {
+	return xcodeSchema;
+    }
+
+    @DataBoundSetter
+    public void setXcodeSchema(String xcodeSchema) {
+	this.xcodeSchema = xcodeSchema;
+    }
+
+    @CheckForNull
+    public String getXcodeWorkspaceFile() {
+	return xcodeWorkspaceFile;
+    }
+
+    @DataBoundSetter
+    public void setXcodeWorkspaceFile(String xcodeWorkspaceFile) {
+	this.xcodeWorkspaceFile = xcodeWorkspaceFile;
+    }
+
+    @CheckForNull
+    public String getCfBundleVersionValue() {
+	return cfBundleVersionValue;
+    }
+
+    @DataBoundSetter
+    public void setCfBundleVersionValue(String cfBundleVersionValue) {
+	this.cfBundleVersionValue = cfBundleVersionValue;
+    }
+
+    @CheckForNull
+    public String getCfBundleShortVersionStringValue() {
+	return cfBundleShortVersionStringValue;
+    }
+
+    @DataBoundSetter
+    public void setCfBundleShortVersionStringValue(String cfBundleShortVersionStringValue) {
+	this.cfBundleShortVersionStringValue = cfBundleShortVersionStringValue;
+    }
+
+    public Boolean getBuildIpa() {
+	return buildIpa;
+    }
+
+    @DataBoundSetter
+    public void setBuildIpa(Boolean buildIpa) {
+	this.buildIpa = buildIpa;
+    }
+
+    @CheckForNull
+    public String getIpaExportMethod() {
+	return ipaExportMethod;
+    }
+
+    @DataBoundSetter
+    public void setIpaExportMethod(String ipaExportMethod) {
+	this.ipaExportMethod = ipaExportMethod;
+    }
+
+    public Boolean getGenerateArchive() {
+	return generateArchive;
+    }
+
+    @DataBoundSetter
+    public void setGenerateArchive(Boolean generateArchive) {
+	this.generateArchive = generateArchive;
+    }
+
+    public Boolean getNoConsoleLog() {
+	return noConsoleLog;
+    }
+
+    @DataBoundSetter
+    public void setNoConsoleLog(Boolean noConsoleLog) {
+	this.noConsoleLog = noConsoleLog;
+    }
+
+    @CheckForNull
+    public String getLogfileOutputDirectory() {
+	return logfileOutputDirectory;
+    }
+
+    @DataBoundSetter
+    public void setLogfileOutputDirectory(String logfileOutputDirectory) {
+	this.logfileOutputDirectory = logfileOutputDirectory;
+    }
+
+    public Boolean getUnlockKeychain() {
+	return unlockKeychain;
+    }
+
+    @DataBoundSetter
+    public void setUnlockKeychain(Boolean unlockKeychain) {
+	this.unlockKeychain = unlockKeychain;
+    }
+
+    @CheckForNull
+    public String getKeychainName() {
+	return keychainName;
+    }
+
+    @DataBoundSetter
+    public void setKeychainName(String keychainName) {
+	this.keychainName = keychainName;
+    }
+
+    @CheckForNull
+    public String getKeychainPath() {
+	return keychainPath;
+    }
+
+    @DataBoundSetter
+    public void setKeychainPath(String keychainPath) {
+	this.keychainPath = keychainPath;
+    }
+
+    @CheckForNull
+    public String getKeychainPwd() {
+	return keychainPwd;
+    }
+
+    @DataBoundSetter
+    public void setKeychainPwd(String keychainPwd) {
+	this.keychainPwd = keychainPwd;
+    }
+
+    @CheckForNull
+    public String getDevelopmentTeamName() {
+	return developmentTeamName;
+    }
+
+    @DataBoundSetter
+    public void setDevelopmentTeamName(String developmentTeamName) {
+	this.developmentTeamName = developmentTeamName;
+    }
+
+    @CheckForNull
+    public String getDevelopmentTeamID() {
+	return developmentTeamID;
+    }
+
+    @DataBoundSetter
+    public void setDevelopmentTeamID(String developmentTeamID) {
+	this.developmentTeamID = developmentTeamID;
+    }
+
+    public Boolean getAllowFailingBuildResults() {
+	return allowFailingBuildResults;
+    }
+
+    @DataBoundSetter
+    public void setAllowFailingBuildResults(Boolean allowFailingBuildResults) {
+	this.allowFailingBuildResults = allowFailingBuildResults;
+    }
+
+    @CheckForNull
+    public String getIpaName() {
+	return ipaName;
+    }
+
+    @DataBoundSetter
+    public void setIpaName(String ipaName) {
+	this.ipaName = ipaName;
+    }
+
+    @CheckForNull
+    public String getIpaOutputDirectory() {
+	return ipaOutputDirectory;
+    }
+
+    @DataBoundSetter
+    public void setIpaOutputDirectory(String ipaOutputDirectory) {
+	this.ipaOutputDirectory = ipaOutputDirectory;
+    }
+
+    public Boolean getProvideApplicationVersion() {
+	return provideApplicationVersion;
+    }
+
+    @DataBoundSetter
+    public void setProvideApplicationVersion(Boolean provideApplicationVersion) {
+	this.provideApplicationVersion = provideApplicationVersion;
+    }
+
+    public Boolean getChangeBundleID() {
+	return changeBundleID;
+    }
+
+    @DataBoundSetter
+    public void setChangeBundleID(Boolean changeBundleID) {
+	this.changeBundleID = changeBundleID;
+    }
+
+    @CheckForNull
+    public String getBundleID() {
+	return bundleID;
+    }
+
+    @DataBoundSetter
+    public void setBundleID(String bundleID) {
+	this.bundleID = bundleID;
+    }
+
+    @CheckForNull
+    public String getBundleIDInfoPlistPath() {
+	return bundleIDInfoPlistPath;
+    }
+
+    @DataBoundSetter
+    public void setBundleIDInfoPlistPath(String bundleIDInfoPlistPath) {
+	this.bundleIDInfoPlistPath = bundleIDInfoPlistPath;
+    }
+
+    public Boolean getInterpretTargetAsRegEx() {
+	return interpretTargetAsRegEx;
+    }
+
+    @DataBoundSetter
+    public void setInterpretTargetAsRegEx(Boolean interpretTargetAsRegEx) {
+	this.interpretTargetAsRegEx = interpretTargetAsRegEx;
+    }
+
+    public Boolean getManualSigning() {
+	return  manualSigning;
+    }
+
+    @DataBoundSetter
+    public void setManualSigning(Boolean manualSigning) {
+	this.manualSigning = manualSigning;
+    }
+
+    @CheckForNull
+    public ArrayList<ProvisioningProfile> getProvisioningProfiles() {
+	return provisioningProfiles;
+    }
+
+    @DataBoundSetter
+    public void setProvisioningProfiles(ArrayList<ProvisioningProfile> provisioningProfiles) {
+	this.provisioningProfiles = provisioningProfiles;
+    }
+
+    @CheckForNull
+    public String getXcodeName() {
+	return xcodeName;
+    }
+
+    @DataBoundSetter
+    public void setXcodeName(String xcodeName) {
+	this.xcodeName = xcodeName;
+    }
+
+    public Boolean getUploadBitcode() {
+	return uploadBitcode;
+    }
+
+    @DataBoundSetter
+    public void setUploadBitcode(Boolean uploadBitcode) {
+	this.uploadBitcode = uploadBitcode;
+    }
+
+    public Boolean getUploadSymbols() {
+	return uploadSymbols;
+    }
+
+    @DataBoundSetter
+    public void setUploadSymbols(Boolean uploadSymbols) {
+	this.uploadSymbols = uploadSymbols;
+    }
+
+    public Boolean getCompileBitcode() {
+	return compileBitcode;
+    }
+
+    @DataBoundSetter
+    public void setCompileBitcode(Boolean compileBitcode) {
+	this.compileBitcode = compileBitcode;
+    }
+
+    @CheckForNull
+    public String getThinning() {
+	return thinning;
+    }
+
+    @DataBoundSetter
+    public void setThinning(String thinning) {
+	this.thinning = thinning;
+    }
+
+    public Boolean getAssetPacksInBundle() {
+	return embedOnDemandResourcesAssetPacksInBundle;
+    }
+
+    @DataBoundSetter
+    public void setAssetPacksInBundle(Boolean assetPacksInBundle) {
+	this.embedOnDemandResourcesAssetPacksInBundle = assetPacksInBundle;
+    }
+
+    @CheckForNull
+    public String getAssetPacksBaseURL() {
+	return onDemandResourcesAssetPacksBaseURL;
+    }
+
+    @DataBoundSetter
+    public void setAssetPacksBaseURL(String assetPacksBaseURL) {
+	this.onDemandResourcesAssetPacksBaseURL = assetPacksBaseURL;
+    }
+
+    @CheckForNull
+    public String getAppURL() {
+	return appURL;
+    }
+
+    @DataBoundSetter
+    public void setAppURL(String appURL) {
+	this.appURL = appURL;
+    }
+
+    @CheckForNull
+    public String getDisplayImageURL() {
+	return displayImageURL;
+    }
+
+    @DataBoundSetter
+    public void setDisplayImageURL(String displayImageURL) {
+	this.displayImageURL = displayImageURL;
+    }
+
+    @CheckForNull
+    public String getFullSizeImageURL() {
+	return fullSizeImageURL;
+    }
+
+    @DataBoundSetter
+    public void setFullSizeImageURL(String fullSizeImageURL) {
+	this.fullSizeImageURL = fullSizeImageURL;
+    }
+
+    @CheckForNull
+    public String getAssetPackManifestURL() {
+	return assetPackManifestURL;
+    }
 
     public void setSkipBuildStep(Boolean skipBuildStep) {
         this.skipBuildStep = skipBuildStep;
@@ -290,6 +763,11 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 
     // Fields in config.jelly must match the parameter names in the "DataBoundConstructor"
     @DataBoundConstructor
+    public XCodeBuilder() {
+	this.skipBuildStep = false;
+    }
+
+    @Deprecated
     public XCodeBuilder(Boolean buildIpa, Boolean generateArchive, Boolean noConsoleLog, String logfileOutputDirectory, Boolean cleanBeforeBuild, 
     		Boolean cleanTestReports, String configuration,
     		String target, String sdk, String xcodeProjectPath, String xcodeProjectFile, String xcodebuildArguments,
@@ -303,7 +781,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 		Boolean embedOnDemandResourcesAssetPacksInBundle, String onDemandResourcesAssetPacksBaseURL,
 		String appURL, String displayImageURL, String fullSizeImageURL,
 		String assetPackManifestURL) {
-
+	this();
         this.buildIpa = buildIpa;
         this.generateArchive = generateArchive;
         this.noConsoleLog = noConsoleLog;
