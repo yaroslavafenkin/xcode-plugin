@@ -1,6 +1,9 @@
 package au.com.rayh;
 
+import com.cloudbees.plugins.credentials.CredentialsProvider;
+import com.cloudbees.plugins.credentials.domains.DomainRequirement;
 import hudson.Extension;
+import hudson.security.ACL;
 import hudson.util.IOUtils;
 import hudson.util.Secret;
 
@@ -11,6 +14,7 @@ import java.security.KeyStore;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -42,7 +46,6 @@ public class DeveloperProfile extends BaseStandardCredentials {
      * Password of the PKCS12 files inside the profile.
      */
     private Secret password;
-
 
     @DataBoundConstructor
     public DeveloperProfile(@CheckForNull CredentialsScope scope, @CheckForNull String id, @CheckForNull String description,
@@ -133,5 +136,9 @@ public class DeveloperProfile extends BaseStandardCredentials {
         public @CheckForNull byte[] load() throws IOException {
             return super.load();
         }
+    }
+
+    public static List<DeveloperProfile> getAllProfiles() {
+	return CredentialsProvider.lookupCredentials(DeveloperProfile.class, (hudson.model.Item)null, ACL.SYSTEM, Collections.<DomainRequirement>emptyList());
     }
 }
