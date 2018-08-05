@@ -74,6 +74,11 @@ public class ExportIpa extends Builder implements SimpleBuildStep {
     private String fullSizeImageURL;
     @CheckForNull
     private String assetPackManifestURL;
+    /**
+     * @since 2.0.5
+     */
+    @CheckForNull
+    private Boolean stripSwiftSymbols;
 
     @CheckForNull
     public String getXcodeProjectPath() {
@@ -339,6 +344,20 @@ public class ExportIpa extends Builder implements SimpleBuildStep {
 	return assetPackManifestURL;
     }
 
+    @DataBoundSetter
+    public void setAssetPackManifestURL(String assetPackManifestURL) {
+	this.assetPackManifestURL = assetPackManifestURL;
+    }
+
+    public Boolean getStripSwiftSymbols() {
+	return stripSwiftSymbols == null ? Boolean.valueOf(true) : stripSwiftSymbols;
+    }
+
+    @DataBoundSetter
+    public void setStripSwiftSymbols(Boolean stripSwiftSymbols) {
+	this.stripSwiftSymbols = stripSwiftSymbols;
+    }
+
     @DataBoundConstructor
     public ExportIpa() {
     }
@@ -383,6 +402,7 @@ public class ExportIpa extends Builder implements SimpleBuildStep {
         this.displayImageURL = displayImageURL;
         this.fullSizeImageURL = fullSizeImageURL;
         this.assetPackManifestURL = assetPackManifestURL;
+	this.stripSwiftSymbols = true;
     }
 
     @Override
@@ -402,6 +422,7 @@ public class ExportIpa extends Builder implements SimpleBuildStep {
 		uploadBitcode, uploadSymbols, compileBitcode, thinning,
 		embedOnDemandResourcesAssetPacksInBundle, onDemandResourcesAssetPacksBaseURL,
 		appURL, displayImageURL, fullSizeImageURL, assetPackManifestURL);
+	builder.setStripSwiftSymbols(stripSwiftSymbols);
 		
 	builder.setSkipBuildStep(true);
 	builder.perform(build, filePath, launcher, listener);
