@@ -262,12 +262,13 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
     /**
      * @since 2.0.1
      */
+    @CheckForNull
     private String signingMethod;
     /**
      * @since 2.0.1
      */
     @CheckForNull
-    private ArrayList<ProvisioningProfile> provisioningProfiles = new ArrayList<>();
+    private ArrayList<ProvisioningProfile> provisioningProfiles;
     /*
      * @since 2.0.3
      */
@@ -323,6 +324,10 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
      * @since 2.0.3
      */
     private Boolean skipBuildStep;
+    /**
+     * @since 2.0.5
+     */
+    private Boolean stripSwiftSymbols;
 
     public Boolean getCleanBeforeBuild() {
 	return cleanBeforeBuild;
@@ -334,7 +339,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
     }
 
     public Boolean getCleanTestReports() {
-	return cleanTestReports;
+	return cleanTestReports == null ? Boolean.valueOf(false) : cleanTestReports;
     }
 
     @DataBoundSetter
@@ -463,7 +468,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
     }
 
     public Boolean getBuildIpa() {
-	return buildIpa;
+	return buildIpa == null ? Boolean.valueOf(true) : buildIpa;
     }
 
     @DataBoundSetter
@@ -473,7 +478,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 
     @CheckForNull
     public String getIpaExportMethod() {
-	return ipaExportMethod;
+	return ipaExportMethod == null ? "app-store" : ipaExportMethod;
     }
 
     @DataBoundSetter
@@ -482,7 +487,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
     }
 
     public Boolean getGenerateArchive() {
-	return generateArchive;
+	return generateArchive == null ? Boolean.valueOf(false) : generateArchive;
     }
 
     @DataBoundSetter
@@ -491,7 +496,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
     }
 
     public Boolean getNoConsoleLog() {
-	return noConsoleLog;
+	return noConsoleLog == null ? Boolean.valueOf(false) : noConsoleLog;
     }
 
     @DataBoundSetter
@@ -510,7 +515,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
     }
 
     public Boolean getUnlockKeychain() {
-	return unlockKeychain;
+	return unlockKeychain == null ? Boolean.valueOf(false) : unlockKeychain;
     }
 
     @DataBoundSetter
@@ -569,7 +574,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
     }
 
     public Boolean getAllowFailingBuildResults() {
-	return allowFailingBuildResults;
+	return allowFailingBuildResults == null ? Boolean.valueOf(false) : allowFailingBuildResults;
     }
 
     @DataBoundSetter
@@ -598,7 +603,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
     }
 
     public Boolean getProvideApplicationVersion() {
-	return provideApplicationVersion;
+	return provideApplicationVersion == null ? Boolean.valueOf(false) : provideApplicationVersion;
     }
 
     @DataBoundSetter
@@ -607,7 +612,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
     }
 
     public Boolean getChangeBundleID() {
-	return changeBundleID;
+	return changeBundleID == null ? Boolean.valueOf(false) : changeBundleID;
     }
 
     @DataBoundSetter
@@ -636,7 +641,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
     }
 
     public Boolean getInterpretTargetAsRegEx() {
-	return interpretTargetAsRegEx;
+	return interpretTargetAsRegEx == null ? Boolean.valueOf(false) : interpretTargetAsRegEx;
     }
 
     @DataBoundSetter
@@ -646,7 +651,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 
     @CheckForNull
     public String getSigningMethod() {
-	return signingMethod;
+	return signingMethod == null ? "automatic" : signingMethod;
     }
 
     @DataBoundSetter
@@ -675,7 +680,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
     }
 
     public Boolean getUploadBitcode() {
-	return uploadBitcode;
+	return uploadBitcode == null ? Boolean.valueOf(true) : uploadBitcode;
     }
 
     @DataBoundSetter
@@ -684,7 +689,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
     }
 
     public Boolean getUploadSymbols() {
-	return uploadSymbols;
+	return uploadSymbols == null ? Boolean.valueOf(true) : uploadSymbols;
     }
 
     @DataBoundSetter
@@ -693,7 +698,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
     }
 
     public Boolean getCompileBitcode() {
-	return compileBitcode;
+	return compileBitcode == null ? Boolean.valueOf(true) : compileBitcode;
     }
 
     @DataBoundSetter
@@ -712,7 +717,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
     }
 
     public Boolean getAssetPacksInBundle() {
-	return embedOnDemandResourcesAssetPacksInBundle;
+	return embedOnDemandResourcesAssetPacksInBundle == null ? Boolean.valueOf(true) : embedOnDemandResourcesAssetPacksInBundle;
     }
 
     @DataBoundSetter
@@ -765,6 +770,22 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 	return assetPackManifestURL;
     }
 
+    @DataBoundSetter
+    public void setAssetPackManifestURL(String assetPackManifestURL) {
+	this.assetPackManifestURL = assetPackManifestURL;
+    }
+
+    @CheckForNull
+    public Boolean getStripSwiftSymbols() {
+	return stripSwiftSymbols == null ? Boolean.valueOf(true) : stripSwiftSymbols;
+    }
+
+    @DataBoundSetter
+    public void setStripSwiftSymbols(Boolean stripSwiftSymbols) {
+	this.stripSwiftSymbols = stripSwiftSymbols;
+    }
+
+    // Internally.
     public void setSkipBuildStep(Boolean skipBuildStep) {
         this.skipBuildStep = skipBuildStep;
     }
@@ -838,6 +859,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 	this.displayImageURL = displayImageURL;
 	this.fullSizeImageURL = fullSizeImageURL;
 	this.assetPackManifestURL = assetPackManifestURL;
+	this.stripSwiftSymbols = true;
 
 	this.skipBuildStep = false;
     }
@@ -1161,7 +1183,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
         listener.getLogger().println(Messages.XCodeBuilder_CFBundleVersionUsed(cfBundleVersion));
 
         // Clean build directories
-        if (cleanBeforeBuild) {
+        if (cleanBeforeBuild == null || cleanBeforeBuild) {
             listener.getLogger().println(Messages.XCodeBuilder_cleaningBuildDir(buildDirectory.absolutize().getRemote()));
             buildDirectory.deleteRecursive();
         }
@@ -1519,7 +1541,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 		xcodeReport.append(", configuration: ").append(configuration);
 	    }
 
-	    if (cleanBeforeBuild) {
+	    if (cleanBeforeBuild == null || cleanBeforeBuild) {
 		commandLine.add("clean");
 		xcodeReport.append(", clean: YES");
 	    } else {
@@ -1638,7 +1660,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 	    }
 	    if ( manualSigning ) {
 		exportOptionsPlist.put("signingCertificate", ipaExportMethod.equals("development") ? DEV_SIGNING_CERTIFICATE_SELECTOR : DIST_SIGNING_CERTIFICATE_SELECTOR);
-		if ( provisioningProfiles.size() > 0 ) {
+		if ( provisioningProfiles != null && provisioningProfiles.size() > 0 ) {
 		    NSDictionary provisioningProfileDict = new NSDictionary();
 		    for ( ProvisioningProfile pp : provisioningProfiles ) {
 			String provisioningProfileAppId = envs.expand(pp.getProvisioningProfileAppId());
@@ -1692,6 +1714,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 		}
 	    }
 	    exportOptionsPlist.put("iCloudContainerEnvironment", ipaExportMethod.equals("app-store") ? PRODUCTION_ENV : DEVELOPMENT_ENV);
+	    exportOptionsPlist.put("stripSwiftSymbols", stripSwiftSymbols);
 	    // Extra options
 	    if ( ipaExportMethod.equals("app-store") ) { 
 		exportOptionsPlist.put("uploadBitcode", uploadBitcode);

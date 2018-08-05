@@ -186,6 +186,11 @@
                         <f:textbox />
                     </f:entry>
 
+                    <f:entry title="${%Strip Swift Symbols?}" field="stripSwiftSymbols"
+                        description="${%If checked, symbols be stripped from Swift libraries when exporting the application to IPA.}" help="/plugin/xcode-plugin/help/help-stripSwiftSymbols.html">
+                        <f:checkbox title="${%Yes}" name="stripSwiftSymbols" checked="${instance.stripSwiftSymbols}" default="true" />
+                    </f:entry>
+
                 </f:optionalBlock>
             </f:entry>
         </f:advanced>
@@ -272,7 +277,7 @@
                                 <f:textbox />
                             </f:entry>
 
-                            <f:entry title="${%Keychain password}" field="keychainPwd" description="{The password to use to unlock the keychain.}">
+                            <f:entry title="${%Keychain password}" field="keychainPwd" description="${%The password to use to unlock the keychain.}">
                                 <f:password />
                             </f:entry>
                         </table>
