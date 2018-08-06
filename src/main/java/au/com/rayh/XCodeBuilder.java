@@ -47,6 +47,7 @@ import hudson.util.QuotedStringTokenizer;
 import hudson.plugins.xcode.XcodeInstallation;
 import jenkins.tasks.SimpleBuildStep;
 import org.jenkinsci.Symbol;
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.tokenmacro.MacroEvaluationException;
 import org.jenkinsci.plugins.tokenmacro.TokenMacro;
@@ -101,10 +102,12 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
     /**
      * @since 1.0
      */
+    @CheckForNull
     private Boolean cleanBeforeBuild;
     /**
      * @since 1.3
      */
+    @CheckForNull
     private Boolean cleanTestReports;
     /**
      * @since 1.0
@@ -169,6 +172,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
     /**
      * @since 1.0
      */
+    @CheckForNull
     private Boolean buildIpa;
     /**
      * @since 1.4.12
@@ -178,10 +182,12 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
     /**
      * @since 1.0
      */
+    @CheckForNull
     private Boolean generateArchive;
     /**
      * @since 2.0.1
      */
+    @CheckForNull
     private Boolean noConsoleLog;
     /**
      * @since 2.0.1
@@ -191,6 +197,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
     /**
      * @since 1.5
      **/
+    @CheckForNull
     private Boolean unlockKeychain;
     /**
      * @since 1.4
@@ -220,6 +227,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
     /**
      * @since 1.4
      */
+    @CheckForNull
     private Boolean allowFailingBuildResults;
     /**
      * @since 1.4
@@ -234,10 +242,12 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
     /**
      * @since 1.4
      */
+    @CheckForNull
     private Boolean provideApplicationVersion;
     /**
      * @since 1.4
      */
+    @CheckForNull
     private Boolean changeBundleID;
     /**
      * @since 1.4
@@ -252,6 +262,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
     /**
      * @since 1.4
      */
+    @CheckForNull
     private Boolean interpretTargetAsRegEx;
     /**
      * @deprecated 2.0.3
@@ -277,14 +288,17 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
     /*
      * @since 2.0.3
      */
+    @CheckForNull
     private Boolean uploadBitcode;
     /*
      * @since 2.0.3
      */
+    @CheckForNull
     private Boolean uploadSymbols;
     /*
      * @since 2.0.3
      */
+    @CheckForNull
     private Boolean compileBitcode;
     /*
      * @since 2.0.3
@@ -294,6 +308,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
     /*
      * @since 2.0.3
      */
+    @CheckForNull
     private Boolean embedOnDemandResourcesAssetPacksInBundle;
     /*
      * @since 2.0.3
@@ -323,14 +338,16 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
     /**
      * @since 2.0.3
      */
+    @CheckForNull
     private Boolean skipBuildStep;
     /**
      * @since 2.0.5
      */
+    @CheckForNull
     private Boolean stripSwiftSymbols;
 
     public Boolean getCleanBeforeBuild() {
-	return cleanBeforeBuild;
+	return cleanBeforeBuild == null ? Boolean.valueOf(true) : cleanBeforeBuild;
     }
 
     @DataBoundSetter
@@ -775,7 +792,6 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 	this.assetPackManifestURL = assetPackManifestURL;
     }
 
-    @CheckForNull
     public Boolean getStripSwiftSymbols() {
 	return stripSwiftSymbols == null ? Boolean.valueOf(true) : stripSwiftSymbols;
     }
@@ -793,7 +809,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
     // Fields in config.jelly must match the parameter names in the "DataBoundConstructor"
     @DataBoundConstructor
     public XCodeBuilder() {
-	this.skipBuildStep = false;
+	this.skipBuildStep = Boolean.valueOf(false);
     }
 
     @Deprecated
@@ -859,9 +875,9 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 	this.displayImageURL = displayImageURL;
 	this.fullSizeImageURL = fullSizeImageURL;
 	this.assetPackManifestURL = assetPackManifestURL;
-	this.stripSwiftSymbols = true;
+	this.stripSwiftSymbols = Boolean.valueOf(true);
 
-	this.skipBuildStep = false;
+	this.skipBuildStep = Boolean.valueOf(false);
     }
 
     @Deprecated
@@ -962,7 +978,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
         if (provideApplicationVersion == null) {
             if (!StringUtils.isEmpty(cfBundleVersionValue)
                 || !StringUtils.isEmpty(cfBundleShortVersionStringValue)) {
-                provideApplicationVersion = true;
+                provideApplicationVersion = Boolean.valueOf(true);
             }
         }
         return this;
@@ -1131,7 +1147,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
         build.addAction(a);
 
         // Update the bundle ID
-        if (this.changeBundleID != null && this.changeBundleID) {
+        if ( BooleanUtils.isTrue(this.changeBundleID) ) {
         	listener.getLogger().println(Messages.XCodeBuilder_CFBundleIdentifierChanged(bundleIDInfoPlistPath, bundleID));
         	returnCode = launcher.launch().envs(envs).cmds("/usr/libexec/PlistBuddy", "-c",  "Set :CFBundleIdentifier " + bundleID, bundleIDInfoPlistPath).stdout(listener).pwd(projectRoot).join();
 
@@ -1142,7 +1158,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
         }
 
         // Update the Marketing version (CFBundleShortVersionString)
-        if (this.provideApplicationVersion != null && this.provideApplicationVersion && !StringUtils.isEmpty(cfBundleShortVersionStringValue)) {
+        if ( BooleanUtils.isTrue(this.provideApplicationVersion) && !StringUtils.isEmpty(cfBundleShortVersionStringValue)) {
             try {
                 // If not empty we use the Token Expansion to replace it
                 // https://wiki.jenkins-ci.org/display/JENKINS/Token+Macro+Plugin
@@ -1161,7 +1177,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
         }
 
         // Update the Technical version (CFBundleVersion)
-        if (this.provideApplicationVersion != null && this.provideApplicationVersion && !StringUtils.isEmpty(cfBundleVersionValue)) {
+        if ( BooleanUtils.isTrue(this.provideApplicationVersion) && !StringUtils.isEmpty(cfBundleVersionValue)) {
             try {
                 // If not empty we use the Token Expansion to replace it
                 // https://wiki.jenkins-ci.org/display/JENKINS/Token+Macro+Plugin
@@ -1183,18 +1199,18 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
         listener.getLogger().println(Messages.XCodeBuilder_CFBundleVersionUsed(cfBundleVersion));
 
         // Clean build directories
-        if (cleanBeforeBuild == null || cleanBeforeBuild) {
+        if ( BooleanUtils.isNotFalse(cleanBeforeBuild) ) {
             listener.getLogger().println(Messages.XCodeBuilder_cleaningBuildDir(buildDirectory.absolutize().getRemote()));
             buildDirectory.deleteRecursive();
         }
 
         // remove test-reports and *.ipa
-        if (cleanTestReports != null && cleanTestReports) {
+        if ( BooleanUtils.isTrue(cleanTestReports) ) {
             listener.getLogger().println(Messages.XCodeBuilder_cleaningTestReportsDir(projectRoot.child("test-reports").absolutize().getRemote()));
             projectRoot.child("test-reports").deleteRecursive();
 		}
 
-        if (unlockKeychain != null && unlockKeychain) {
+        if ( BooleanUtils.isTrue(unlockKeychain) ) {
             // Let's unlock the keychain
             Keychain keychain = getKeychain();
             if(keychain == null)
@@ -1226,7 +1242,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
         /*returnCode =*/ launcher.launch().envs(envs).cmds("/usr/bin/security", "find-identity", "-p", "codesigning", "-v").stdout(listener).pwd(projectRoot).join();
 
 	String developmentTeamID = null;
-        Boolean archiveAutomaticSigning = false;
+        boolean archiveAutomaticSigning = false;
         if ( signingMethod != null && signingMethod.equals("readFromProject") ) {
 	    provisioningProfiles = new ArrayList<>();
 	    listener.getLogger().println("Read signing information from Xcode Project.");
@@ -1333,7 +1349,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 		    else if ( StringUtils.isEmpty(configuration) ) {
 			exportConfiguration = projectTarget.defaultConfigurationName;
 		    }
-		    Boolean automaticSigning = projectTarget.provisioningStyle.equals("Automatic");
+		    boolean automaticSigning = projectTarget.provisioningStyle.equals("Automatic");
                     if ( projectTarget.testTargetID == null ) {
                         // The target is not a test.
                         archiveAutomaticSigning = automaticSigning;
@@ -1461,7 +1477,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 
             xcodebuildHelpParser = new XcodeBuildHelpParser(xcodeBuildHelpOutput);
         }
-	Boolean haveAllowProvisioningUpdates = false;
+	boolean haveAllowProvisioningUpdates = false;
 	List<String> availableParameters = xcodebuildHelpParser.getParameters();
 	if (availableParameters.isEmpty()) {
 	    listener.getLogger().println(Messages.XCodeBuilder_NoAvailableParameters());
@@ -1476,7 +1492,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 	listener.getLogger().println(Messages.XCodeBuilder_DebugInfoLineDelimiter());
 
         // Build
-	if ( skipBuildStep == null || !skipBuildStep ) {
+	if ( BooleanUtils.isNotTrue(skipBuildStep) ) {
 	    StringBuilder xcodeReport = new StringBuilder(Messages.XCodeBuilder_invokeXcodebuild());
 	    JenkinsXCodeBuildOutputParser reportGenerator = new JenkinsXCodeBuildOutputParser(projectRoot, listener);
 	    List<String> commandLine = Lists.newArrayList(getGlobalConfiguration().getXcodebuildPath());
@@ -1490,7 +1506,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 		// When target is empty always build all targets.
 		commandLine.add("-alltargets");
 		xcodeReport.append("target: ALL");
-	    } else if(interpretTargetAsRegEx != null && interpretTargetAsRegEx) {
+	    } else if( BooleanUtils.isTrue(interpretTargetAsRegEx) ) {
 		if(xcodebuildListParser.getTargets().isEmpty()) {
 		    listener.getLogger().println(Messages.XCodeBuilder_NoTargetsFoundInConfig());
 		    return false;
@@ -1541,7 +1557,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 		xcodeReport.append(", configuration: ").append(configuration);
 	    }
 
-	    if (cleanBeforeBuild == null || cleanBeforeBuild) {
+	    if ( BooleanUtils.isNotFalse(cleanBeforeBuild) ) {
 		commandLine.add("clean");
 		xcodeReport.append(", clean: YES");
 	    } else {
@@ -1552,7 +1568,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 	    //Generating an archive builds the project twice
 	    //commandLine.add("build");
 	    FilePath archiveLocation = buildDirectory.absolutize().child(xcodeSchema + ".xcarchive");
-	    if(buildIpa || generateArchive){
+	    if ( BooleanUtils.isNotFalse(buildIpa) || BooleanUtils.isTrue(generateArchive) ) {
 		commandLine.add("archive");
 		commandLine.add("-archivePath");
 		commandLine.add(archiveLocation.getRemote());
@@ -1563,7 +1579,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 	    }
 	    //END Bug JENKINS-30362
 
-	    if(noConsoleLog != null && noConsoleLog){
+	    if ( BooleanUtils.isTrue(noConsoleLog) ) {
 		xcodeReport.append(", consolelog:NO");
 		reportGenerator.setConsoleLog(false);
 	    }else{
@@ -1610,14 +1626,14 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 
 	    listener.getLogger().println(xcodeReport.toString());
 	    returnCode = launcher.launch().envs(envs).cmds(commandLine).stdout(reportGenerator.getOutputStream()).pwd(projectRoot).join();
-	    if (allowFailingBuildResults != null && !allowFailingBuildResults) {
+	    if ( BooleanUtils.isNotTrue(allowFailingBuildResults) ) {
 		if (reportGenerator.getExitCode() != 0) return false;
 		if (returnCode > 0) return false;
 	    }
 	}
 
         // Package IPA
-        if (buildIpa) {
+        if ( BooleanUtils.isNotFalse(buildIpa) ) {
 
             if (!buildDirectory.exists() || !buildDirectory.isDirectory()) {
                 listener.fatalError(Messages.XCodeBuilder_NotExistingBuildDirectory(buildDirectory.absolutize().getRemote()));
@@ -1651,7 +1667,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
             listener.getLogger().println(Messages.XCodeBuilder_packagingIPA());
 
 	    // Writeing exportOptions.plist
-	    Boolean manualSigning = (!archiveAutomaticSigning && signingMethod != null && (signingMethod.equals("manual") || signingMethod.equals("readFromProject")));
+	    boolean manualSigning = (!archiveAutomaticSigning && signingMethod != null && (signingMethod.equals("manual") || signingMethod.equals("readFromProject")));
 	    NSDictionary exportOptionsPlist = new NSDictionary();
 	    exportOptionsPlist.put("signingStyle", manualSigning ? "manual" : "automatic");
 	    exportOptionsPlist.put("method", ipaExportMethod);
@@ -1725,8 +1741,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 		    exportOptionsPlist.put("thinning", thinning);
 		}
 		exportOptionsPlist.put("compileBitcode", compileBitcode);
-		if ( (embedOnDemandResourcesAssetPacksInBundle == null ||
-		      embedOnDemandResourcesAssetPacksInBundle) &&
+		if ( BooleanUtils.isNotFalse(embedOnDemandResourcesAssetPacksInBundle) &&
 		      !StringUtils.isEmpty(onDemandResourcesAssetPacksBaseURL) ) {
 		    exportOptionsPlist.put("embedOnDemandResourcesAssetPacksInBundle", false);
 		    exportOptionsPlist.put("onDemandResourcesAssetPacksBaseURL", onDemandResourcesAssetPacksBaseURL);
@@ -1992,7 +2007,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 	}
 
 	public FormValidation doCheckXcodeSchema(@QueryParameter String value, @QueryParameter Boolean generateArchive, @QueryParameter Boolean buildIpa) {
-	    if ( generateArchive || buildIpa ) {
+	    if ( BooleanUtils.isTrue(generateArchive) || BooleanUtils.isNotFalse(buildIpa) ) {
 		if ( StringUtils.isEmpty(value) ) {
 		    return FormValidation.error(Messages.XCodeBuilder_NeedSchema());
 		}
@@ -2001,7 +2016,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 	}
 
 	public FormValidation doCheckOnDemandResourcesAssetPacksBaseURL(@QueryParameter String value, @QueryParameter Boolean embedOnDemandResourcesAssetPacksInBundle) {
-	    if ( StringUtils.isEmpty(value) && !embedOnDemandResourcesAssetPacksInBundle ) {
+	    if ( StringUtils.isEmpty(value) && BooleanUtils.isFalse(embedOnDemandResourcesAssetPacksInBundle) ) {
 		return FormValidation.error(Messages.XCodeBuilder_NeedOnDemandResourcesURL());
 	    }
 	    return FormValidation.ok();

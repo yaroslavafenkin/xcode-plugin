@@ -28,6 +28,7 @@ public class ExportIpa extends Builder implements SimpleBuildStep {
     private String xcodeProjectPath;
     @CheckForNull
     private String xcodeProjectFile;
+    @CheckForNull
     private Boolean unlockKeychain;
     @CheckForNull
     private String keychainName;
@@ -59,11 +60,15 @@ public class ExportIpa extends Builder implements SimpleBuildStep {
     private ArrayList<ProvisioningProfile> provisioningProfiles;
     @CheckForNull
     private String xcodeName;
+    @CheckForNull
     private Boolean uploadBitcode;
+    @CheckForNull
     private Boolean uploadSymbols;
+    @CheckForNull
     private Boolean compileBitcode;
     @CheckForNull
     private String thinning;
+    @CheckForNull
     private Boolean embedOnDemandResourcesAssetPacksInBundle;
     @CheckForNull
     private String onDemandResourcesAssetPacksBaseURL;

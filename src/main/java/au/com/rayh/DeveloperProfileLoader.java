@@ -112,13 +112,7 @@ public class DeveloperProfileLoader extends Builder implements SimpleBuildStep {
     }
 
     @DataBoundConstructor
-    public DeveloperProfileLoader() {
-	importIntoExistingKeychain = false;
-    }
-
-    @Deprecated
     public DeveloperProfileLoader(String profileId) {
-	this();
 	this.profileId = profileId;
     }
 
