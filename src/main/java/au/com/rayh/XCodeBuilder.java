@@ -47,6 +47,7 @@ import hudson.util.QuotedStringTokenizer;
 import hudson.plugins.xcode.XcodeInstallation;
 import jenkins.tasks.SimpleBuildStep;
 import org.jenkinsci.Symbol;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.tokenmacro.MacroEvaluationException;
@@ -98,6 +99,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
     private static final String PRODUCTION_ENV = "Production";
     private static final String DEV_SIGNING_CERTIFICATE_SELECTOR = "iOS Developer";
     private static final String DIST_SIGNING_CERTIFICATE_SELECTOR = "iOS Distribution";
+    private static final String[] VALID_IPA_EXPORT_METHODS = { "development", "ad-hoc", "enterprise", "app-store" };
 
     /**
      * @since 1.0
@@ -485,7 +487,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
     }
 
     public Boolean getBuildIpa() {
-	return buildIpa == null ? Boolean.valueOf(true) : buildIpa;
+	return buildIpa == null ? Boolean.valueOf(false) : buildIpa;
     }
 
     @DataBoundSetter
@@ -1568,7 +1570,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 	    //Generating an archive builds the project twice
 	    //commandLine.add("build");
 	    FilePath archiveLocation = buildDirectory.absolutize().child(xcodeSchema + ".xcarchive");
-	    if ( BooleanUtils.isNotFalse(buildIpa) || BooleanUtils.isTrue(generateArchive) ) {
+	    if ( BooleanUtils.isTrue(buildIpa) || BooleanUtils.isTrue(generateArchive) ) {
 		commandLine.add("archive");
 		commandLine.add("-archivePath");
 		commandLine.add(archiveLocation.getRemote());
@@ -1633,11 +1635,19 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 	}
 
         // Package IPA
-        if ( BooleanUtils.isNotFalse(buildIpa) ) {
+        if ( BooleanUtils.isTrue(buildIpa) ) {
 
             if (!buildDirectory.exists() || !buildDirectory.isDirectory()) {
                 listener.fatalError(Messages.XCodeBuilder_NotExistingBuildDirectory(buildDirectory.absolutize().getRemote()));
                 return false;
+            }
+
+	    // Incase Pipeline build.
+	    // Pipeline Editor's error checking is poor and has not checked anything.
+            if ( !ArrayUtils.contains(VALID_IPA_EXPORT_METHODS, ipaExportMethod) ) {
+                String validMethodsMsg = StringUtils.join(VALID_IPA_EXPORT_METHODS, ", ");
+                listener.fatalError(Messages.XCodeBuilder_IpaExportMethodMuestBeOneOfTheFollowing(validMethodsMsg));
+		return false;
             }
 
             // clean IPA
@@ -2007,7 +2017,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 	}
 
 	public FormValidation doCheckXcodeSchema(@QueryParameter String value, @QueryParameter Boolean generateArchive, @QueryParameter Boolean buildIpa) {
-	    if ( BooleanUtils.isTrue(generateArchive) || BooleanUtils.isNotFalse(buildIpa) ) {
+	    if ( BooleanUtils.isTrue(generateArchive) || BooleanUtils.isTrue(buildIpa) ) {
 		if ( StringUtils.isEmpty(value) ) {
 		    return FormValidation.error(Messages.XCodeBuilder_NeedSchema());
 		}
@@ -2021,5 +2031,16 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 	    }
 	    return FormValidation.ok();
 	}
+
+	public FormValidation doCheckIpaExportMethod(@QueryParameter String value, @QueryParameter Boolean buildIpa) {
+	    if ( BooleanUtils.isTrue(buildIpa) ) {
+		if ( !ArrayUtils.contains(VALID_IPA_EXPORT_METHODS, value) ) {
+		    String validMethodsMsg = StringUtils.join(VALID_IPA_EXPORT_METHODS, ", ");
+		    return FormValidation.error(Messages.XCodeBuilder_IpaExportMethodMuestBeOneOfTheFollowing(validMethodsMsg));
+		}
+	    }
+	    return FormValidation.ok();
+	}
     }
 }
+
