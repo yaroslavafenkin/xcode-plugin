@@ -70,6 +70,8 @@ public class DeveloperProfile extends BaseStandardCredentials {
 
     /**
      * Retrieves the PKCS12 byte image.
+     * @return PKCS12 byte image
+     * @throws IOException file I/O
      */
     public byte[] getImage() throws IOException {
         return new ConfidentialKeyImpl(getId()).load();
@@ -77,6 +79,9 @@ public class DeveloperProfile extends BaseStandardCredentials {
 
     /**
      * Obtains the certificates in this developer profile.
+     * @return X509Certificates
+     * @throws IOException file I/O
+     * @throws GeneralSecurityException Certificate error
      */
     public @Nonnull List<X509Certificate> getCertificates() throws IOException, GeneralSecurityException {
         try (ZipInputStream zip = new ZipInputStream(new ByteArrayInputStream(getImage()))) {
