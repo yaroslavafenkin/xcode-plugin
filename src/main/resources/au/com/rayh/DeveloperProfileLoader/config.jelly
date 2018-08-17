@@ -41,7 +41,6 @@
             <f:entry title="${%Developer Profile}" description="${%Specify the developer profile to import into the keychain.}" field="developerProfiles"
                 help="/plugin/xcode-plugin/help/help-importDeveloperProfile.html" >
                 <select class="setting-input" name="developerProfileId">
-                    <f:option selected="${instance.developerProfileId==null}" value="">${%none} (${%specify one below})</f:option>
                     <j:forEach var="profile" items="${developerProfiles}">
                         <f:option selected="${profile.getId()==instance.developerProfileId}" value="${profile.getId()}">${profile.getDescription()}</f:option>
                     </j:forEach>
@@ -72,11 +71,11 @@
                     </j:if>
 
                     <table id="${UUID}" style="display: ${displayCustomKeychainData}">
-                        <f:entry title="${%Keychain path}" field="keychainPath" description="${%The path of the keychain to use to sign the IPA.}">
+                        <f:entry title="${%Keychain path}" field="keychainPath" description="${%Keychain path to import developer profile.}">
                             <f:textbox />
                         </f:entry>
 
-                        <f:entry title="${%Keychain password}" field="keychainPwd" description="${%The password to use to unlock the keychain.}">
+                        <f:entry title="${%Keychain password}" field="keychainPwd" description="${%Password to unlock keychain importing developer profile.}">
                             <f:password />
                         </f:entry>
                     </table>

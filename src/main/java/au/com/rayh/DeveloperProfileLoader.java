@@ -17,6 +17,7 @@ import hudson.remoting.VirtualChannel;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
 import hudson.util.ArgumentListBuilder;
+import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import jenkins.model.Jenkins;
 import jenkins.security.MasterToSlaveCallable;
@@ -29,6 +30,8 @@ import org.jenkinsci.remoting.RoleChecker;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
+import org.kohsuke.stapler.QueryParameter;
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 
 import javax.annotation.Nonnull;
@@ -118,77 +121,92 @@ public class DeveloperProfileLoader extends Builder implements SimpleBuildStep {
 
     @Override
     public void perform(@Nonnull Run<?, ?> run, @Nonnull FilePath workspace, @Nonnull Launcher launcher, @Nonnull TaskListener listener) throws InterruptedException, IOException {
-        DeveloperProfile dp = getProfile(run.getParent());
-        if (dp==null)
+	EnvVars envs = run.getEnvironment(listener);
+	String _profileId = envs.expand(this.profileId);
+	String _keychainName = envs.expand(this.keychainName);
+	String _keychainPath = envs.expand(this.keychainPath);
+	String _keychainPwd = envs.expand(this.keychainPwd);
+	Boolean _importIntoExistingKeychain = this.importIntoExistingKeychain;
+        DeveloperProfile dp = getProfile(run.getParent(), _profileId);
+        if ( dp == null )
             throw new AbortException(Messages.DeveloperProfile_NoDeveloperProfileConfigured());
 
-        Keychain keychain = getKeychain();
-        if ( keychain == null ) {
-            keychainPath = "jenkins-"+run.getParent().getFullName().replace('/', '-');
-            keychainPwd = UUID.randomUUID().toString();
-	    importIntoExistingKeychain = false;
+        Keychain keychain = getKeychain(_keychainName);
+        if ( BooleanUtils.isNotTrue(_importIntoExistingKeychain) || keychain == null ) {
+            _keychainPath = "jenkins-" + run.getParent().getFullName().replace('/', '-');
+	    _keychainPwd = UUID.randomUUID().toString();
+	    _importIntoExistingKeychain = Boolean.valueOf(false);
         }
 	else {
-	    EnvVars envs = run.getEnvironment(listener);
-            keychainPath = envs.expand(keychain.getKeychainPath());
-            keychainPwd = envs.expand(keychain.getKeychainPassword());
-	    importIntoExistingKeychain = true;
+            _keychainPath = envs.expand(keychain.getKeychainPath());
+            _keychainPwd = envs.expand(keychain.getKeychainPassword());
+	    _importIntoExistingKeychain = Boolean.valueOf(true);
 	}
 
         // Note: keychain are usualy suffixed with .keychain. If we change we should probably clean up the ones we created
 
         ArgumentListBuilder args;
 
-        if ( !importIntoExistingKeychain ) {
+        if ( BooleanUtils.isNotTrue(_importIntoExistingKeychain) ) {
 	    // if the key chain is already present, delete it and start fresh
             ByteArrayOutputStream out = new ByteArrayOutputStream();
-            args = new ArgumentListBuilder("security","delete-keychain", keychainPath);
+            args = new ArgumentListBuilder("security", "delete-keychain", _keychainPath);
             launcher.launch().cmds(args).stdout(out).join();
 
-            args = new ArgumentListBuilder("security","create-keychain");
-            args.add("-p").addMasked(keychainPwd);
-            args.add(keychainPath);
+            args = new ArgumentListBuilder("security", "create-keychain");
+            args.add("-p").addMasked(_keychainPwd);
+            args.add(_keychainPath);
             invoke(launcher, listener, args, "Failed to create a keychain");
 	}
 
-        args = new ArgumentListBuilder("security","unlock-keychain");
-        args.add("-p").addMasked(keychainPwd);
-        args.add(keychainPath);
+        args = new ArgumentListBuilder("security", "unlock-keychain");
+        args.add("-p").addMasked(_keychainPwd);
+        args.add(_keychainPath);
         invoke(launcher, listener, args, "Failed to unlock keychain");
 
-        args = new ArgumentListBuilder("security","list-keychains");
-	args.add("-d").add("user");
-        args.add("-s").add("login.keychain");
-        args.add(keychainPath);
-        invoke(launcher, listener, args, "Failed to set keychain search path");
+	if ( BooleanUtils.isNotTrue(_importIntoExistingKeychain) ) {
+            args = new ArgumentListBuilder("security", "list-keychains");
+	    args.add("-d").add("user");
+	    args.add("-s").add("login.keychain");
+            args.add(_keychainPath);
+            invoke(launcher, listener, args, "Failed to set keychain search path");
+	}
 
-        final FilePath secret = getSecretDir(workspace, keychainPwd);
+        final FilePath secret = getSecretDir(workspace, _keychainPwd);
 	final byte[] dpImage = dp.getImage();
 	if ( dpImage == null )
 	    throw new AbortException(Messages.DeveloperProfile_NoDeveloperProfileConfigured());
         secret.unzipFrom(new ByteArrayInputStream(dpImage));
 
         // import identities
-        for (FilePath id : secret.list("**/*.p12")) {
-            args = new ArgumentListBuilder("security","import");
-            args.add(id).add("-k",keychainPath);
+        for ( FilePath id : secret.list("**/*.p12") ) {
+            args = new ArgumentListBuilder("security", "import");
+            args.add(id).add("-k", _keychainPath);
             args.add("-P").addMasked(dp.getPassword().getPlainText());
-            args.add("-T","/usr/bin/codesign");
-            args.add("-T","/usr/bin/productsign");
-            args.add(keychainPath);
-            invoke(launcher, listener, args, "Failed to import identity "+id);
+            args.add("-T", "/usr/bin/codesign");
+            args.add("-T", "/usr/bin/productsign");
+            args.add(_keychainPath);
+            invoke(launcher, listener, args, "Failed to import identity " + id);
         }
 
         {
             // display keychain info for potential troubleshooting
-            args = new ArgumentListBuilder("security","show-keychain-info");
-            args.add(keychainPath);
+            args = new ArgumentListBuilder("security", "show-keychain-info");
+            args.add(_keychainPath);
             ByteArrayOutputStream output = invoke(launcher, listener, args, "Failed to show keychain info");
             listener.getLogger().write(output.toByteArray());
         }
 
-	if ( importIntoExistingKeychain == null || !importIntoExistingKeychain ) {
-	    importAppleCert(launcher, listener, workspace);
+	if ( BooleanUtils.isNotTrue(_importIntoExistingKeychain) ) {
+            args = new ArgumentListBuilder("security", "set-key-partition-list");
+            args.add("-S").add("apple-tool:,apple:");
+            args.add("-s").add("-k").addMasked(_keychainPwd);
+            args.add(_keychainPath);
+            invoke(launcher, listener, args, "Failed to set key partition list to keychain");
+        }
+
+	if ( BooleanUtils.isNotTrue(_importIntoExistingKeychain) ) {
+	    importAppleCert(launcher, listener, workspace, _keychainPath);
 	}
 
         // copy provisioning profiles
@@ -197,7 +215,7 @@ public class DeveloperProfileLoader extends Builder implements SimpleBuildStep {
         FilePath profiles = home.child("Library/MobileDevice/Provisioning Profiles");
         profiles.mkdirs();
 
-        for (FilePath mp : secret.list("**/*.mobileprovision")) {
+        for ( FilePath mp : secret.list("**/*.mobileprovision") ) {
             listener.getLogger().println(Messages.DeveloperProfile_Installing(mp.getName()));
             mp.copyTo(profiles.child(mp.getName()));
         }
@@ -219,7 +237,7 @@ public class DeveloperProfileLoader extends Builder implements SimpleBuildStep {
         return getDescriptor().getGlobalConfiguration();
     }
 
-    public Keychain getKeychain() {
+    public Keychain getKeychain(String keychainName) {
         if ( !StringUtils.isEmpty(keychainName) ) {
             for ( Keychain keychain : getGlobalConfiguration().getKeychains() ) {
                 if ( keychain.getKeychainName().equals(keychainName) )
@@ -227,14 +245,14 @@ public class DeveloperProfileLoader extends Builder implements SimpleBuildStep {
             }
         }
 
-        if ( !StringUtils.isEmpty(keychainPath) ) {
-            return new Keychain("", keychainPath, keychainPwd, false);
+        if ( !StringUtils.isEmpty(this.keychainPath) ) {
+            return new Keychain("", this.keychainPath, this.keychainPwd, false);
         }
 
         return null;
     }
 
-    public void importAppleCert(Launcher launcher, TaskListener listener, FilePath workspace) throws IOException, InterruptedException {
+    public void importAppleCert(Launcher launcher, TaskListener listener, FilePath workspace, String keychainPath) throws IOException, InterruptedException {
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
 	FilePath homeFolder = workspace.getHomeDirectory(workspace.getChannel());
 	String homePath = homeFolder.getRemote();
@@ -263,11 +281,11 @@ public class DeveloperProfileLoader extends Builder implements SimpleBuildStep {
         return secrets.child(keychainPwd);
     }
 
-    public DeveloperProfile getProfile(Item context) {
+    public DeveloperProfile getProfile(Item context, String profileId) {
         List<DeveloperProfile> profiles = CredentialsProvider
                 .lookupCredentials(DeveloperProfile.class, context, Jenkins.getAuthentication());
-        for (DeveloperProfile c : profiles) {
-            if (c.getId().equals(profileId)) {
+        for ( DeveloperProfile c : profiles ) {
+            if ( c.getId().equals(profileId) ) {
                 return c;
             }
         }
@@ -316,6 +334,31 @@ public class DeveloperProfileLoader extends Builder implements SimpleBuildStep {
 
         public String getUUID() {
             return "" + UUID.randomUUID().getMostSignificantBits();
+        }
+
+        public FormValidation doCheckDeveloperProfileId(@QueryParameter String value) {
+            if ( StringUtils.isEmpty(value) ) {
+                return FormValidation.error(Messages.DeveloperProfileLoader_MustSelectDeveloperProfile());
+            }
+            return FormValidation.ok();
+        }
+
+        public FormValidation doCheckKeychainPath(@QueryParameter String value, @QueryParameter String keychainName, @QueryParameter Boolean importIntoExistingKeychain) {
+            if ( BooleanUtils.isTrue(importIntoExistingKeychain) ) {
+                if ( StringUtils.isEmpty(keychainName) && StringUtils.isEmpty(value) ) {
+                    return FormValidation.error(Messages.DeveloperProfileLoader_MustSpecifyKeychainPath());
+                }
+            }
+            return FormValidation.ok();
+        }
+
+        public FormValidation doCheckKeychainPwd(@QueryParameter String value, @QueryParameter String keychainName, @QueryParameter Boolean importIntoExistingKeychain) {
+            if ( BooleanUtils.isTrue(importIntoExistingKeychain) ) {
+                if ( StringUtils.isEmpty(keychainName) && StringUtils.isEmpty(value) ) {
+                    return FormValidation.error(Messages.DeveloperProfileLoader_MustSpecifyKeychainPwd());
+                }
+            }
+            return FormValidation.ok();
         }
     }
 

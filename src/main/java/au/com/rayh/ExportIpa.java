@@ -8,6 +8,8 @@ import hudson.tasks.Builder;
 import hudson.util.ArgumentListBuilder;
 import hudson.util.FormValidation;
 import jenkins.tasks.SimpleBuildStep;
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -24,6 +26,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ExportIpa extends Builder implements SimpleBuildStep {
+    private static final String[] VALID_IPA_EXPORT_METHODS = { "development", "ad-hoc", "enterprise", "app-store" };
+
     @CheckForNull
     private String xcodeProjectPath;
     @CheckForNull
@@ -230,8 +234,9 @@ public class ExportIpa extends Builder implements SimpleBuildStep {
 	this.ipaExportMethod = ipaExportMethod;
     }
 
+    @CheckForNull
     public Boolean getManualSigning() {
-	return  manualSigning;
+	return manualSigning == null ? Boolean.valueOf(false) : manualSigning;
     }
 
     @DataBoundSetter
@@ -477,12 +482,12 @@ public class ExportIpa extends Builder implements SimpleBuildStep {
             return "" + UUID.randomUUID().getMostSignificantBits();
         }
 
-        public FormValidation doCheckXcodeSchema(@QueryParameter String value) {
-            if ( value.isEmpty() ) {
-                return FormValidation.warning(Messages.XCodeBuilder_NeedSchema());
-            }
-            return FormValidation.ok();
-        }
+	public FormValidation doCheckArchiveDir(@QueryParameter String value) {
+	    if ( value.isEmpty() ) {
+		return FormValidation.error(Messages.ExportIpa_NeedToSpecifyArchiveLocation());
+	    }
+	    return FormValidation.ok();
+	}
 
         public FormValidation doCheckResourcesAssetURL(@QueryParameter String value, @QueryParameter Boolean packResourcesAsset) {
             if ( StringUtils.isEmpty(value) && !packResourcesAsset ) {
@@ -490,5 +495,40 @@ public class ExportIpa extends Builder implements SimpleBuildStep {
             }
             return FormValidation.ok();
         }
+
+	public FormValidation doCheckIpaExportMethod(@QueryParameter String value) {
+	    if ( !ArrayUtils.contains(VALID_IPA_EXPORT_METHODS, value) ) {
+		String validMethodsMsg = StringUtils.join(VALID_IPA_EXPORT_METHODS, ", ");
+		return FormValidation.error(Messages.XCodeBuilder_IpaExportMethodMuestBeOneOfTheFollowing(validMethodsMsg));
+	    }
+	    return FormValidation.ok();
+	}
+
+	public FormValidation doCheckXcodeWorkspaceFile(@QueryParameter String value, @QueryParameter String xcodeSchema, @QueryParameter String target) {
+	    if ( !StringUtils.isEmpty(value) ) {
+		if ( !StringUtils.isEmpty(target) ) {
+		    return FormValidation.error(Messages.XCodeBuilder_WorkspaceAndTargetCantSpecifySameTime());
+		}
+		if ( StringUtils.isEmpty(xcodeSchema) ) {
+		    return FormValidation.error(Messages.XCodeBuilder_SpecifyWorkspaceAlsoSetScheme());
+		}
+	    }
+	    return FormValidation.ok();
+	}
+
+	public FormValidation doCheckXcodeSchema(@QueryParameter String value,  @QueryParameter Boolean generateArchive, @QueryParameter String xcodeWorkspaceFile, @QueryParameter String target) {
+	    if ( !StringUtils.isEmpty(value) ) {
+		if ( !StringUtils.isEmpty(target) ) {
+		    return FormValidation.error(Messages.XCodeBuilder_SchemeAndTargetCantSpecifySameTime());
+		}
+	    }
+	    else {
+		if ( !StringUtils.isEmpty(xcodeWorkspaceFile) ) {
+		    return FormValidation.error(Messages.XCodeBuilder_SpecifyWorkspaceAlsoSetScheme());
+		}
+                return FormValidation.warning(Messages.XCodeBuilder_NeedSchema());
+	    }
+	    return FormValidation.ok();
+	}
     }
 }
