@@ -1105,7 +1105,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
             // Assume its a build for the handset, not the simulator.
             buildDirectory = projectRoot.child("build").child(configuration + "-" + buildPlatform);
         }
-	listener.getLogger().println("buildDirectory: " + buildDirectory.absolutize());
+	listener.getLogger().println(Messages.XCodeBuilder_BuildDirectory(buildDirectory.absolutize()));
 
         // XCode Version
         int returnCode = launcher.launch().envs(envs).cmds(getGlobalConfiguration().getXcodebuildPath(), "-version").stdout(listener).pwd(projectRoot).join();
@@ -1247,7 +1247,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
         boolean archiveAutomaticSigning = false;
         if ( signingMethod != null && signingMethod.equals("readFromProject") ) {
 	    provisioningProfiles = new ArrayList<>();
-	    listener.getLogger().println("Read signing information from Xcode Project.");
+	    listener.getLogger().println(Messages.XCodeBuilder_ReadSigningInfoFromProject());
 	    XcodeProject xcodeProject = null;
 	    ArrayList<FilePath> projectLocations = new ArrayList<FilePath>();
 	    // Retrieve target from Xcode project.
@@ -1256,7 +1256,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 		// Retrieve provisioning profile information from Xcode project file.
 		projectLocation = projectRoot.child(xcodeProjectFile);
 		if ( !projectLocation.exists() || !projectLocation.isDirectory() ) {
-		    listener.getLogger().println("Could not read information from " + projectLocation.absolutize().getRemote());
+		    listener.getLogger().println(Messages.XCodeBuilder_CoudNotReadInfoFrom(projectLocation.absolutize().getRemote()));
 		    projectLocation = null;
 		}
 	    }
@@ -1277,17 +1277,17 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
             // Retrieve provisioning profile information from specific Xcode project file.
             HashMap<String, ProjectScheme> xcodeSchemes = XcodeProjectParser.listXcodeSchemes(projectLocation);
             if ( !StringUtils.isEmpty(xcodeSchema) ) {
-		listener.getLogger().println("Read information from scheme " + xcodeSchema);
+		listener.getLogger().println(Messages.XCodeBuilder_ReadInfoFromScheme(xcodeSchema));
                 // Retrieve target from specific Xcode scheme.
                 ProjectScheme projectScheme = xcodeSchemes.get(xcodeSchema);
                 if ( projectScheme == null ) {
-		    listener.getLogger().println("Could not get information from scheme " + xcodeSchema);
+		    listener.getLogger().println(Messages.XCodeBuilder_CouldNotGetInfoFromScheme(xcodeSchema));
                     return false;
                 }
 		String referencedContainerLocation = projectScheme.referencedContainer.replaceAll("^container:", "");
                 projectLocation = projectRoot.child(referencedContainerLocation);
 		target = projectScheme.blueprintName;
-		listener.getLogger().println("Read project information from " + projectLocation.absolutize().getRemote());
+		listener.getLogger().println(Messages.XCodeBuilder_ReadProjectInfoFrom(projectLocation.absolutize().getRemote()));
 		projectLocations.add(projectLocation);
             }
             else {
@@ -1299,7 +1299,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 		}
 		if ( !StringUtils.isEmpty(xcodeWorkspaceFile) ) {
                     // Retrieve target from Xcode workspace.
-		    listener.getLogger().println("Read information from workspace " + xcodeWorkspaceFile);
+		    listener.getLogger().println(Messages.XCodeBuilder_ReadInfoFromWorkspace(xcodeWorkspaceFile));
                     List<String> projectList = XcodeProjectParser.parseXcodeWorkspace(projectRoot.child("/" + xcodeWorkspaceFile + ".xcworkspace"));
                     for ( String location : projectList ) {
 			xcodeProject = XcodeProjectParser.parseXcodeProject(projectRoot.child("/" + location));
@@ -1319,7 +1319,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
                 }
 	        else {
 		    // Using Xcode project file information.
-		    listener.getLogger().println("Using Xcode project file information " + xcodeSchema);
+		    listener.getLogger().println(Messages.XCodeBuilder_UsingXcodeFileInfo(xcodeSchema));
 		    projectLocations.add(projectLocation);
 		}
 	    }
@@ -1327,7 +1327,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
                 // Parse Xcode project file.
                 xcodeProject = XcodeProjectParser.parseXcodeProject(examineLocation);
                 if ( xcodeProject == null ) {
-		    listener.getLogger().println("Could not read project information from " + examineLocation.absolutize().getRemote());
+		    listener.getLogger().println(Messages.XCodeBuilder_CouldNotReadProjectInfoFrom(examineLocation.absolutize().getRemote()));
                     return false;      
                 }
 		// Examine all targets.
@@ -1358,19 +1358,19 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
                     }
 		    BuildConfiguration buildConfiguration = projectTarget.buildConfiguration.get(exportConfiguration);
 		    if ( buildConfiguration == null ) {
-			listener.getLogger().println("Could not get build configuration (" + exportConfiguration + ") from " + examineLocation.absolutize().getRemote());
+			listener.getLogger().println(Messages.XCodeBuilder_CouldNotGetBuildConfig(exportConfiguration, examineLocation.absolutize().getRemote()));
 			buildConfiguration = projectTarget.buildConfiguration.get("Release");
 			if ( buildConfiguration == null ) {
 			    return false;
 			}
 			else {
 			    // Fallback to Release configuretion.`
-			    listener.getLogger().println("Useing Release configuration for build.");
+			    listener.getLogger().println(Messages.XCodeBuilder_UseingReleaseConfigFor());
 			}
 		    }
 		    if ( buildConfiguration.developmentTeamId != null ) {
 			developmentTeamID = buildConfiguration.developmentTeamId;
-			listener.getLogger().println("Found developmentTeamID (" + developmentTeamID + ") from " + examineLocation.absolutize().getRemote());
+			listener.getLogger().println(Messages.XCodeBuilder_FoundDevelopmentTeamID(developmentTeamID, examineLocation.absolutize().getRemote()));
 		    }
 		    if ( !automaticSigning ) {
 			String provisioningProfileUUID = buildConfiguration.provisioningProfileUUID;
@@ -1387,7 +1387,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 			    productName = productName.replaceAll(Pattern.quote("$(TARGET_NAME)"), key);
 			    InfoPlist infoPlist = XcodeProjectParser.parseInfoPlist(projectRoot.child("/" + buildConfiguration.infoPlistFile));
 			    if ( infoPlist == null ) {
-				listener.getLogger().println("Could not read information from " + projectRoot.toString() + "/" + buildConfiguration.infoPlistFile);
+				listener.getLogger().println(Messages.XCodeBuilder_CoudNotReadInfoFrom(projectRoot.toString() + "/" + buildConfiguration.infoPlistFile));
 				return false;
 			    }
 			    // Placeholder replacement.
@@ -1498,6 +1498,15 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 	    StringBuilder xcodeReport = new StringBuilder(Messages.XCodeBuilder_invokeXcodebuild());
 	    JenkinsXCodeBuildOutputParser reportGenerator = new JenkinsXCodeBuildOutputParser(projectRoot, listener);
 	    List<String> commandLine = Lists.newArrayList(getGlobalConfiguration().getXcodebuildPath());
+
+	    // Workspace and target can not be specified at the same time.
+	    // also specify workspace you must specify a scheme.
+	    if ( !StringUtils.isEmpty(xcodeWorkspaceFile) ) {
+		if ( StringUtils.isEmpty(xcodeSchema) ) {
+		    listener.getLogger().println(Messages.XCodeBuilder_SpecifyWorkspaceAlsoSetScheme());
+		    return false;
+		}
+	    }
 
 	    // Prioritizing schema over target setting
 	    if (!StringUtils.isEmpty(xcodeSchema)) {
@@ -2016,15 +2025,6 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 	    return "" + UUID.randomUUID().getMostSignificantBits();
 	}
 
-	public FormValidation doCheckXcodeSchema(@QueryParameter String value, @QueryParameter Boolean generateArchive, @QueryParameter Boolean buildIpa) {
-	    if ( BooleanUtils.isTrue(generateArchive) || BooleanUtils.isTrue(buildIpa) ) {
-		if ( StringUtils.isEmpty(value) ) {
-		    return FormValidation.error(Messages.XCodeBuilder_NeedSchema());
-		}
-	    }
-	    return FormValidation.ok();
-	}
-
 	public FormValidation doCheckOnDemandResourcesAssetPacksBaseURL(@QueryParameter String value, @QueryParameter Boolean embedOnDemandResourcesAssetPacksInBundle) {
 	    if ( StringUtils.isEmpty(value) && BooleanUtils.isFalse(embedOnDemandResourcesAssetPacksInBundle) ) {
 		return FormValidation.error(Messages.XCodeBuilder_NeedOnDemandResourcesURL());
@@ -2041,6 +2041,46 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 	    }
 	    return FormValidation.ok();
 	}
+
+	public FormValidation doCheckXcodeWorkspaceFile(@QueryParameter String value, @QueryParameter String xcodeSchema, @QueryParameter String target) {
+	    if ( !StringUtils.isEmpty(value) ) {
+		if ( !StringUtils.isEmpty(target) ) {
+		    return FormValidation.error(Messages.XCodeBuilder_WorkspaceAndTargetCantSpecifySameTime());
+		}
+		if ( StringUtils.isEmpty(xcodeSchema) ) {
+		    return FormValidation.error(Messages.XCodeBuilder_SpecifyWorkspaceAlsoSetScheme());
+		}
+	    }
+	    return FormValidation.ok();
+	}
+
+	public FormValidation doCheckXcodeSchema(@QueryParameter String value,  @QueryParameter Boolean generateArchive, @QueryParameter Boolean buildIpa, @QueryParameter String xcodeWorkspaceFile, @QueryParameter String target) {
+	    if ( !StringUtils.isEmpty(value) ) {
+		if ( !StringUtils.isEmpty(target) ) {
+		    return FormValidation.error(Messages.XCodeBuilder_SchemeAndTargetCantSpecifySameTime());
+		}
+	    }
+	    else {
+		if ( !StringUtils.isEmpty(xcodeWorkspaceFile) ) {
+		    return FormValidation.error(Messages.XCodeBuilder_SpecifyWorkspaceAlsoSetScheme());
+		}
+		if ( BooleanUtils.isTrue(generateArchive) || BooleanUtils.isTrue(buildIpa) ) {
+                    return FormValidation.error(Messages.XCodeBuilder_NeedSchema());
+                }
+	    }
+	    return FormValidation.ok();
+	}
+
+	public FormValidation doCheckTarget(@QueryParameter String value, @QueryParameter String xcodeWorkspaceFile, @QueryParameter String xcodeSchema) {
+	    if ( !StringUtils.isEmpty(value) ) {
+		if ( !StringUtils.isEmpty(xcodeWorkspaceFile) ) {
+		    return FormValidation.error(Messages.XCodeBuilder_WorkspaceAndTargetCantSpecifySameTime());
+		}
+		if ( !StringUtils.isEmpty(xcodeSchema) ) {
+		    return FormValidation.error(Messages.XCodeBuilder_SchemeAndTargetCantSpecifySameTime());
+		}
+	    }
+	    return FormValidation.ok();
+	}
     }
 }
-
