@@ -200,8 +200,16 @@
     <f:section title="${%Code signing &amp; OS X keychain options}">
         <f:advanced title="${%Code signing settings}">
             <f:entry>
-                <f:optionalBlock inline="true" checked="${instance.manualSigning == true}" name="manualSigning" field="manualSigning" title="${%Manual signing?}" help="/plugin/xcode-plugin/help/help-manualSigning.html">
-                    <f:entry title="${%Provisioning Profiles}" description="${%Provisioning profiles}" help="/plugin/xcode-plugin/help/help-appIDandProvisionUUID.html" >
+                <f:radioBlock inline="true" checked="${instance.signingMethod.equals('automatic')}" field="signingMethod" name="signingMethod" title="${%Automatic Signing}" value="automatic" help="/plugin/xcode-plugin/help/help-automaticSigning.html">
+                    <f:entry>
+                    </f:entry>
+                </f:radioBlock>
+                <f:radioBlock inline="true" checked="${instance.signingMethod.equals('readFromProject')}" field="signingMethod" name="signingMethod" title="${%Read from Xcode Project}" value="readFromProject" help="/plugin/xcode-plugin/help/help-readFromProject.html">
+                    <f:entry>
+                    </f:entry>
+                </f:radioBlock>
+                <f:radioBlock inline="true" checked="${instance.signingMethod.equals('manual')}" field="signingMethod" name="signingMethod" title="${%Manual signing}" value="manual" help="/plugin/xcode-plugin/help/help-manualSigning.html">
+                    <f:entry title="${%Provisioning Profiles}" description="${%Set a combination of 'Bundle ID' and 'UUID or Specifire' of 'provisioning profiles' used when exporting .ipa files.}" help="/plugin/xcode-plugin/help/help-appIDandProvisionUUID.html" >
                         <f:repeatable var="provisioningProfile" name="provisioningProfiles" items="${instance.provisioningProfiles}" minimum="1">
                             <table width="100%">
                                 <f:entry title="${%Bundle ID}"
@@ -224,7 +232,7 @@
                             </table>
                         </f:repeatable>
                     </f:entry>
-                </f:optionalBlock>
+                </f:radioBlock>
             </f:entry>
 
             <f:entry>
@@ -242,7 +250,6 @@
                 </f:optionalBlock>
             </f:entry>
 
-            <j:set var="UUID" value="${descriptor.UUID}" />
             <f:entry>
                 <f:optionalBlock inline="true" checked="${instance.unlockKeychain == true}" name="unlockKeychain" title="${%Unlock Keychain?}" field="unlockKeychain" help="/plugin/xcode-plugin/help/help-unlockKeychain.html">
 		    <j:set var="UUID" value="${descriptor.UUID}" />

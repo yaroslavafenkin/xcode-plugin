@@ -59,7 +59,7 @@ public class ExportIpa extends Builder implements SimpleBuildStep {
     @CheckForNull
     private String ipaExportMethod;
     @CheckForNull
-    private Boolean manualSigning;
+    private String signingMethod;
     @CheckForNull
     private ArrayList<ProvisioningProfile> provisioningProfiles;
     @CheckForNull
@@ -235,13 +235,13 @@ public class ExportIpa extends Builder implements SimpleBuildStep {
     }
 
     @CheckForNull
-    public Boolean getManualSigning() {
-	return manualSigning == null ? Boolean.valueOf(false) : manualSigning;
+    public String getExpSigningMethod() {
+	return signingMethod == null ? "automatic" : signingMethod;
     }
 
     @DataBoundSetter
-    public void setManualSigning(Boolean manualSigning) {
-	this.manualSigning = manualSigning;
+    public void setExpSigningMethod(String signingMethod) {
+	this.signingMethod = signingMethod;
     }
 
     @CheckForNull
@@ -379,7 +379,7 @@ public class ExportIpa extends Builder implements SimpleBuildStep {
                 String xcodeSchema, String archiveDir, String developmentTeamName, String developmentTeamID,
                 String ipaName, String ipaOutputDirectory,
                 String ipaExportMethod,
-                Boolean manualSigning, ArrayList<ProvisioningProfile> provisioningProfiles, String xcodeName,
+                String signingMethod, ArrayList<ProvisioningProfile> provisioningProfiles, String xcodeName,
 		Boolean uploadBitcode, Boolean uploadSymbols, Boolean compileBitcode, String thinning,
 		Boolean packResourcesAsset, String resourcesAssetURL,
 		String appURL, String displayImageURL, String fullSizeImageURL,
@@ -400,7 +400,7 @@ public class ExportIpa extends Builder implements SimpleBuildStep {
         this.ipaName = ipaName;
         this.ipaOutputDirectory = ipaOutputDirectory;
         this.ipaExportMethod = ipaExportMethod;
-        this.manualSigning = manualSigning;
+        this.signingMethod = signingMethod;
         this.provisioningProfiles = provisioningProfiles;
 	this.xcodeName = xcodeName;
         this.uploadBitcode = uploadBitcode;
@@ -429,7 +429,7 @@ public class ExportIpa extends Builder implements SimpleBuildStep {
                 keychainName, keychainPath, keychainPwd, symRoot, xcodeWorkspaceFile,
                 xcodeSchema, archiveDir, developmentTeamName, developmentTeamID, false,
                 ipaName, false, ipaOutputDirectory, false, null,
-                null, false, ipaExportMethod, manualSigning, provisioningProfiles, xcodeName,
+                null, false, ipaExportMethod, signingMethod, provisioningProfiles, xcodeName,
 		uploadBitcode, uploadSymbols, compileBitcode, thinning,
 		embedOnDemandResourcesAssetPacksInBundle, onDemandResourcesAssetPacksBaseURL,
 		appURL, displayImageURL, fullSizeImageURL, assetPackManifestURL);

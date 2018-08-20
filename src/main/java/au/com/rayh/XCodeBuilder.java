@@ -47,6 +47,7 @@ import hudson.util.QuotedStringTokenizer;
 import hudson.plugins.xcode.XcodeInstallation;
 import jenkins.tasks.SimpleBuildStep;
 import org.jenkinsci.Symbol;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.tokenmacro.MacroEvaluationException;
@@ -61,13 +62,20 @@ import javax.annotation.CheckForNull;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.io.ObjectStreamException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.UUID;
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
@@ -91,6 +99,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
     private static final String PRODUCTION_ENV = "Production";
     private static final String DEV_SIGNING_CERTIFICATE_SELECTOR = "iOS Developer";
     private static final String DIST_SIGNING_CERTIFICATE_SELECTOR = "iOS Distribution";
+    private static final String[] VALID_IPA_EXPORT_METHODS = { "development", "ad-hoc", "enterprise", "app-store" };
 
     /**
      * @since 1.0
@@ -267,7 +276,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
      * @since 2.0.1
      */
     @CheckForNull
-    private Boolean manualSigning;
+    private String signingMethod;
     /**
      * @since 2.0.1
      */
@@ -478,7 +487,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
     }
 
     public Boolean getBuildIpa() {
-	return buildIpa == null ? Boolean.valueOf(true) : buildIpa;
+	return buildIpa == null ? Boolean.valueOf(false) : buildIpa;
     }
 
     @DataBoundSetter
@@ -659,13 +668,14 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 	this.interpretTargetAsRegEx = interpretTargetAsRegEx;
     }
 
-    public Boolean getManualSigning() {
-	return manualSigning == null ? Boolean.valueOf(false) : manualSigning;
+    @CheckForNull
+    public String getSigningMethod() {
+	return signingMethod == null ? "automatic" : signingMethod;
     }
 
     @DataBoundSetter
-    public void setManualSigning(Boolean manualSigning) {
-	this.manualSigning = manualSigning;
+    public void setSigningMethod(String signingMethod) {
+	this.signingMethod = signingMethod;
     }
 
     @CheckForNull
@@ -813,7 +823,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
     		String xcodeSchema, String buildDir, String developmentTeamName, String developmentTeamID, Boolean allowFailingBuildResults,
     		String ipaName, Boolean provideApplicationVersion, String ipaOutputDirectory, Boolean changeBundleID, String bundleID,
     		String bundleIDInfoPlistPath, Boolean interpretTargetAsRegEx, String ipaExportMethod,
-		Boolean manualSigning, ArrayList<ProvisioningProfile> provisioningProfiles, String xcodeName,
+		String signingMethod, ArrayList<ProvisioningProfile> provisioningProfiles, String xcodeName,
 		Boolean uploadBitcode, Boolean uploadSymbols, Boolean compileBitcode, String thinning,
 		Boolean embedOnDemandResourcesAssetPacksInBundle, String onDemandResourcesAssetPacksBaseURL,
 		String appURL, String displayImageURL, String fullSizeImageURL,
@@ -853,7 +863,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
         this.interpretTargetAsRegEx = interpretTargetAsRegEx;
         //this.ipaManifestPlistUrl = null;
         this.ipaExportMethod = ipaExportMethod;
-        this.manualSigning = manualSigning;
+        this.signingMethod = signingMethod;
         this.provisioningProfiles = provisioningProfiles;
 	this.xcodeName = xcodeName;
 	this.uploadBitcode = uploadBitcode;
@@ -881,7 +891,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 			String xcodeSchema, String buildDir, String developmentTeamName, String developmentTeamID, Boolean allowFailingBuildResults,
 			String ipaName, Boolean provideApplicationVersion, String ipaOutputDirectory, Boolean changeBundleID, String bundleID,
 			String bundleIDInfoPlistPath, String ipaManifestPlistUrl, Boolean interpretTargetAsRegEx, String ipaExportMethod,
-			Boolean manualSigning, ArrayList<ProvisioningProfile> provisioningProfiles) {
+			String signingMethod, ArrayList<ProvisioningProfile> provisioningProfiles, String xcodeName) {
 	this(buildIpa, generateArchive, noConsoleLog, logfileOutputDirectory, cleanBeforeBuild, cleanTestReports, configuration,
 		target, sdk, xcodeProjectPath, xcodeProjectFile, xcodebuildArguments,
 		cfBundleVersionValue, cfBundleShortVersionStringValue, unlockKeychain,
@@ -889,7 +899,26 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 		xcodeSchema, buildDir, developmentTeamName, developmentTeamID, allowFailingBuildResults,
 		ipaName, provideApplicationVersion, ipaOutputDirectory, changeBundleID, bundleID,
 		bundleIDInfoPlistPath, interpretTargetAsRegEx, ipaExportMethod,
-		manualSigning, provisioningProfiles, null, true, true, true, null, false, null, ipaManifestPlistUrl, null, null, null);
+		signingMethod, provisioningProfiles, xcodeName, true, true, true, null, false, null, ipaManifestPlistUrl, null, null, null);
+    }
+
+    @Deprecated
+    public XCodeBuilder(Boolean buildIpa, Boolean generateArchive, Boolean noConsoleLog, String logfileOutputDirectory, Boolean cleanBeforeBuild,
+                        Boolean cleanTestReports, String configuration,
+                        String target, String sdk, String xcodeProjectPath, String xcodeProjectFile, String xcodebuildArguments,
+                        String cfBundleVersionValue, String cfBundleShortVersionStringValue, Boolean unlockKeychain,
+                        String keychainName, String keychainPath, String keychainPwd, String symRoot, String xcodeWorkspaceFile,
+                        String xcodeSchema, String buildDir, String developmentTeamName, String developmentTeamID, Boolean allowFailingBuildResults,
+                        String ipaName, Boolean provideApplicationVersion, String ipaOutputDirectory, Boolean changeBundleID, String bundleID,
+                        String bundleIDInfoPlistPath, String ipaManifestPlistUrl, Boolean interpretTargetAsRegEx, String ipaExportMethod,
+                        Boolean manualSigning, ArrayList<ProvisioningProfile>provisioningProfiles) {
+        this(buildIpa, generateArchive, noConsoleLog, logfileOutputDirectory, cleanBeforeBuild, cleanTestReports, configuration,
+                target, sdk, xcodeProjectPath, xcodeProjectFile, xcodebuildArguments,
+                cfBundleVersionValue, cfBundleShortVersionStringValue, unlockKeychain,
+                keychainName, keychainPath, keychainPwd, symRoot, xcodeWorkspaceFile,
+                xcodeSchema, buildDir, developmentTeamName, developmentTeamID, allowFailingBuildResults,
+                ipaName, provideApplicationVersion, ipaOutputDirectory, changeBundleID, bundleID,
+                bundleIDInfoPlistPath, ipaManifestPlistUrl, interpretTargetAsRegEx, ipaExportMethod, (manualSigning ? "manual" : "automatic"), provisioningProfiles, null);
     }
 
     @Deprecated
@@ -1076,6 +1105,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
             // Assume its a build for the handset, not the simulator.
             buildDirectory = projectRoot.child("build").child(configuration + "-" + buildPlatform);
         }
+	listener.getLogger().println(Messages.XCodeBuilder_BuildDirectory(buildDirectory.absolutize()));
 
         // XCode Version
         int returnCode = launcher.launch().envs(envs).cmds(getGlobalConfiguration().getXcodebuildPath(), "-version").stdout(listener).pwd(projectRoot).join();
@@ -1213,26 +1243,198 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
         listener.getLogger().println(Messages.XCodeBuilder_DebugInfoAvailableCertificates());
         /*returnCode =*/ launcher.launch().envs(envs).cmds("/usr/bin/security", "find-identity", "-p", "codesigning", "-v").stdout(listener).pwd(projectRoot).join();
 
-        // If developmentTeamName is set the developmentTeamID is invalid.
-	// when already set 'this.developmentTeamID' use it.
-        String developmentTeamID = null;
-        if ( StringUtils.isEmpty(developmentTeamName) ) {
-	   // Expand envronment variable of developmentTeamID.
-           developmentTeamID = envs.expand(this.developmentTeamID);
-        }
-        if (StringUtils.isEmpty(developmentTeamID)) {
-            Team team = getDevelopmentTeam();
-            if (team == null) {
-                listener.getLogger().println(Messages.XCodeBuilder_teamNotConfigured());
-            } else {
-                developmentTeamID = envs.expand(team.getTeamID());
-                if (!StringUtils.isEmpty(developmentTeamID)) {
-                    listener.getLogger().println(Messages.XCodeBuilder_DebugInfoCanFindCertificates());
-                    /*returnCode =*/
-                    launcher.launch().envs(envs).cmds("/usr/bin/security", "find-certificate", "-a", "-c", developmentTeamID, "-Z", "|", "grep", "^SHA-1").stdout(listener).pwd(projectRoot).join();
-                    // We could fail here, but this doesn't seem to work as it should right now (output not properly redirected. We might need a parser)
+	String developmentTeamID = null;
+        boolean archiveAutomaticSigning = false;
+        if ( signingMethod != null && signingMethod.equals("readFromProject") ) {
+	    provisioningProfiles = new ArrayList<>();
+	    listener.getLogger().println(Messages.XCodeBuilder_ReadSigningInfoFromProject());
+	    XcodeProject xcodeProject = null;
+	    ArrayList<FilePath> projectLocations = new ArrayList<FilePath>();
+	    // Retrieve target from Xcode project.
+	    FilePath projectLocation = null;
+	    if ( !StringUtils.isEmpty(xcodeProjectFile) ) {
+		// Retrieve provisioning profile information from Xcode project file.
+		projectLocation = projectRoot.child(xcodeProjectFile);
+		if ( !projectLocation.exists() || !projectLocation.isDirectory() ) {
+		    listener.getLogger().println(Messages.XCodeBuilder_CoudNotReadInfoFrom(projectLocation.absolutize().getRemote()));
+		    projectLocation = null;
+		}
+	    }
+	    if ( projectLocation == null ) {
+		// Retrieve xcodeproj from current working directory.
+		List<FilePath> xcodeProjects = projectRoot.list(new XcodeProjectFileFilter());
+		if (xcodeProjects == null) {
+		    listener.fatalError(Messages.XCodeBuilder_NoArchivesInBuildDirectory(projectRoot.absolutize().getRemote()));
+		    return false;
+		}
+
+            	for (FilePath xcodeProjectDir : xcodeProjects) {
+		    // Xcode build generates an error if there are multiple xcodeproj.
+		    projectLocation = xcodeProjectDir;
+		    break;
+		}
+	    }
+            // Retrieve provisioning profile information from specific Xcode project file.
+            HashMap<String, ProjectScheme> xcodeSchemes = XcodeProjectParser.listXcodeSchemes(projectLocation);
+            if ( !StringUtils.isEmpty(xcodeSchema) ) {
+		listener.getLogger().println(Messages.XCodeBuilder_ReadInfoFromScheme(xcodeSchema));
+                // Retrieve target from specific Xcode scheme.
+                ProjectScheme projectScheme = xcodeSchemes.get(xcodeSchema);
+                if ( projectScheme == null ) {
+		    listener.getLogger().println(Messages.XCodeBuilder_CouldNotGetInfoFromScheme(xcodeSchema));
+                    return false;
                 }
+		String referencedContainerLocation = projectScheme.referencedContainer.replaceAll("^container:", "");
+                projectLocation = projectRoot.child(referencedContainerLocation);
+		target = projectScheme.blueprintName;
+		listener.getLogger().println(Messages.XCodeBuilder_ReadProjectInfoFrom(projectLocation.absolutize().getRemote()));
+		projectLocations.add(projectLocation);
             }
+            else {
+		if ( xcodeSchemes.size() == 1 ) {
+		    for ( Map.Entry<String, ProjectScheme> entry: xcodeSchemes.entrySet() ) {
+			ProjectScheme projectScheme = entry.getValue();
+		    	xcodeSchema = projectScheme.blueprintName;
+		    }
+		}
+		if ( !StringUtils.isEmpty(xcodeWorkspaceFile) ) {
+                    // Retrieve target from Xcode workspace.
+		    listener.getLogger().println(Messages.XCodeBuilder_ReadInfoFromWorkspace(xcodeWorkspaceFile));
+                    List<String> projectList = XcodeProjectParser.parseXcodeWorkspace(projectRoot.child("/" + xcodeWorkspaceFile + ".xcworkspace"));
+                    for ( String location : projectList ) {
+			xcodeProject = XcodeProjectParser.parseXcodeProject(projectRoot.child("/" + location));
+                	String projectName = projectRoot.child("/" + location).getBaseName().replaceAll(".xcodeproj$", "");
+                	if ( !StringUtils.isEmpty(target) ) {
+			    if ( target.equals(projectName) ) {
+				// Add the location of specific projects.
+				projectLocations.add(projectRoot.child("/" + location));
+				break;
+			    }
+               		}
+		        else {
+			    // Add the location of all projects.
+			    projectLocations.add(projectRoot.child("/" + location));
+			}
+            	    }
+                }
+	        else {
+		    // Using Xcode project file information.
+		    listener.getLogger().println(Messages.XCodeBuilder_UsingXcodeFileInfo(xcodeSchema));
+		    projectLocations.add(projectLocation);
+		}
+	    }
+	    for ( FilePath examineLocation : projectLocations ) {
+                // Parse Xcode project file.
+                xcodeProject = XcodeProjectParser.parseXcodeProject(examineLocation);
+                if ( xcodeProject == null ) {
+		    listener.getLogger().println(Messages.XCodeBuilder_CouldNotReadProjectInfoFrom(examineLocation.absolutize().getRemote()));
+                    return false;      
+                }
+		// Examine all targets.
+		for ( String key : xcodeProject.projectTarget.keySet() ) {
+		    ProjectTarget projectTarget = xcodeProject.projectTarget.get(key);
+		    String exportConfiguration = null;
+		    if ( !StringUtils.isEmpty(ipaExportMethod) ) {
+			if ( ipaExportMethod.equals("app-store") ) {
+			    exportConfiguration = "Release";
+			}
+                        else if ( ipaExportMethod.equals("enterprise") ) {
+                            exportConfiguration = "Enterprise";
+                        }
+			else if ( ipaExportMethod.equals("ad-hoc") ) {
+			    exportConfiguration = "AdHoc";
+			}
+			else {
+			    exportConfiguration = "Debug";
+			}
+                    }
+		    else if ( StringUtils.isEmpty(configuration) ) {
+			exportConfiguration = projectTarget.defaultConfigurationName;
+		    }
+		    boolean automaticSigning = projectTarget.provisioningStyle.equals("Automatic");
+                    if ( projectTarget.testTargetID == null ) {
+                        // The target is not a test.
+                        archiveAutomaticSigning = automaticSigning;
+                    }
+		    BuildConfiguration buildConfiguration = projectTarget.buildConfiguration.get(exportConfiguration);
+		    if ( buildConfiguration == null ) {
+			listener.getLogger().println(Messages.XCodeBuilder_CouldNotGetBuildConfig(exportConfiguration, examineLocation.absolutize().getRemote()));
+			buildConfiguration = projectTarget.buildConfiguration.get("Release");
+			if ( buildConfiguration == null ) {
+			    return false;
+			}
+			else {
+			    // Fallback to Release configuretion.`
+			    listener.getLogger().println(Messages.XCodeBuilder_UseingReleaseConfigFor());
+			}
+		    }
+		    if ( buildConfiguration.developmentTeamId != null ) {
+			developmentTeamID = buildConfiguration.developmentTeamId;
+			listener.getLogger().println(Messages.XCodeBuilder_FoundDevelopmentTeamID(developmentTeamID, examineLocation.absolutize().getRemote()));
+		    }
+		    if ( !automaticSigning ) {
+			String provisioningProfileUUID = buildConfiguration.provisioningProfileUUID;
+			String provisioningProfileSpecifier = buildConfiguration.provisioningProfileSpecifier;
+			String bundleIdentifier = null;
+			if ( buildConfiguration.bundleIdentifier != null ) {
+			    bundleIdentifier = buildConfiguration.bundleIdentifier;
+			}
+			else {
+			    // Placeholder replacement.
+			    // Currentry only support "${TARGET_NAME}" and "$(TARGET_NAME)"
+			    String productName = buildConfiguration.productName;
+			    productName = productName.replaceAll(Pattern.quote("${TARGET_NAME}"), key);
+			    productName = productName.replaceAll(Pattern.quote("$(TARGET_NAME)"), key);
+			    InfoPlist infoPlist = XcodeProjectParser.parseInfoPlist(projectRoot.child("/" + buildConfiguration.infoPlistFile));
+			    if ( infoPlist == null ) {
+				listener.getLogger().println(Messages.XCodeBuilder_CoudNotReadInfoFrom(projectRoot.toString() + "/" + buildConfiguration.infoPlistFile));
+				return false;
+			    }
+			    // Placeholder replacement.
+			    // Currentry only support "$(PRODUCT_NAME:rfc1034identifier)"
+			    bundleIdentifier = infoPlist.getCfBundleIdentifier();
+			    productName = productName.replaceAll(" ", "-");
+			    bundleIdentifier = bundleIdentifier.replaceAll(Pattern.quote("$(PRODUCT_NAME:rfc1034identifier)"), productName);
+			}
+			// PROVISIONING_PROFILE(UUID) or PROVISIONING_PROFILE_SPECIFIER
+			String provisioningProfileIdentifier = null;
+			if ( provisioningProfileSpecifier != null ) {
+			    // We will use SPECIFIE instead UUID.
+			    provisioningProfileIdentifier = provisioningProfileSpecifier;
+			}
+			else {
+			    provisioningProfileIdentifier = provisioningProfileUUID;
+			}
+			if ( provisioningProfileIdentifier != null ) {
+			    provisioningProfiles.add(new ProvisioningProfile(bundleIdentifier, provisioningProfileIdentifier));
+			}
+		    }
+		}
+	    }
+	    for ( ProvisioningProfile rp : provisioningProfiles ) {
+		listener.getLogger().println("UUID/SPECIFIER                       CFbundleIdentifier");
+		listener.getLogger().println(rp.getProvisioningProfileUUID() + " " + rp.getProvisioningProfileAppId());
+	    }
+        }
+        else {
+            // If developmentTeamName is set the developmentTeamID is invalid.
+	    if ( StringUtils.isEmpty(developmentTeamName) ) {
+                developmentTeamID = envs.expand(this.developmentTeamID);
+            }
+	    if (StringUtils.isEmpty(developmentTeamID)) {
+	        Team team = getDevelopmentTeam();
+                if (team == null) {
+		    listener.getLogger().println(Messages.XCodeBuilder_teamNotConfigured());
+	        } else {
+		    developmentTeamID = envs.expand(team.getTeamID());
+		    if (!StringUtils.isEmpty(developmentTeamID)) {
+		        listener.getLogger().println(Messages.XCodeBuilder_DebugInfoCanFindCertificates());
+		        /*returnCode =*/
+		        launcher.launch().envs(envs).cmds("/usr/bin/security", "find-certificate", "-a", "-c", developmentTeamID, "-Z", "|", "grep", "^SHA-1").stdout(listener).pwd(projectRoot).join();
+		        // We could fail here, but this doesn't seem to work as it should right now (output not properly redirected. We might need a parser)
+		    }
+	        }
+	    }
         }
 
         listener.getLogger().println(Messages.XCodeBuilder_DebugInfoAvailableSDKs());
@@ -1277,7 +1479,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 
             xcodebuildHelpParser = new XcodeBuildHelpParser(xcodeBuildHelpOutput);
         }
-	Boolean haveAllowProvisioningUpdates = false;
+	boolean haveAllowProvisioningUpdates = false;
 	List<String> availableParameters = xcodebuildHelpParser.getParameters();
 	if (availableParameters.isEmpty()) {
 	    listener.getLogger().println(Messages.XCodeBuilder_NoAvailableParameters());
@@ -1296,6 +1498,15 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 	    StringBuilder xcodeReport = new StringBuilder(Messages.XCodeBuilder_invokeXcodebuild());
 	    JenkinsXCodeBuildOutputParser reportGenerator = new JenkinsXCodeBuildOutputParser(projectRoot, listener);
 	    List<String> commandLine = Lists.newArrayList(getGlobalConfiguration().getXcodebuildPath());
+
+	    // Workspace and target can not be specified at the same time.
+	    // also specify workspace you must specify a scheme.
+	    if ( !StringUtils.isEmpty(xcodeWorkspaceFile) ) {
+		if ( StringUtils.isEmpty(xcodeSchema) ) {
+		    listener.getLogger().println(Messages.XCodeBuilder_SpecifyWorkspaceAlsoSetScheme());
+		    return false;
+		}
+	    }
 
 	    // Prioritizing schema over target setting
 	    if (!StringUtils.isEmpty(xcodeSchema)) {
@@ -1368,7 +1579,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 	    //Generating an archive builds the project twice
 	    //commandLine.add("build");
 	    FilePath archiveLocation = buildDirectory.absolutize().child(xcodeSchema + ".xcarchive");
-	    if ( BooleanUtils.isNotFalse(buildIpa) || BooleanUtils.isTrue(generateArchive) ) {
+	    if ( BooleanUtils.isTrue(buildIpa) || BooleanUtils.isTrue(generateArchive) ) {
 		commandLine.add("archive");
 		commandLine.add("-archivePath");
 		commandLine.add(archiveLocation.getRemote());
@@ -1414,7 +1625,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 	    }
 
 	    // Allow updating signing assets
-	    if ( haveAllowProvisioningUpdates && BooleanUtils.isNotTrue(manualSigning) ) {
+	    if ( haveAllowProvisioningUpdates && ( archiveAutomaticSigning || signingMethod == null || signingMethod.equals("automatic") ) ) {
 		commandLine.add("-allowProvisioningUpdates");
 		xcodeReport.append(", allowProvisioningUpdates: YES");
 	    }
@@ -1433,11 +1644,19 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 	}
 
         // Package IPA
-        if ( BooleanUtils.isNotFalse(buildIpa) ) {
+        if ( BooleanUtils.isTrue(buildIpa) ) {
 
             if (!buildDirectory.exists() || !buildDirectory.isDirectory()) {
                 listener.fatalError(Messages.XCodeBuilder_NotExistingBuildDirectory(buildDirectory.absolutize().getRemote()));
                 return false;
+            }
+
+	    // Incase Pipeline build.
+	    // Pipeline Editor's error checking is poor and has not checked anything.
+            if ( !ArrayUtils.contains(VALID_IPA_EXPORT_METHODS, ipaExportMethod) ) {
+                String validMethodsMsg = StringUtils.join(VALID_IPA_EXPORT_METHODS, ", ");
+                listener.fatalError(Messages.XCodeBuilder_IpaExportMethodMuestBeOneOfTheFollowing(validMethodsMsg));
+		return false;
             }
 
             // clean IPA
@@ -1467,13 +1686,14 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
             listener.getLogger().println(Messages.XCodeBuilder_packagingIPA());
 
 	    // Writeing exportOptions.plist
+	    boolean manualSigning = (!archiveAutomaticSigning && signingMethod != null && (signingMethod.equals("manual") || signingMethod.equals("readFromProject")));
 	    NSDictionary exportOptionsPlist = new NSDictionary();
-	    exportOptionsPlist.put("signingStyle", BooleanUtils.isTrue(manualSigning) ? "manual" : "automatic");
+	    exportOptionsPlist.put("signingStyle", manualSigning ? "manual" : "automatic");
 	    exportOptionsPlist.put("method", ipaExportMethod);
 	    if ( !StringUtils.isEmpty(developmentTeamID) ) {
 		exportOptionsPlist.put("teamID", developmentTeamID);
 	    }
-	    if ( BooleanUtils.isTrue(manualSigning) ) {
+	    if ( manualSigning ) {
 		exportOptionsPlist.put("signingCertificate", ipaExportMethod.equals("development") ? DEV_SIGNING_CERTIFICATE_SELECTOR : DIST_SIGNING_CERTIFICATE_SELECTOR);
 		if ( provisioningProfiles != null && provisioningProfiles.size() > 0 ) {
 		    NSDictionary provisioningProfileDict = new NSDictionary();
@@ -1629,7 +1849,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
                 List<String> packageCommandLine = new ArrayList<>();
                 packageCommandLine.add(getGlobalConfiguration().getXcodebuildPath());
                 packageCommandLine.addAll(Lists.newArrayList("-exportArchive", "-archivePath", archive.absolutize().getRemote(), "-exportPath", ipaOutputPath.absolutize().getRemote(), "-exportOptionsPlist", exportOptionsPlistLocation.absolutize().getRemote()));
-                if ( BooleanUtils.isNotTrue(manualSigning) ) {
+                if (archiveAutomaticSigning || signingMethod == null || (!signingMethod.equals("manual") && !signingMethod.equals("readFromProject"))) {
 		    if (haveAllowProvisioningUpdates)
                 	packageCommandLine.add("-allowProvisioningUpdates");
                 }
@@ -1805,18 +2025,60 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 	    return "" + UUID.randomUUID().getMostSignificantBits();
 	}
 
-	public FormValidation doCheckXcodeSchema(@QueryParameter String value, @QueryParameter Boolean generateArchive, @QueryParameter Boolean buildIpa) {
-	    if ( BooleanUtils.isTrue(generateArchive) || BooleanUtils.isNotFalse(buildIpa) ) {
-		if ( StringUtils.isEmpty(value) ) {
-		    return FormValidation.error(Messages.XCodeBuilder_NeedSchema());
+	public FormValidation doCheckOnDemandResourcesAssetPacksBaseURL(@QueryParameter String value, @QueryParameter Boolean embedOnDemandResourcesAssetPacksInBundle) {
+	    if ( StringUtils.isEmpty(value) && BooleanUtils.isFalse(embedOnDemandResourcesAssetPacksInBundle) ) {
+		return FormValidation.error(Messages.XCodeBuilder_NeedOnDemandResourcesURL());
+	    }
+	    return FormValidation.ok();
+	}
+
+	public FormValidation doCheckIpaExportMethod(@QueryParameter String value, @QueryParameter Boolean buildIpa) {
+	    if ( BooleanUtils.isTrue(buildIpa) ) {
+		if ( !ArrayUtils.contains(VALID_IPA_EXPORT_METHODS, value) ) {
+		    String validMethodsMsg = StringUtils.join(VALID_IPA_EXPORT_METHODS, ", ");
+		    return FormValidation.error(Messages.XCodeBuilder_IpaExportMethodMuestBeOneOfTheFollowing(validMethodsMsg));
 		}
 	    }
 	    return FormValidation.ok();
 	}
 
-	public FormValidation doCheckOnDemandResourcesAssetPacksBaseURL(@QueryParameter String value, @QueryParameter Boolean embedOnDemandResourcesAssetPacksInBundle) {
-	    if ( StringUtils.isEmpty(value) && BooleanUtils.isFalse(embedOnDemandResourcesAssetPacksInBundle) ) {
-		return FormValidation.error(Messages.XCodeBuilder_NeedOnDemandResourcesURL());
+	public FormValidation doCheckXcodeWorkspaceFile(@QueryParameter String value, @QueryParameter String xcodeSchema, @QueryParameter String target) {
+	    if ( !StringUtils.isEmpty(value) ) {
+		if ( !StringUtils.isEmpty(target) ) {
+		    return FormValidation.error(Messages.XCodeBuilder_WorkspaceAndTargetCantSpecifySameTime());
+		}
+		if ( StringUtils.isEmpty(xcodeSchema) ) {
+		    return FormValidation.error(Messages.XCodeBuilder_SpecifyWorkspaceAlsoSetScheme());
+		}
+	    }
+	    return FormValidation.ok();
+	}
+
+	public FormValidation doCheckXcodeSchema(@QueryParameter String value,  @QueryParameter Boolean generateArchive, @QueryParameter Boolean buildIpa, @QueryParameter String xcodeWorkspaceFile, @QueryParameter String target) {
+	    if ( !StringUtils.isEmpty(value) ) {
+		if ( !StringUtils.isEmpty(target) ) {
+		    return FormValidation.error(Messages.XCodeBuilder_SchemeAndTargetCantSpecifySameTime());
+		}
+	    }
+	    else {
+		if ( !StringUtils.isEmpty(xcodeWorkspaceFile) ) {
+		    return FormValidation.error(Messages.XCodeBuilder_SpecifyWorkspaceAlsoSetScheme());
+		}
+		if ( BooleanUtils.isTrue(generateArchive) || BooleanUtils.isTrue(buildIpa) ) {
+                    return FormValidation.error(Messages.XCodeBuilder_NeedSchema());
+                }
+	    }
+	    return FormValidation.ok();
+	}
+
+	public FormValidation doCheckTarget(@QueryParameter String value, @QueryParameter String xcodeWorkspaceFile, @QueryParameter String xcodeSchema) {
+	    if ( !StringUtils.isEmpty(value) ) {
+		if ( !StringUtils.isEmpty(xcodeWorkspaceFile) ) {
+		    return FormValidation.error(Messages.XCodeBuilder_WorkspaceAndTargetCantSpecifySameTime());
+		}
+		if ( !StringUtils.isEmpty(xcodeSchema) ) {
+		    return FormValidation.error(Messages.XCodeBuilder_SchemeAndTargetCantSpecifySameTime());
+		}
 	    }
 	    return FormValidation.ok();
 	}
