@@ -10,6 +10,8 @@ import java.io.IOException;
 import java.net.URLDecoder;
 import java.util.Arrays;
 import org.junit.Assume;
+import org.junit.Rule;
+import org.junit.rules.TemporaryFolder;
 import hudson.FilePath;
 import hudson.Launcher.LocalLauncher;
 import hudson.util.StreamTaskListener;
@@ -18,10 +20,11 @@ import hudson.util.StreamTaskListener;
  * Created by Kazuhide Takahashi on 1/22/18.
  */
 public class XcodeProjectParserTest {
+    @Rule public TemporaryFolder tmp = new TemporaryFolder();
     @Test
     public void testValidProject() throws Throwable {
-	File f = new File("./");
-	FilePath workspace = new FilePath(f);
+	File dir = tmp.getRoot();
+	FilePath workspace = new FilePath(dir);
 	String projectLocation = URLDecoder.decode(XcodeProjectParserTest.class.getClassLoader().getResource("XcodeProject.tar.gz").getPath(), "UTF-8");
 	run(workspace, "tar", "zxvpf", projectLocation);
 	FilePath projectPath = workspace.child("TestXcodeProject.xcodeproj");
