@@ -163,15 +163,15 @@
     <f:section title="${%Code signing &amp; OS X keychain options}">
         <f:advanced title="${%Code signing settings}">
             <f:entry>
-                <f:radioBlock inline="true" checked="${instance.signingMethod==null||instance.signingMethod.equals('automatic')}" field="signingMethod" name="signingMethod" title="${%Automatic Signing}" value="automatic" help="/plugin/xcode-plugin/help/help-automaticSigning.html">
+                <f:radioBlock inline="true" checked="${instance.expSigningMethod==null||instance.expSigningMethod.equals('automatic')}" field="expSigningMethod" name="expSigningMethod" title="${%Automatic Signing}" value="automatic" help="/plugin/xcode-plugin/help/help-automaticSigning.html">
                     <f:entry>
                     </f:entry>
                 </f:radioBlock>
-                <f:radioBlock inline="true" checked="${instance.signingMethod.equals('readFromProject')}" field="signingMethod" name="signingMethod" title="${%Read from Xcode Project}" value="readFromProject" help="/plugin/xcode-plugin/help/help-readFromProject.html">
+                <f:radioBlock inline="true" checked="${instance.expSigningMethod.equals('readFromProject')}" field="expSigningMethod" name="expSigningMethod" title="${%Read from Xcode Project}" value="readFromProject" help="/plugin/xcode-plugin/help/help-readFromProject.html">
                     <f:entry>
                     </f:entry>
                 </f:radioBlock>
-                <f:radioBlock inline="true" checked="${instance.signingMethod.equals('manual')}" field="signingMethod" name="signingMethod" title="${%Manual signing}" value="manual" help="/plugin/xcode-plugin/help/help-manualSigning.html">
+                <f:radioBlock inline="true" checked="${instance.expSigningMethod.equals('manual')}" field="expSigningMethod" name="expSigningMethod" title="${%Manual signing}" value="manual" help="/plugin/xcode-plugin/help/help-manualSigning.html">
                     <f:entry title="${%Provisioning Profiles}" description="${%Set a combination of 'Bundle ID' and 'UUID or Specifire' of 'provisioning profiles' used when exporting .ipa files.}" help="/plugin/xcode-plugin/help/help-appIDandProvisionUUID.html" >
                         <f:repeatable var="provisioningProfile" name="provisioningProfiles" items="${instance.provisioningProfiles}" minimum="1">
                             <table width="100%">
