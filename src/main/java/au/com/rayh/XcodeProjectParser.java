@@ -48,8 +48,22 @@ public class XcodeProjectParser {
 	String currentUser = System.getProperty("user.name") ;
 	HashMap<String, ProjectScheme> schemeList = new HashMap<String, ProjectScheme>();
 	List<FilePath> schemeFilesDirList = new ArrayList<FilePath>();
-	schemeFilesDirList.add(projectLocation.child("xcuserdata/" + currentUser + ".xcuserdatad/xcschemes"));
-	schemeFilesDirList.add(projectLocation.child("xcshareddata/xcschemes"));
+	try {
+	    if ( projectLocation.child("xcuserdata/" + currentUser + ".xcuserdatad/xcschemes").exists() ) {
+		schemeFilesDirList.add(projectLocation.child("xcuserdata/" + currentUser + ".xcuserdatad/xcschemes"));
+	    }
+	    if ( projectLocation.child("xcshareddata/xcschemes").exists() ) {
+		schemeFilesDirList.add(projectLocation.child("xcshareddata/xcschemes"));
+	    }
+	}
+	catch ( IOException ex ) {
+	    ex.printStackTrace();
+	    schemeList = null;
+	}
+	catch ( InterruptedException ex ) {
+	    ex.printStackTrace();
+	    schemeList = null;
+	}
 	for ( FilePath schemeFilesDir : schemeFilesDirList ) {
 	    try {
 		List<FilePath> files = schemeFilesDir.list(new XcodeSchemeFileFilter());
