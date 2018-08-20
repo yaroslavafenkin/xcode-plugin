@@ -28,7 +28,9 @@ public class XcodeProjectParserTest {
 	String projectLocation = URLDecoder.decode(XcodeProjectParserTest.class.getClassLoader().getResource("XcodeProject.tar.gz").getPath(), "UTF-8");
 	run(workspace, "tar", "zxvpf", projectLocation);
 	FilePath projectPath = workspace.child("TestXcodeProject.xcodeproj");
+	Assert.assertNotNull(projectPath);
         HashMap<String, ProjectScheme> xcodeSchemes = XcodeProjectParser.listXcodeSchemes(projectPath);
+	Assert.assertNotNull(xcodeSchemes);
         Assert.assertEquals(1, xcodeSchemes.size());
         String xcodeSchema = "TestXcodeProject";
         Assert.assertTrue(xcodeSchemes.containsKey(xcodeSchema));
@@ -36,7 +38,9 @@ public class XcodeProjectParserTest {
         Assert.assertEquals("container:TestXcodeProject.xcodeproj", projectScheme.referencedContainer);
         Assert.assertEquals("TestXcodeProject", projectScheme.blueprintName);
 	FilePath workspacePath = workspace.child("TestXcodeProject.xcworkspace");
+	Assert.assertNotNull(workspacePath);
         List<String> projectList = XcodeProjectParser.parseXcodeWorkspace(workspacePath);
+	Assert.assertNotNull(projectList);
         Assert.assertEquals(1, projectList.size());
         Assert.assertTrue(projectList.contains("TestXcodeProject.xcodeproj"));
         XcodeProject xcodeProject = XcodeProjectParser.parseXcodeProject(projectPath);
