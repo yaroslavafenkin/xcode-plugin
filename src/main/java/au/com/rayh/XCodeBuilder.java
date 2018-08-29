@@ -1256,7 +1256,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 		// Retrieve provisioning profile information from Xcode project file.
 		projectLocation = projectRoot.child(xcodeProjectFile);
 		if ( !projectLocation.exists() || !projectLocation.isDirectory() ) {
-		    listener.getLogger().println(Messages.XCodeBuilder_CoudNotReadInfoFrom(projectLocation.absolutize().getRemote()));
+		    listener.getLogger().println(Messages.XCodeBuilder_CouldNotReadInfoFrom(projectLocation.absolutize().getRemote()));
 		    projectLocation = null;
 		}
 	    }
@@ -1385,9 +1385,9 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 			    String productName = buildConfiguration.productName;
 			    productName = productName.replaceAll(Pattern.quote("${TARGET_NAME}"), key);
 			    productName = productName.replaceAll(Pattern.quote("$(TARGET_NAME)"), key);
-			    InfoPlist infoPlist = XcodeProjectParser.parseInfoPlist(projectRoot.child("/" + buildConfiguration.infoPlistFile));
+			    InfoPlist infoPlist = XcodeProjectParser.parseInfoPlist(projectRoot.child(buildConfiguration.infoPlistFile));
 			    if ( infoPlist == null ) {
-				listener.getLogger().println(Messages.XCodeBuilder_CoudNotReadInfoFrom(projectRoot.toString() + "/" + buildConfiguration.infoPlistFile));
+				listener.getLogger().println(Messages.XCodeBuilder_CouldNotReadInfoFrom(projectRoot.child(buildConfiguration.infoPlistFile).absolutize().getRemote()));
 				return false;
 			    }
 			    // Placeholder replacement.
@@ -1787,7 +1787,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 
             List<FilePath> archives = buildDirectory.list(new XCArchiveFileFilter());
             // FilePath is based on File.listFiles() which can randomly fail | http://stackoverflow.com/questions/3228147/retrieving-the-underlying-error-when-file-listfiles-return-null
-            if (archives == null) {
+            if ( archives == null || archives.size() < 1 ) {
                 listener.fatalError(Messages.XCodeBuilder_NoArchivesInBuildDirectory(buildDirectory.absolutize().getRemote()));
                 return false;
             }

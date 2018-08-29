@@ -102,17 +102,17 @@
             <f:advanced title="${%Settings}">
                 <f:entry title="${%Upload Bitcode?}" field="uploadBitcode"
                     description="${%If checked, include Bitcode when exporting applications to IPA.}" help="/plugin/xcode-plugin/help/help-uploadBitcode.html">
-                    <f:checkbox title="${%Yes}" name="uploadBitcode" checked="${instance.uploadBitcode}" default="true" />
+                    <f:checkbox title="${%Yes}" field="uploadBitcode" checked="${instance.uploadBitcode}" default="true" />
                 </f:entry>
 
                 <f:entry title="${%Upload Symbols?}" field="uploadSymbols"
                     description="${%If checked, include symbols when exporting applications to IPA.}" help="/plugin/xcode-plugin/help/help-uploadSymbols.html">
-                    <f:checkbox title="${%Yes}" name="uploadSymbols" checked="${instance.uploadSymbols}" default="true" />
+                    <f:checkbox title="${%Yes}" field="uploadSymbols" checked="${instance.uploadSymbols}" default="true" />
                 </f:entry>
 
                 <f:entry title="${%Compile Bitcode?}" field="compileBitcode"
                     description="${%If checked, recompile from Bitcode when exporting the application to IPA.}" help="/plugin/xcode-plugin/help/help-compileBitcode.html">
-                    <f:checkbox title="${%Yes}" name="compileBitcode" checked="${instance.compileBitcode}" default="true" />
+                    <f:checkbox title="${%Yes}" field="compileBitcode" checked="${instance.compileBitcode}" default="true" />
                 </f:entry>
 
                 <f:entry title="${%Thinning}" field="thinning"
@@ -122,7 +122,7 @@
 
                 <f:entry title="${%Pack on demand resources?}" field="packResourcesAsset"
                     description="${%If checked, include on demand resource assets to the bundle.}" help="/plugin/xcode-plugin/help/help-embedOnDemandResources.html">
-                    <f:checkbox title="${%Yes}" name="packResourcesAsset" checked="${instance.packResourcesAsset}" default="true" />
+                    <f:checkbox title="${%Yes}" field="packResourcesAsset" checked="${instance.packResourcesAsset}" default="true" />
                 </f:entry>
 
                 <f:entry title="${%On demand resources asset URL}" field="resourcesAssetURL"
@@ -152,7 +152,7 @@
 
                 <f:entry title="${%Strip Swift Symbols?}" field="stripSwiftSymbols"
                     description="${%If checked, symbols be stripped from Swift libraries when exporting the application to IPA.}" help="/plugin/xcode-plugin/help/help-stripSwiftSymbols.html">
-                    <f:checkbox title="${%Yes}" name="stripSwiftSymbols" checked="${instance.stripSwiftSymbols}" default="true" />
+                    <f:checkbox title="${%Yes}" field="stripSwiftSymbols" checked="${instance.stripSwiftSymbols}" default="true" />
                 </f:entry>
 	    </f:advanced>
 
@@ -162,18 +162,18 @@
     <!-- Code signing section -->
     <f:section title="${%Code signing &amp; OS X keychain options}">
         <f:advanced title="${%Code signing settings}">
-            <f:entry>
-                <f:radioBlock inline="true" checked="${instance.expSigningMethod==null||instance.expSigningMethod.equals('automatic')}" field="expSigningMethod" name="expSigningMethod" title="${%Automatic Signing}" value="automatic" help="/plugin/xcode-plugin/help/help-automaticSigning.html">
+            <f:entry field="export">
+                <f:radioBlock inline="true" checked="${instance.signingMethod==null||instance.signingMethod.equals('automatic')}" name="ExportIpa.signingMethod" title="${%Automatic Signing}" value="automatic" help="/plugin/xcode-plugin/help/help-automaticSigning.html">
                     <f:entry>
                     </f:entry>
                 </f:radioBlock>
-                <f:radioBlock inline="true" checked="${instance.expSigningMethod.equals('readFromProject')}" field="expSigningMethod" name="expSigningMethod" title="${%Read from Xcode Project}" value="readFromProject" help="/plugin/xcode-plugin/help/help-readFromProject.html">
+                <f:radioBlock inline="true" checked="${instance.signingMethod.equals('readFromProject')}" name="ExportIpa.signingMethod" title="${%Read from Xcode Project}" value="readFromProject" help="/plugin/xcode-plugin/help/help-readFromProject.html">
                     <f:entry>
                     </f:entry>
                 </f:radioBlock>
-                <f:radioBlock inline="true" checked="${instance.expSigningMethod.equals('manual')}" field="expSigningMethod" name="expSigningMethod" title="${%Manual signing}" value="manual" help="/plugin/xcode-plugin/help/help-manualSigning.html">
+                <f:radioBlock inline="true" checked="${instance.signingMethod.equals('manual')}" name="ExportIpa.signingMethod" title="${%Manual signing}" value="manual" help="/plugin/xcode-plugin/help/help-manualSigning.html">
                     <f:entry title="${%Provisioning Profiles}" description="${%Set a combination of 'Bundle ID' and 'UUID or Specifire' of 'provisioning profiles' used when exporting .ipa files.}" help="/plugin/xcode-plugin/help/help-appIDandProvisionUUID.html" >
-                        <f:repeatable var="provisioningProfile" name="provisioningProfiles" items="${instance.provisioningProfiles}" minimum="1">
+                        <f:repeatable var="provisioningProfile" field="provisioningProfiles" items="${instance.provisioningProfiles}" minimum="1">
                             <table width="100%">
                                 <f:entry title="${%Bundle ID}"
                                     description="${%The bundle identifier} (App ID) ${%for this provisioning profile}"
@@ -199,7 +199,7 @@
             </f:entry>
 
             <f:entry>
-                <f:optionalBlock inline="true" checked="${instance.unlockKeychain == true}" name="unlockKeychain" title="${%Unlock Keychain?}" field="unlockKeychain" help="/plugin/xcode-plugin/help/help-unlockKeychain.html">
+                <f:optionalBlock inline="true" checked="${instance.unlockKeychain == true}" field="unlockKeychain" title="${%Unlock Keychain?}" help="/plugin/xcode-plugin/help/help-unlockKeychain.html">
 		    <j:set var="UUID" value="${descriptor.UUID}" />
                     <f:entry title="${%Keychain}" description="${%The globally configured keychain to unlock for this build.}" field="globalKeychainName" help="/plugin/xcode-plugin/help/help-globalKeychainName.html">
                         <select class="setting-input" name="keychainName" foo="${UID}" id="global-keychain-select-${UUID}" onchange="showOrHideAttributeInput('global-keychain-select-', '${UUID}')">

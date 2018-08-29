@@ -235,12 +235,12 @@ public class ExportIpa extends Builder implements SimpleBuildStep {
     }
 
     @CheckForNull
-    public String getExpSigningMethod() {
+    public String getSigningMethod() {
 	return signingMethod == null ? "automatic" : signingMethod;
     }
 
     @DataBoundSetter
-    public void setExpSigningMethod(String signingMethod) {
+    public void setSigningMethod(String signingMethod) {
 	this.signingMethod = signingMethod;
     }
 

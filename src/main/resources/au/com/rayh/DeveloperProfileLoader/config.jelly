@@ -49,7 +49,7 @@
         </j:if>
 
         <f:entry>
-            <f:optionalBlock inline="true" checked="${instance.importIntoExistingKeychain == true}" name="importIntoExistingKeychain" title="${%Import into existing Keychain}" help="/plugin/xcode-plugin/help/help-importIntoExistingKeychain.html">
+            <f:optionalBlock inline="true" checked="${instance.importIntoExistingKeychain == true}" field="importIntoExistingKeychain" title="${%Import into existing Keychain}" help="/plugin/xcode-plugin/help/help-importIntoExistingKeychain.html">
 		<j:set var="UUID" value="${descriptor.UUID}" />
                 <f:entry title="${%Target keychain}" description="${%The globally configured keychain to import developer profile.}" field="targetKeychains" help="/plugin/xcode-plugin/help/help-importKeychainName.html">
                     <select class="setting-input" name="keychainName" foo="${UID}" id="global-keychain-select-${UUID}" onchange="showOrHideAttributeInput('global-keychain-select-', '${UUID}')">
