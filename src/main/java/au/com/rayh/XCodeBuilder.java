@@ -1915,14 +1915,14 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 
                 // also zip up the symbols, if present
                 listener.getLogger().println(Messages.XCodeBuilder_ArchivingDSYM());
-                //List<FilePath> dSYMs = buildDirectory.absolutize().child(configuration + "-" + buildPlatform).list(new DSymFileFilter());
-                //List<FilePath> dSYMs = buildDirectory.absolutize().child(xcodeSchema + ".xcarchive/dSYMs").list(new DSymFileFilter());
-		List<FilePath> dSYMs = archive.absolutize().child("dSYMs").list(new DSymFileFilter());
-
+                List<FilePath> dSYMs = archive.absolutize().child("dSYMs").list(new DSymFileFilter());
                 if (dSYMs == null || dSYMs.isEmpty()) {
-                    //listener.getLogger().println(Messages.XCodeBuilder_NoDSYMFileFound(buildDirectory.absolutize().child(configuration + "-" + buildPlatform)));
-                    //listener.getLogger().println(Messages.XCodeBuilder_NoDSYMFileFound(buildDirectory.absolutize().child(xcodeSchema + ".xcarchive/dSYMs")));
-		    listener.getLogger().println(Messages.XCodeBuilder_NoDSYMFileFound(archive.absolutize().child("dSYMs")));
+                    listener.getLogger().println(Messages.XCodeBuilder_NoDSYMFileFound(archive.absolutize().child("dSYMs")));
+                }
+
+                dSYMs.addAll(buildDirectory.absolutize().child(configuration + "-" + buildPlatform).list(new DSymFileFilter()));
+                if (dSYMs == null || dSYMs.isEmpty()) {
+                    listener.getLogger().println(Messages.XCodeBuilder_NoDSYMFileFound(buildDirectory.absolutize().child(configuration + "-" + buildPlatform)));
                 } else {
                     for (FilePath dSYM : dSYMs) {
                         returnCode = launcher.launch()
