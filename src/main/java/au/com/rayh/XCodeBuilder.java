@@ -273,7 +273,13 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
     private String ipaManifestPlistUrl;
      */
     /**
-     * @since 2.0.1
+     * @deprecated 2.0.7
+     *
+    @CheckForNull
+    private Boolean manualSigning;
+     */
+    /**
+     * @since 2.0.7
      */
     @CheckForNull
     private String signingMethod;
@@ -347,6 +353,11 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
      */
     @CheckForNull
     private Boolean stripSwiftSymbols;
+    /**
+     * @since 2.0.7
+     */
+    @CheckForNull
+    private Boolean copyProvisioningProfile;
 
     public Boolean getCleanBeforeBuild() {
 	return cleanBeforeBuild == null ? Boolean.valueOf(true) : cleanBeforeBuild;
@@ -495,7 +506,6 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 	this.buildIpa = buildIpa;
     }
 
-    @CheckForNull
     public String getIpaExportMethod() {
 	return ipaExportMethod == null ? "app-store" : ipaExportMethod;
     }
@@ -668,7 +678,17 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 	this.interpretTargetAsRegEx = interpretTargetAsRegEx;
     }
 
-    @CheckForNull
+    @Deprecated
+    public Boolean getManualSigning() {
+	return ( signingMethod == null || signingMethod.equals("manual") );
+    }
+
+    @Deprecated
+    @DataBoundSetter
+    public void setManualSigning(Boolean manualSigning) {
+	this.signingMethod = BooleanUtils.isTrue(manualSigning) ? "manual" : "automatic";
+    }
+
     public String getSigningMethod() {
 	return signingMethod == null ? "automatic" : signingMethod;
     }
@@ -801,6 +821,15 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
     @DataBoundSetter
     public void setStripSwiftSymbols(Boolean stripSwiftSymbols) {
 	this.stripSwiftSymbols = stripSwiftSymbols;
+    }
+
+    public Boolean getCopyProvisioningProfile() {
+	return copyProvisioningProfile == null ? Boolean.valueOf(true) : copyProvisioningProfile;
+    }
+
+    @DataBoundSetter
+    public void setCopyProvisioningProfile(Boolean copyProvisioningProfile) {
+	this.copyProvisioningProfile = copyProvisioningProfile;
     }
 
     // Internally.
@@ -1726,21 +1755,40 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 			}
 			String provisioningProfileUUID = envs.expand(pp.getProvisioningProfileUUID());
 			if ( !StringUtils.isEmpty(provisioningProfileUUID) &&
-			     provisioningProfileUUID.endsWith(".mobileprovision") ) {
+			    provisioningProfileUUID.endsWith(".mobileprovision") ) {
 			    // If provisioningProfileUUID  is an .mobileprovision file,
 			    //  obtain the profile UUID from .mobileprovision and use it.
 			    try {
 				output.reset();
 				returnCode = launcher.launch().envs(envs).cmds("/bin/sh", "-c", "/usr/libexec/PlistBuddy -c \"Print :UUID\" /dev/stdin <<< $(/usr/bin/security cms -D -i \"" + projectRoot.absolutize().child(provisioningProfileUUID).getRemote() + "\")").stdout(output).pwd(projectRoot).join();
-				if (returnCode == 0) {
-				    // Perhaps it is useful to copy the mobileprovision to the library here.
-				    // /Users/${HOME}/Library/MobileDevice/Provisioning Profiles/
+				if ( returnCode == 0 ) {
+				    FilePath homePath = projectRoot.getHomeDirectory(projectRoot.getChannel());
+				    FilePath provisioningProfilePath = projectRoot.child(provisioningProfileUUID);
 				    provisioningProfileUUID = output.toString().trim();
 				    listener.getLogger().println(Messages.XCodeBuilder_ProfileUUIDReplaceWith(provisioningProfileUUID));
+				    if ( BooleanUtils.isNotFalse(copyProvisioningProfile) ) {
+					// When the provisioning profile is specified in "Provisioning profile UUID",
+					// copy the specified file to "/Users/${HOME}/Library/MobileDevice/Provisioning Profiles/"
+					FilePath profilesLibPath = homePath.child("Library/MobileDevice/Provisioning Profiles");
+					profilesLibPath.mkdirs();
+					try {
+					    provisioningProfilePath.copyTo(profilesLibPath.child(provisioningProfileUUID + ".mobileprovision"));
+					    listener.getLogger().println(Messages.XCodeBuilder_CopiedProvisioningProfile(provisioningProfilePath.getRemote(), profilesLibPath.child(provisioningProfileUUID + ".mobileprovision").getRemote()));
+					}
+					catch ( Exception ex ) {
+					    listener.getLogger().println(Messages.XCodeBuilder_FailedToCopyMobileProvision(ex.toString()));
+					    return false;
+					}
+				    }
+				}
+				else {
+				    listener.getLogger().println(Messages.XCodeBuilder_CouldNotGetInfoFromMobileProvision(projectRoot.absolutize().child(provisioningProfileUUID).getRemote()));
+				    return false;
 				}
 			    }
 			    catch(Exception ex) {
 				listener.getLogger().println(Messages.XCodeBuilder_CFBundleIdFailedGetInMobileProvision(projectRoot.absolutize().child(provisioningProfileAppId).getRemote(), ex.toString()));
+				return false;
 			    }
 			}
 			provisioningProfileDict.put(provisioningProfileAppId, provisioningProfileUUID);

@@ -1,7 +1,7 @@
 <!--
   ~ The MIT License
   ~
-  ~ Copyright (c) 2011 Ray Yamamoto Hilton
+  ~ Copyright (c) 2011 eXo platform
   ~
   ~ Permission is hereby granted, free of charge, to any person obtaining a copy
   ~ of this software and associated documentation files (the "Software"), to deal
@@ -23,10 +23,12 @@
   -->
 
 <div>
-  <p>
-  If it is checked, the developer profile will be imported into the existing keychain.</ br>
-  If not checked, create a new key chain with the file name "jenkins-" + "job name" newly, and import the developer profile into this. (In this case, a random character string is automatically generated and used for the password)</ br>
-  When importing developer profiles into a temporary key chain, please make sure that there are no duplicate certificates or private keys in the developer profile you import into the default keychain etc.</ br>
-  If duplicate certificates or secret keys are included in both, Xcode gets confused and can not process the codesign correctly.
-  </p>
+    <p>
+    If Checked, If Checked, and the filename of provisioning profile is specified in "Provisioning profile UUID",
+    the specified file is copied to a predetermined place.<br />
+    ("/Users/${HOME}/Library/MobileDevice/Provisioning Profiles/")<br />
+    This can be used to overwrite the contents of the developer profile or system settings in the provisioning profile in the project deployed from SCM etc.<br />
+    If the provisioning profile UUID or Specifire is set in "provisioning profile UUID", it does not do anything.
+    The default is "Yes" (check is on).
+    </p>
 </div>

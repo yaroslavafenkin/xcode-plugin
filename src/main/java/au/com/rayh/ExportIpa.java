@@ -58,6 +58,12 @@ public class ExportIpa extends Builder implements SimpleBuildStep {
     private String ipaOutputDirectory;
     @CheckForNull
     private String ipaExportMethod;
+    /**
+     * @deprecated 2.0.7
+     *
+    @CheckForNull
+    private Boolean manualSigning;
+     */
     @CheckForNull
     private String signingMethod;
     @CheckForNull
@@ -89,6 +95,11 @@ public class ExportIpa extends Builder implements SimpleBuildStep {
      */
     @CheckForNull
     private Boolean stripSwiftSymbols;
+    /**
+     * @since 2.0.7
+     */
+    @CheckForNull
+    private Boolean copyProvisioningProfile;
 
     @CheckForNull
     public String getXcodeProjectPath() {
@@ -234,6 +245,17 @@ public class ExportIpa extends Builder implements SimpleBuildStep {
 	this.ipaExportMethod = ipaExportMethod;
     }
 
+    @Deprecated
+    public Boolean getManualSigning() {
+	return ( signingMethod == null || signingMethod.equals("manual") );
+    }
+
+    @Deprecated
+    @DataBoundSetter
+    public void setManualSigning(Boolean manualSigning) {
+	this.signingMethod = BooleanUtils.isTrue(manualSigning) ? "manual" : "automatic";
+    }
+
     @CheckForNull
     public String getSigningMethod() {
 	return signingMethod == null ? "automatic" : signingMethod;
@@ -369,6 +391,15 @@ public class ExportIpa extends Builder implements SimpleBuildStep {
 	this.stripSwiftSymbols = stripSwiftSymbols;
     }
 
+    public Boolean getCopyProvisioningProfile() {
+	return copyProvisioningProfile == null ? Boolean.valueOf(true) : copyProvisioningProfile;
+    }
+
+    @DataBoundSetter
+    public void setCopyProvisioningProfile(Boolean copyProvisioningProfile) {
+	this.copyProvisioningProfile = copyProvisioningProfile;
+    }
+
     @DataBoundConstructor
     public ExportIpa() {
     }
@@ -434,6 +465,7 @@ public class ExportIpa extends Builder implements SimpleBuildStep {
 		embedOnDemandResourcesAssetPacksInBundle, onDemandResourcesAssetPacksBaseURL,
 		appURL, displayImageURL, fullSizeImageURL, assetPackManifestURL);
 	builder.setStripSwiftSymbols(stripSwiftSymbols);
+	builder.setCopyProvisioningProfile(copyProvisioningProfile);
 		
 	builder.setSkipBuildStep(true);
 	builder.perform(build, filePath, launcher, listener);

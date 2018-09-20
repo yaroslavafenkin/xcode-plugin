@@ -195,6 +195,12 @@
                             </table>
                         </f:repeatable>
                     </f:entry>
+		    <f:entry title="${%Copy provisioning profile}"
+                        description="${%When the provisioning profile is specified in 'Provisioning profile UUID', copy the specified file to a predetermined place.}"
+                        field="copyProvisioningProfile"
+                        help="/plugin/xcode-plugin/help/help-copyProvisioningProfile.html" >
+                        <f:checkbox title="${%Yes}" field="copyProvisioningProfile" checked="${instance.copyProvisioningProfile}" default="true" />
+                    </f:entry>
                 </f:radioBlock>
             </f:entry>
 
