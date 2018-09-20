@@ -70,7 +70,7 @@
     <connection>scm:git:git@github.com:jenkinsci/xcode-plugin.git</connection>
     <developerConnection>scm:git:git@github.com:jenkinsci/xcode-plugin.git</developerConnection>
     <url>https://github.com/jenkinsci/xcode-plugin</url>
-    <tag>xcode-plugin-2.0.7</tag>
+    <tag>xcode-plugin-2.0.2</tag>
   </scm>
   <repositories>
     <repository>
