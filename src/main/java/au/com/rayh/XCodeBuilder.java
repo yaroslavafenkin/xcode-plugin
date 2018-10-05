@@ -1305,6 +1305,15 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 	    }
             // Retrieve provisioning profile information from specific Xcode project file.
             HashMap<String, ProjectScheme> xcodeSchemes = XcodeProjectParser.listXcodeSchemes(projectLocation);
+            if ( xcodeSchemes.size() > 0 ) {
+                for ( Map.Entry<String, ProjectScheme> entry: xcodeSchemes.entrySet() ) {
+                    ProjectScheme projectScheme = entry.getValue();
+		    listener.getLogger().println("blueprintName: " + projectScheme.blueprintName);
+                }
+            }
+            else {
+		listener.getLogger().println("Empty xcodeSchemes");
+            }
             if ( !StringUtils.isEmpty(xcodeSchema) ) {
 		listener.getLogger().println(Messages.XCodeBuilder_ReadInfoFromScheme(xcodeSchema));
                 // Retrieve target from specific Xcode scheme.
@@ -1664,6 +1673,53 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 		commandLine.addAll(splitXcodeBuildArguments(xcodebuildArguments));
 	    }
 
+	    boolean manualSigning = (!archiveAutomaticSigning && signingMethod != null && (signingMethod.equals("manual") || signingMethod.equals("readFromProject")));
+	    if ( manualSigning ) {
+		if ( provisioningProfiles != null && provisioningProfiles.size() > 0 ) {
+		    for ( ProvisioningProfile pp : provisioningProfiles ) {
+			String provisioningProfileUUID = envs.expand(pp.getProvisioningProfileUUID());
+			if ( !StringUtils.isEmpty(provisioningProfileUUID) &&
+			    provisioningProfileUUID.endsWith(".mobileprovision") ) {
+			    // If provisioningProfileUUID  is an .mobileprovision file,
+			    //  obtain the profile UUID from .mobileprovision and use it.
+			    String provisioningProfileName = provisioningProfileUUID;
+			    try {
+				output.reset();
+				returnCode = launcher.launch().envs(envs).cmds("/bin/sh", "-c", "/usr/libexec/PlistBuddy -c \"Print :UUID\" /dev/stdin <<< $(/usr/bin/security cms -D -i \"" + projectRoot.absolutize().child(provisioningProfileUUID).getRemote() + "\")").stdout(output).stderr(System.err).pwd(projectRoot).join();
+				if ( returnCode == 0 ) {
+				    FilePath homePath = projectRoot.getHomeDirectory(projectRoot.getChannel());
+				    FilePath provisioningProfilePath = projectRoot.child(provisioningProfileUUID);
+				    provisioningProfileUUID = output.toString().trim();
+				    listener.getLogger().println(Messages.XCodeBuilder_ProfileUUIDReplaceWith(provisioningProfileUUID));
+				    if ( BooleanUtils.isNotFalse(copyProvisioningProfile) ) {
+					// When the provisioning profile is specified in "Provisioning profile UUID",
+					// copy the specified file to "/Users/${HOME}/Library/MobileDevice/Provisioning Profiles/"
+					FilePath profilesLibPath = homePath.child("Library/MobileDevice/Provisioning Profiles");
+					profilesLibPath.mkdirs();
+					try {
+					    provisioningProfilePath.copyTo(profilesLibPath.child(provisioningProfileUUID + ".mobileprovision"));
+					    listener.getLogger().println(Messages.XCodeBuilder_CopiedProvisioningProfile(provisioningProfilePath.getRemote(), profilesLibPath.child(provisioningProfileUUID + ".mobileprovision").getRemote()));
+					}
+					catch ( Exception ex ) {
+					    listener.getLogger().println(Messages.XCodeBuilder_FailedToCopyMobileProvision(ex.toString()));
+					    return false;
+					}
+				    }
+				}
+				else {
+				    listener.getLogger().println(Messages.XCodeBuilder_CouldNotGetInfoFromMobileProvision(projectRoot.absolutize().child(provisioningProfileUUID).getRemote()));
+				    return false;
+				}
+			    }
+			    catch(Exception ex) {
+				listener.getLogger().println(Messages.XCodeBuilder_CFBundleIdFailedGetInMobileProvision(projectRoot.absolutize().child(provisioningProfileName).getRemote(), ex.toString()));
+				return false;
+			    }
+			}
+		    }
+		}
+	    }
+
 	    listener.getLogger().println(xcodeReport.toString());
 	    returnCode = launcher.launch().envs(envs).cmds(commandLine).stdout(reportGenerator.getOutputStream()).pwd(projectRoot).join();
 	    if ( BooleanUtils.isNotTrue(allowFailingBuildResults) ) {
@@ -1758,15 +1814,16 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 			    provisioningProfileUUID.endsWith(".mobileprovision") ) {
 			    // If provisioningProfileUUID  is an .mobileprovision file,
 			    //  obtain the profile UUID from .mobileprovision and use it.
+			    String provisioningProfileName = provisioningProfileUUID;
 			    try {
 				output.reset();
-				returnCode = launcher.launch().envs(envs).cmds("/bin/sh", "-c", "/usr/libexec/PlistBuddy -c \"Print :UUID\" /dev/stdin <<< $(/usr/bin/security cms -D -i \"" + projectRoot.absolutize().child(provisioningProfileUUID).getRemote() + "\")").stdout(output).pwd(projectRoot).join();
+				returnCode = launcher.launch().envs(envs).cmds("/bin/sh", "-c", "/usr/libexec/PlistBuddy -c \"Print :UUID\" /dev/stdin <<< $(/usr/bin/security cms -D -i \"" + projectRoot.absolutize().child(provisioningProfileUUID).getRemote() + "\")").stdout(output).stderr(System.err).pwd(projectRoot).join();
 				if ( returnCode == 0 ) {
 				    FilePath homePath = projectRoot.getHomeDirectory(projectRoot.getChannel());
 				    FilePath provisioningProfilePath = projectRoot.child(provisioningProfileUUID);
 				    provisioningProfileUUID = output.toString().trim();
 				    listener.getLogger().println(Messages.XCodeBuilder_ProfileUUIDReplaceWith(provisioningProfileUUID));
-				    if ( BooleanUtils.isNotFalse(copyProvisioningProfile) ) {
+				    if ( BooleanUtils.isNotFalse(copyProvisioningProfile) && BooleanUtils.isTrue(skipBuildStep) ) {
 					// When the provisioning profile is specified in "Provisioning profile UUID",
 					// copy the specified file to "/Users/${HOME}/Library/MobileDevice/Provisioning Profiles/"
 					FilePath profilesLibPath = homePath.child("Library/MobileDevice/Provisioning Profiles");
@@ -1782,7 +1839,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 				    }
 				}
 				else {
-				    listener.getLogger().println(Messages.XCodeBuilder_CouldNotGetInfoFromMobileProvision(projectRoot.absolutize().child(provisioningProfileUUID).getRemote()));
+				    listener.getLogger().println(Messages.XCodeBuilder_CouldNotGetInfoFromMobileProvision(projectRoot.absolutize().child(provisioningProfileName).getRemote()));
 				    return false;
 				}
 			    }
