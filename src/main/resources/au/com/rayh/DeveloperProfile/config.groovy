@@ -7,7 +7,6 @@ f = namespace(lib.FormTagLib)
 st = namespace("jelly:stapler")
 
 def fileForm() {
-    div(class:'error', "There's no certificate in this profile");
     f.entry(title:_("*.developerprofile  File"), field:"image") {
         raw("<input type=file name=image size=40 jsonAware=yes>")
     }
