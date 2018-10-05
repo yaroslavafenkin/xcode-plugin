@@ -40,7 +40,7 @@ public class BuildConfiguration {
     }
     this.infoPlistFile = buildSettingsDict.objectForKey("INFOPLIST_FILE").toString();
     //this.codeSignStyle = buildSettingsDict.objectForKey("CODE_SIGN_STYLE").toString();
-    if ( buildSettingsDict.objectForKey("BUNDLE_LOADER") == null && buildSettingsDict.objectForKey("TEST_TARGET_NAME") == null ) {
+    if ( buildSettingsDict.objectForKey("BUNDLE_LOADER") == null && buildSettingsDict.objectForKey("TEST_TARGET_NAME") == null && buildSettingsDict.objectForKey("DEVELOPMENT_TEAM") != null ) {
 	this.developmentTeamId = buildSettingsDict.objectForKey("DEVELOPMENT_TEAM").toString();
     }
     if ( !automatic ) {
