@@ -205,6 +205,21 @@ public class DeveloperProfileLoader extends Builder implements SimpleBuildStep {
             invoke(launcher, listener, args, "Failed to set key partition list to keychain");
         }
 
+	{
+	    // If default keychain is not set, set the specified keychain to default keychain.
+	    args = new ArgumentListBuilder("security", "default-keychain");
+	    ByteArrayOutputStream output = new ByteArrayOutputStream();
+	    if ( launcher.launch().cmds(args).stdout(output).join() != 0 ) {
+		listener.getLogger().write(output.toByteArray());
+	        if ( output.toString().contains("A default keychain could not be found.") ) {
+		    args = new ArgumentListBuilder("security", "default-keychain");
+		    args.add("-d").add("user");
+		    args.add("-s").add(_keychainPath);
+		    invoke(launcher, listener, args, "Failed to set default keychain");
+		}
+	    }
+	}
+
 	if ( BooleanUtils.isNotTrue(_importIntoExistingKeychain) ) {
 	    importAppleCert(launcher, listener, workspace, _keychainPath);
 	}
