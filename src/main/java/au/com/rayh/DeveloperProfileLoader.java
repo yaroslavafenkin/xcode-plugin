@@ -211,7 +211,8 @@ public class DeveloperProfileLoader extends Builder implements SimpleBuildStep {
 	    ByteArrayOutputStream output = new ByteArrayOutputStream();
 	    if ( launcher.launch().cmds(args).stdout(output).join() != 0 ) {
 		listener.getLogger().write(output.toByteArray());
-	        if ( output.toString().contains("A default keychain could not be found.") ) {
+		String strResult = new String(output.toByteArray(), "UTF-8");
+	        if ( strResult.contains("A default keychain could not be found.") ) {
 		    args = new ArgumentListBuilder("security", "default-keychain");
 		    args.add("-d").add("user");
 		    args.add("-s").add(_keychainPath);
