@@ -358,6 +358,11 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
      */
     @CheckForNull
     private Boolean copyProvisioningProfile;
+    /**
+     * @since 2.0.9
+     */
+    @CheckForNull
+    private Boolean useLegacyBuildSystem;
 
     public Boolean getCleanBeforeBuild() {
 	return cleanBeforeBuild == null ? Boolean.valueOf(true) : cleanBeforeBuild;
@@ -830,6 +835,15 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
     @DataBoundSetter
     public void setCopyProvisioningProfile(Boolean copyProvisioningProfile) {
 	this.copyProvisioningProfile = copyProvisioningProfile;
+    }
+
+    public Boolean getUseLegacyBuildSystem() {
+	return useLegacyBuildSystem == null ? Boolean.valueOf(false) : useLegacyBuildSystem;
+    }
+
+    @DataBoundSetter
+    public void setUseLegacyBuildSystem(Boolean useLegacyBuildSystem) {
+	this.useLegacyBuildSystem = useLegacyBuildSystem;
     }
 
     // Internally.
@@ -1718,6 +1732,11 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 			}
 		    }
 		}
+	    }
+
+	    if ( BooleanUtils.isTrue(useLegacyBuildSystem) ) {
+		commandLine.add("-UseModernBuildSystem=NO");
+		xcodeReport.append(", useLegacyBuildSystem: YES");
 	    }
 
 	    listener.getLogger().println(xcodeReport.toString());
