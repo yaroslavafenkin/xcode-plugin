@@ -1996,10 +1996,13 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
                     listener.getLogger().println(Messages.XCodeBuilder_NoDSYMFileFound(archive.absolutize().child("dSYMs")));
                 }
 
-                dSYMs.addAll(buildDirectory.absolutize().child(configuration + "-" + buildPlatform).list(new DSymFileFilter()));
-                if (dSYMs == null || dSYMs.isEmpty()) {
+		// JENKINS-54414
+		List<FilePath> additional_dSYMs = buildDirectory.absolutize().child(configuration + "-" + buildPlatform).list(new DSymFileFilter());
+                if (additional_dSYMs == null || additional_dSYMs.isEmpty()) {
                     listener.getLogger().println(Messages.XCodeBuilder_NoDSYMFileFound(buildDirectory.absolutize().child(configuration + "-" + buildPlatform)));
-                } else {
+                }
+		if ( !dSYMs.isEmpty() ) {
+		    dSYMs.addAll(additional_dSYMs);
                     for (FilePath dSYM : dSYMs) {
                         returnCode = launcher.launch()
                                 .envs(envs)
