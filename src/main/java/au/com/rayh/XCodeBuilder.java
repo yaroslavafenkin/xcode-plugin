@@ -1127,42 +1127,12 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
             }
         }
 
-        String buildDirValue = null;
-        FilePath buildDirectory;
-        if (!StringUtils.isEmpty(buildDir)) {
-            try {
-                buildDirValue = TokenMacro.expandAll(build, projectRoot, listener, buildDir).trim();
-            } catch (MacroEvaluationException e) {
-                listener.error(Messages.XCodeBuilder_buildDirMacroError(e.getMessage()));
-                return false;
-            }
-        }
-
-        if (buildDirValue != null) {
-            // If there is a BUILD_DIR, that overrides any use of SYMROOT. Does not require the build platform and the configuration.
-            buildDirectory = new FilePath(projectRoot.getChannel(), buildDirValue);
-        } else if (symRootValue != null) {
-            // If there is a SYMROOT specified, compute the build directory from that.
-            buildDirectory = new FilePath(projectRoot.getChannel(), symRootValue).child(configuration + "-" + buildPlatform);
-        } else {
-            // Assume its a build for the handset, not the simulator.
-            buildDirectory = projectRoot.child("build").child(configuration + "-" + buildPlatform);
-        }
-	listener.getLogger().println(Messages.XCodeBuilder_BuildDirectory(buildDirectory.absolutize()));
-
-        // XCode Version
-        int returnCode = launcher.launch().envs(envs).cmds(getGlobalConfiguration().getXcodebuildPath(), "-version").stdout(listener).pwd(projectRoot).join();
-        if (returnCode > 0) {
-            listener.fatalError(Messages.XCodeBuilder_xcodeVersionNotFound());
-            return false; // We fail the build if XCode isn't deployed
-        }
-
         ByteArrayOutputStream output = new ByteArrayOutputStream();
 
         // Try to read CFBundleShortVersionString from project
         listener.getLogger().println(Messages.XCodeBuilder_fetchingCFBundleShortVersionString());
         String cfBundleShortVersionString = "";
-        returnCode = launcher.launch().envs(envs).cmds(getGlobalConfiguration().getAgvtoolPath(), "mvers", "-terse1").stdout(output).pwd(projectRoot).join();
+        int returnCode = launcher.launch().envs(envs).cmds(getGlobalConfiguration().getAgvtoolPath(), "mvers", "-terse1").stdout(output).pwd(projectRoot).join();
         // only use this version number if we found it
         if (returnCode == 0)
             cfBundleShortVersionString = output.toString().trim();
@@ -1243,49 +1213,6 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
         listener.getLogger().println(Messages.XCodeBuilder_CFBundleShortVersionStringUsed(cfBundleShortVersionString));
         listener.getLogger().println(Messages.XCodeBuilder_CFBundleVersionUsed(cfBundleVersion));
 
-        // Clean build directories
-        if ( BooleanUtils.isNotFalse(cleanBeforeBuild) ) {
-            listener.getLogger().println(Messages.XCodeBuilder_cleaningBuildDir(buildDirectory.absolutize().getRemote()));
-            buildDirectory.deleteRecursive();
-        }
-
-        // remove test-reports and *.ipa
-        if ( BooleanUtils.isTrue(cleanTestReports) ) {
-            listener.getLogger().println(Messages.XCodeBuilder_cleaningTestReportsDir(projectRoot.child("test-reports").absolutize().getRemote()));
-            projectRoot.child("test-reports").deleteRecursive();
-		}
-
-        if ( BooleanUtils.isTrue(unlockKeychain) ) {
-            // Let's unlock the keychain
-            Keychain keychain = getKeychain();
-            if(keychain == null)
-            {
-                listener.fatalError(Messages.XCodeBuilder_keychainNotConfigured());
-                return false;
-            }
-            String keychainPath = envs.expand(keychain.getKeychainPath());
-            String keychainPwd = envs.expand(keychain.getKeychainPassword());
-            launcher.launch().envs(envs).cmds("/usr/bin/security", "list-keychains", "-s", keychainPath).stdout(listener).pwd(projectRoot).join();
-            launcher.launch().envs(envs).cmds("/usr/bin/security", "default-keychain", "-d", "user", "-s", keychainPath).stdout(listener).pwd(projectRoot).join();
-            if (StringUtils.isEmpty(keychainPwd))
-                returnCode = launcher.launch().envs(envs).cmds("/usr/bin/security", "unlock-keychain", keychainPath).stdout(listener).pwd(projectRoot).join();
-            else
-                returnCode = launcher.launch().envs(envs).cmds("/usr/bin/security", "unlock-keychain", "-p", keychainPwd, keychainPath).masks(false, false, false, true, false).stdout(listener).pwd(projectRoot).join();
-
-            if (returnCode > 0) {
-                listener.fatalError(Messages.XCodeBuilder_unlockKeychainFailed());
-                return false;
-            }
-
-            // Show the keychain info after unlocking, if not, OS X will prompt for the keychain password
-            launcher.launch().envs(envs).cmds("/usr/bin/security", "show-keychain-info", keychainPath).stdout(listener).pwd(projectRoot).join();
-        }
-
-        // display useful setup information
-        listener.getLogger().println(Messages.XCodeBuilder_DebugInfoLineDelimiter());
-        listener.getLogger().println(Messages.XCodeBuilder_DebugInfoAvailableCertificates());
-        /*returnCode =*/ launcher.launch().envs(envs).cmds("/usr/bin/security", "find-identity", "-p", "codesigning", "-v").stdout(listener).pwd(projectRoot).join();
-
 	String developmentTeamID = null;
         boolean archiveAutomaticSigning = false;
         if ( signingMethod != null && signingMethod.equals("readFromProject") ) {
@@ -1303,78 +1230,53 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 		    projectLocation = null;
 		}
 	    }
+
+	    // JENKINS-54113
+	    if ( !StringUtils.isEmpty(xcodeWorkspaceFile) ) {
+		// Retrieve target from Xcode workspace.
+		listener.getLogger().println(Messages.XCodeBuilder_ReadInfoFromWorkspace(xcodeWorkspaceFile));
+		List<String> projectList = XcodeProjectParser.parseXcodeWorkspace(projectRoot.child(xcodeWorkspaceFile + ".xcworkspace"));
+		if ( projectList == null ) {
+		    listener.getLogger().println("Empty or Invalid workspacefile: " + projectRoot.child(xcodeWorkspaceFile + ".xcworkspace").absolutize().getRemote());
+		}
+		else if ( projectList.size() > 0 && xcodeSchema != null && !StringUtils.isEmpty(xcodeSchema) ) {
+		    for ( String location : projectList ) {
+			HashMap<String, ProjectScheme> xcodeSchemes = XcodeProjectParser.listXcodeSchemes(projectRoot.child(location));
+			ProjectScheme projectScheme = xcodeSchemes.get(xcodeSchema);
+			String referencedContainerLocation = projectScheme.referencedContainer.replaceAll("^container:", "");
+			projectLocation = projectRoot.child(referencedContainerLocation);
+			target = projectScheme.blueprintName;
+			break;
+		    }
+                }
+		else if ( projectList.size() > 1 ) {
+		    // Xcode build generates an error if there are multiple xcodeproj.
+		    listener.fatalError(Messages.XCodeBuilder_MultipleProjectInWorkSpace());
+		    return false;
+		}
+		else {
+		    // Workspace file have only one project.
+		    projectLocation = projectRoot.child(projectList.get(0));
+		}
+            }
+
 	    if ( projectLocation == null ) {
 		// Retrieve xcodeproj from current working directory.
 		List<FilePath> xcodeProjects = projectRoot.list(new XcodeProjectFileFilter());
-		if (xcodeProjects == null) {
+		if ( xcodeProjects == null ) {
 		    listener.fatalError(Messages.XCodeBuilder_NoArchivesInBuildDirectory(projectRoot.absolutize().getRemote()));
 		    return false;
 		}
 
-            	for (FilePath xcodeProjectDir : xcodeProjects) {
+		if ( xcodeProjects.size() > 1 ) {
 		    // Xcode build generates an error if there are multiple xcodeproj.
-		    projectLocation = xcodeProjectDir;
-		    break;
+		    listener.fatalError(Messages.XCodeBuilder_MultipleProjectInWorkSpace());
+		    return false;
 		}
+		projectLocation = xcodeProjects.get(0);
 	    }
-            // Retrieve provisioning profile information from specific Xcode project file.
-            HashMap<String, ProjectScheme> xcodeSchemes = XcodeProjectParser.listXcodeSchemes(projectLocation);
-            if ( xcodeSchemes.size() > 0 ) {
-                for ( Map.Entry<String, ProjectScheme> entry: xcodeSchemes.entrySet() ) {
-                    ProjectScheme projectScheme = entry.getValue();
-		    listener.getLogger().println("blueprintName: " + projectScheme.blueprintName);
-                }
-            }
-            else {
-		listener.getLogger().println("Empty xcodeSchemes");
-            }
-            if ( !StringUtils.isEmpty(xcodeSchema) ) {
-		listener.getLogger().println(Messages.XCodeBuilder_ReadInfoFromScheme(xcodeSchema));
-                // Retrieve target from specific Xcode scheme.
-                ProjectScheme projectScheme = xcodeSchemes.get(xcodeSchema);
-                if ( projectScheme == null ) {
-		    listener.getLogger().println(Messages.XCodeBuilder_CouldNotGetInfoFromScheme(xcodeSchema));
-                    return false;
-                }
-		String referencedContainerLocation = projectScheme.referencedContainer.replaceAll("^container:", "");
-                projectLocation = projectRoot.child(referencedContainerLocation);
-		target = projectScheme.blueprintName;
-		listener.getLogger().println(Messages.XCodeBuilder_ReadProjectInfoFrom(projectLocation.absolutize().getRemote()));
-		projectLocations.add(projectLocation);
-            }
-            else {
-		if ( xcodeSchemes.size() == 1 ) {
-		    for ( Map.Entry<String, ProjectScheme> entry: xcodeSchemes.entrySet() ) {
-			ProjectScheme projectScheme = entry.getValue();
-		    	xcodeSchema = projectScheme.blueprintName;
-		    }
-		}
-		if ( !StringUtils.isEmpty(xcodeWorkspaceFile) ) {
-                    // Retrieve target from Xcode workspace.
-		    listener.getLogger().println(Messages.XCodeBuilder_ReadInfoFromWorkspace(xcodeWorkspaceFile));
-                    List<String> projectList = XcodeProjectParser.parseXcodeWorkspace(projectRoot.child("/" + xcodeWorkspaceFile + ".xcworkspace"));
-                    for ( String location : projectList ) {
-			xcodeProject = XcodeProjectParser.parseXcodeProject(projectRoot.child("/" + location));
-                	String projectName = projectRoot.child("/" + location).getBaseName().replaceAll(".xcodeproj$", "");
-                	if ( !StringUtils.isEmpty(target) ) {
-			    if ( target.equals(projectName) ) {
-				// Add the location of specific projects.
-				projectLocations.add(projectRoot.child("/" + location));
-				break;
-			    }
-               		}
-		        else {
-			    // Add the location of all projects.
-			    projectLocations.add(projectRoot.child("/" + location));
-			}
-            	    }
-                }
-	        else {
-		    // Using Xcode project file information.
-		    listener.getLogger().println(Messages.XCodeBuilder_UsingXcodeFileInfo(xcodeSchema));
-		    projectLocations.add(projectLocation);
-		}
-	    }
+	   
+	    projectLocations.add(projectLocation); 
 	    for ( FilePath examineLocation : projectLocations ) {
                 // Parse Xcode project file.
                 xcodeProject = XcodeProjectParser.parseXcodeProject(examineLocation);
@@ -1411,7 +1313,8 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 		    BuildConfiguration buildConfiguration = projectTarget.buildConfiguration.get(exportConfiguration);
 		    if ( buildConfiguration == null ) {
 			listener.getLogger().println(Messages.XCodeBuilder_CouldNotGetBuildConfig(exportConfiguration, examineLocation.absolutize().getRemote()));
-			buildConfiguration = projectTarget.buildConfiguration.get("Release");
+			exportConfiguration = "Release";
+			buildConfiguration = projectTarget.buildConfiguration.get(exportConfiguration);
 			if ( buildConfiguration == null ) {
 			    return false;
 			}
@@ -1460,6 +1363,9 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 			if ( provisioningProfileIdentifier != null ) {
 			    provisioningProfiles.add(new ProvisioningProfile(bundleIdentifier, provisioningProfileIdentifier));
 			}
+		    }
+		    if ( StringUtils.isEmpty(configuration) && projectTarget.productType.equals("com.apple.product-type.application") ) {
+			configuration = exportConfiguration;
 		    }
 		}
 	    }
@@ -1544,6 +1450,79 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 	    }
 	}
 	listener.getLogger().println(Messages.XCodeBuilder_DebugInfoLineDelimiter());
+
+        String buildDirValue = null;
+        FilePath buildDirectory;
+        if (!StringUtils.isEmpty(buildDir)) {
+            try {
+                buildDirValue = TokenMacro.expandAll(build, projectRoot, listener, buildDir).trim();
+            } catch (MacroEvaluationException e) {
+                listener.error(Messages.XCodeBuilder_buildDirMacroError(e.getMessage()));
+                return false;
+            }
+        }
+
+        if (buildDirValue != null) {
+            // If there is a BUILD_DIR, that overrides any use of SYMROOT. Does not require the build platform and the configuration.
+            buildDirectory = new FilePath(projectRoot.getChannel(), buildDirValue);
+        } else if (symRootValue != null) {
+            // If there is a SYMROOT specified, compute the build directory from that.
+            buildDirectory = new FilePath(projectRoot.getChannel(), symRootValue).child(configuration + "-" + buildPlatform);
+        } else {
+            // Assume its a build for the handset, not the simulator.
+            buildDirectory = projectRoot.child("build").child(configuration + "-" + buildPlatform);
+        }
+	listener.getLogger().println(Messages.XCodeBuilder_BuildDirectory(buildDirectory.absolutize()));
+
+        // XCode Version
+        returnCode = launcher.launch().envs(envs).cmds(getGlobalConfiguration().getXcodebuildPath(), "-version").stdout(listener).pwd(projectRoot).join();
+        if (returnCode > 0) {
+            listener.fatalError(Messages.XCodeBuilder_xcodeVersionNotFound());
+            return false; // We fail the build if XCode isn't deployed
+        }
+
+        // Clean build directories
+        if ( BooleanUtils.isNotFalse(cleanBeforeBuild) ) {
+            listener.getLogger().println(Messages.XCodeBuilder_cleaningBuildDir(buildDirectory.absolutize().getRemote()));
+            buildDirectory.deleteRecursive();
+        }
+
+        // remove test-reports and *.ipa
+        if ( BooleanUtils.isTrue(cleanTestReports) ) {
+            listener.getLogger().println(Messages.XCodeBuilder_cleaningTestReportsDir(projectRoot.child("test-reports").absolutize().getRemote()));
+            projectRoot.child("test-reports").deleteRecursive();
+	}
+
+        if ( BooleanUtils.isTrue(unlockKeychain) ) {
+            // Let's unlock the keychain
+            Keychain keychain = getKeychain();
+            if(keychain == null)
+            {
+                listener.fatalError(Messages.XCodeBuilder_keychainNotConfigured());
+                return false;
+            }
+            String keychainPath = envs.expand(keychain.getKeychainPath());
+            String keychainPwd = envs.expand(keychain.getKeychainPassword());
+            launcher.launch().envs(envs).cmds("/usr/bin/security", "list-keychains", "-s", keychainPath).stdout(listener).pwd(projectRoot).join();
+            launcher.launch().envs(envs).cmds("/usr/bin/security", "default-keychain", "-d", "user", "-s", keychainPath).stdout(listener).pwd(projectRoot).join();
+            if (StringUtils.isEmpty(keychainPwd))
+                returnCode = launcher.launch().envs(envs).cmds("/usr/bin/security", "unlock-keychain", keychainPath).stdout(listener).pwd(projectRoot).join();
+            else
+                returnCode = launcher.launch().envs(envs).cmds("/usr/bin/security", "unlock-keychain", "-p", keychainPwd, keychainPath).masks(false, false, false, true, false).stdout(listener).pwd(projectRoot).join();
+
+            if (returnCode > 0) {
+                listener.fatalError(Messages.XCodeBuilder_unlockKeychainFailed());
+                return false;
+            }
+
+            // Show the keychain info after unlocking, if not, OS X will prompt for the keychain password
+            launcher.launch().envs(envs).cmds("/usr/bin/security", "show-keychain-info", keychainPath).stdout(listener).pwd(projectRoot).join();
+        }
+
+        // display useful setup information
+        listener.getLogger().println(Messages.XCodeBuilder_DebugInfoLineDelimiter());
+        listener.getLogger().println(Messages.XCodeBuilder_DebugInfoAvailableCertificates());
+        /*returnCode =*/ launcher.launch().envs(envs).cmds("/usr/bin/security", "find-identity", "-p", "codesigning", "-v").stdout(listener).pwd(projectRoot).join();
 
         // Build
 	if ( BooleanUtils.isNotTrue(skipBuildStep) ) {
@@ -1988,7 +1967,6 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
                     exportedIpa.renameTo(ipaLocation);
                 }
 
-
                 // also zip up the symbols, if present
                 listener.getLogger().println(Messages.XCodeBuilder_ArchivingDSYM());
                 List<FilePath> dSYMs = archive.absolutize().child("dSYMs").list(new DSymFileFilter());
@@ -1997,12 +1975,12 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
                 }
 
 		// JENKINS-54414
-		List<FilePath> additional_dSYMs = buildDirectory.absolutize().child(configuration + "-" + buildPlatform).list(new DSymFileFilter());
-                if (additional_dSYMs == null || additional_dSYMs.isEmpty()) {
-                    listener.getLogger().println(Messages.XCodeBuilder_NoDSYMFileFound(buildDirectory.absolutize().child(configuration + "-" + buildPlatform)));
-                }
-		if ( !dSYMs.isEmpty() ) {
-		    dSYMs.addAll(additional_dSYMs);
+		// May be, this is no longer necessary.
+		//dSYMs.addAll(buildDirectory.absolutize().child(configuration + "-" + buildPlatform).list(new DSymFileFilter()));
+		if (dSYMs == null || dSYMs.isEmpty()) {
+		    listener.getLogger().println(Messages.XCodeBuilder_NoDSYMFileFound(archive.absolutize().child("dSYMs")));
+		}
+		else {
                     for (FilePath dSYM : dSYMs) {
                         returnCode = launcher.launch()
                                 .envs(envs)
