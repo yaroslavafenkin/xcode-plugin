@@ -110,6 +110,15 @@
 		            <f:textbox />
 		        </f:entry>
 
+            <f:entry title="${%ResultBundlePath}" field="resultBundlePath"
+                description="${%Leave empty, it will not output a test result and will not analyze the test results. relative to the project-directory.}">
+                <f:textbox />
+            </f:entry>
+
+            <f:entry title="${%Clean ResultBundlePath?}" field="cleanResultBundlePath" description="${%This will delete the ResultBundlePath before invoking the build.}">
+                <f:checkbox title="${%Yes}" />
+            </f:entry>
+
             <f:entry title="${%Configuration}" field="configuration" description="${%This is the name of the configuration as defined in the Xcode project.}">
                 <f:textbox default="Release" />
             </f:entry>

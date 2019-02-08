@@ -363,6 +363,21 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
      */
     @CheckForNull
     private Boolean useLegacyBuildSystem;
+    /**
+     * @since 2.0.11
+     */
+    @CheckForNull
+    private Boolean ignoreTestResults;
+    /**
+     * @since 2.0.11
+     */
+    @CheckForNull
+    private String resultBundlePath;
+    /**
+     * @since 2.0.11
+     */
+    @CheckForNull
+    private Boolean cleanResultBundlePath;
 
     public Boolean getCleanBeforeBuild() {
 	return cleanBeforeBuild == null ? Boolean.valueOf(true) : cleanBeforeBuild;
@@ -844,6 +859,33 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
     @DataBoundSetter
     public void setUseLegacyBuildSystem(Boolean useLegacyBuildSystem) {
 	this.useLegacyBuildSystem = useLegacyBuildSystem;
+    }
+
+    public Boolean getIgnoreTestResults() {
+	return ignoreTestResults == null ? Boolean.valueOf(false) : ignoreTestResults;
+    }
+
+    @DataBoundSetter
+    public void setIgnoreTestResults(Boolean ignoreTestResults) {
+	this.ignoreTestResults = ignoreTestResults;
+    }
+
+    public String getResultBundlePath() {
+        return resultBundlePath;
+    }
+
+    @DataBoundSetter
+    public void setResultBundlePath(String resultBundlePath) {
+        this.resultBundlePath = resultBundlePath;
+    }
+
+    @DataBoundSetter
+    public void setCleanResultBundlePath(Boolean cleanResultBundlePath) {
+        this.cleanResultBundlePath = cleanResultBundlePath;
+    }
+
+    public Boolean getCleanResultBundlePath() {
+        return cleanResultBundlePath == null ? Boolean.valueOf(true) : cleanResultBundlePath;
     }
 
     // Internally.
@@ -1493,6 +1535,11 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
             projectRoot.child("test-reports").deleteRecursive();
 	}
 
+        if ( BooleanUtils.isNotFalse(cleanResultBundlePath) && StringUtils.isNotEmpty(resultBundlePath) ) {
+            listener.getLogger().println(Messages.XCodeBuilder_CleaningResultBundlePath(projectRoot.child(resultBundlePath).absolutize().getRemote()));
+            projectRoot.child(resultBundlePath).deleteRecursive();
+        }
+
         if ( BooleanUtils.isTrue(unlockKeychain) ) {
             // Let's unlock the keychain
             Keychain keychain = getKeychain();
@@ -1629,7 +1676,15 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 	    }
 	    if(!StringUtils.isEmpty(logfileOutputDirectory)) {
 		xcodeReport.append(", logfileOutputDirectory: ").append(logfileOutputDirectory);
-		reportGenerator.setLogfilePath(buildDirectory,logfileOutputDirectory);
+		reportGenerator.setLogfilePath(buildDirectory, logfileOutputDirectory);
+	    }
+	    if ( !StringUtils.isEmpty(resultBundlePath) || BooleanUtils.isTrue(ignoreTestResults) ) {
+		reportGenerator.setIgnoreTestResults(true);
+	    }
+	    if ( !StringUtils.isEmpty(resultBundlePath) ) {
+		commandLine.add("-resultBundlePath");
+		commandLine.add(resultBundlePath);
+		xcodeReport.append(", resultBundlePath: ").append(resultBundlePath);
 	    }
     
 	    if (!StringUtils.isEmpty(symRootValue)) {
@@ -1720,6 +1775,18 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 
 	    listener.getLogger().println(xcodeReport.toString());
 	    returnCode = launcher.launch().envs(envs).cmds(commandLine).stdout(reportGenerator.getOutputStream()).pwd(projectRoot).join();
+            reportGenerator.closeLogfile();
+	    if ( !StringUtils.isEmpty(resultBundlePath) ) {
+		XcodeTestSummariesParser testSummariesParser = new XcodeTestSummariesParser(projectRoot);
+		FilePath testSummariesPath = projectRoot.child(resultBundlePath + "/TestSummaries.plist");
+		if ( testSummariesPath.exists() ) {
+		    listener.getLogger().println(Messages.XCodeBuilder_ParseingTestSummariesPlist(testSummariesPath.absolutize().getRemote()));
+		    testSummariesParser.parseTestSummariesPlist(testSummariesPath);
+		}
+		else {
+		    listener.getLogger().println(Messages.XCodeBuilder_TestSummariesPlistNotExists(testSummariesPath.absolutize().getRemote()));
+		}
+	    }
 	    if ( BooleanUtils.isNotTrue(allowFailingBuildResults) ) {
 		if (reportGenerator.getExitCode() != 0) return false;
 		if (returnCode > 0) return false;
