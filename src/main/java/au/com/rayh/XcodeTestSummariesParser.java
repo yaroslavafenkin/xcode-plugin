@@ -29,7 +29,8 @@ import au.com.rayh.report.TestSuite;
  */
 public class XcodeTestSummariesParser {
     private FilePath testReportsDir;
-    private static Pattern ASSERTION_FAILURE = Pattern.compile("Assertion Failure: (.+:\\d+): (.*)");
+    //private static Pattern ASSERTION_FAILURE = Pattern.compile("(Assertion Failure: .*?)\\{\\(\\n(.*?)\\n\\)\\}", Pattern.DOTALL);
+    private static Pattern FAILED_MESSAGE = Pattern.compile("(failed: .*?)\\n\\((.*?)\\n\\)", Pattern.DOTALL);
 
     public XcodeTestSummariesParser(FilePath workspace) throws IOException, InterruptedException {
 	super();
@@ -55,14 +56,25 @@ public class XcodeTestSummariesParser {
 	    NSDictionary failureSummarie = (NSDictionary)object;
 	    boolean performanceFailure = ((NSNumber)failureSummarie.objectForKey("PerformanceFailure")).boolValue();
 	    if ( !performanceFailure ) {
+		TestFailure failure;
 		String message = failureSummarie.objectForKey("Message").toString();
-		String lineNumber = failureSummarie.objectForKey("LineNumber").toString();
-		TestFailure failure = new TestFailure(message, lineNumber);
+		Matcher m = FAILED_MESSAGE.matcher(message);
+		if ( m.matches() ) {
+		    String errorMessage = m.group(1);
+		    String stackTrace = m.group(2);
+		    failure = new TestFailure(errorMessage, stackTrace);
+		}
+		else {
+		    String fileName = failureSummarie.objectForKey("FileName").toString();
+		    String lineNumber = failureSummarie.objectForKey("LineNumber").toString();
+		    failure = new TestFailure(message + "\n at File: " + fileName + "\n Line number: " + lineNumber, "No stacktrace here.");
+		}
 		currentTestCase.getFailures().add(failure);
 	    }
 	}
     }
 
+    /*
     private static void addActivitySummaries(NSObject[] activitySummaries, TestCase currentTestCase) {
         for ( NSObject object:activitySummaries ) {
 	    NSDictionary summarie = (NSDictionary)object;
@@ -79,6 +91,7 @@ public class XcodeTestSummariesParser {
             }
         }
     }
+    */
 
     /**
      * @param tests An array of NSDictionaries containing the results of subtests.
@@ -101,11 +114,13 @@ public class XcodeTestSummariesParser {
 			NSObject[] failureSummaries = ((NSArray)value).getArray();
 			addFailureSummaries(failureSummaries, currentTestCase);
 		    }
+		    /*
 		    value = test.objectForKey("ActivitySummaries");
 		    if ( value != null ) {
 			NSObject[] activitySummaries = ((NSArray)value).getArray();
 			addActivitySummaries(activitySummaries, currentTestCase);
 		    }
+		    */
 		    currentTestCase.setTime(duration);
 		    parentTestSuite.getTestCases().add(currentTestCase);
 		    parentTestSuite.addFailure();
