@@ -49,6 +49,7 @@ public class JenkinsXCodeBuildOutputParser extends XCodeBuildOutputParser {
     protected TaskListener buildListener;
     private FilePath testReportsDir;
     private OutputStream logFileOutputStream;
+    private boolean ignoreTestResults;
 
 	public JenkinsXCodeBuildOutputParser(FilePath workspace, TaskListener buildListener) throws IOException, InterruptedException {
 		super();
@@ -56,6 +57,7 @@ public class JenkinsXCodeBuildOutputParser extends XCodeBuildOutputParser {
         this.captureOutputStream = new LineBasedFilterOutputStream();
         this.consoleLog = true;
         this.logFileOutputStream = null;
+	this.ignoreTestResults = false;
 
         testReportsDir = workspace.child("test-reports");
         testReportsDir.mkdirs();
@@ -63,6 +65,10 @@ public class JenkinsXCodeBuildOutputParser extends XCodeBuildOutputParser {
 
     public void setConsoleLog(boolean consoleLog) {
         this.consoleLog = consoleLog;
+    }
+
+    public void setIgnoreTestResults(boolean ignoreTestResults) {
+	this.ignoreTestResults = ignoreTestResults;
     }
     
     public void setLogfilePath(final FilePath buildDirectory, final String logfileOutputDirectory) throws IOException, InterruptedException {
@@ -101,17 +107,19 @@ public class JenkinsXCodeBuildOutputParser extends XCodeBuildOutputParser {
 
         @Override
         public void write(int b) throws IOException {
-            if((char)b == '\n') {
-                try {
-                    handleLine(buffer.toString());
-                    buffer = new StringBuilder();
-                } catch(Exception e) {  // Very fugly
-                    buildListener.fatalError(e.getMessage(), e);
-                    throw new IOException(e);
+	    if ( !ignoreTestResults ) {
+                if((char)b == '\n') {
+                    try {
+                        handleLine(buffer.toString());
+                        buffer = new StringBuilder();
+                    } catch(Exception e) {  // Very fugly
+                        buildListener.fatalError(e.getMessage(), e);
+                        throw new IOException(e);
+                    }
+                } else {
+                    buffer.append((char)b);
                 }
-            } else {
-                buffer.append((char)b);
-            }
+	    }
             if(consoleLog) {
                 super.write(b);
             }

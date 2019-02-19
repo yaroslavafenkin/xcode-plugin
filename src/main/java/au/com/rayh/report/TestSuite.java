@@ -79,6 +79,10 @@ public class TestSuite {
         this.startTime = startTime;
     }
 
+    public void setDuration(Float duration) {
+        this.time = duration;
+    }
+
     public HashMap<String, TestCase> getTestCasesHash() {
 	return testCasesHash;
     }
