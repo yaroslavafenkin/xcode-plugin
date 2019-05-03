@@ -105,7 +105,15 @@ public class KeychainPasswordAndPathImpl extends BaseStandardCredentials impleme
     }
 
     /**
-     * macOS Keychain path.
+     * Add keychain to search path.
+     * @return inSearchPath by String.
+     */
+    public String getInSearchPath() {
+        return inSearchPath;
+    }
+
+    /**
+     * Add keychain to search path.
      * @return check is inSearchPath equals "true".
      */
     public boolean isInSearchPath() {

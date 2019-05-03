@@ -44,13 +44,14 @@ public interface KeychainPasswordAndPath extends StandardCredentials, PasswordCr
      *
      */
     Secret getPassword();
-    String getKeychainPath();;
+    String getKeychainPath();
     boolean isInSearchPath();
+    String getInSearchPath();
 
     /**
      * Our name provider.
      *
-     * @since 1.7
+     * @since 2.0.12
      */
     public static class NameProvider extends CredentialsNameProvider<KeychainPasswordAndPath> {
 

@@ -28,7 +28,7 @@
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>2.29</version>
+    <version>2.26</version>
     <relativePath />
   </parent>
   <artifactId>xcode-plugin</artifactId>
@@ -70,7 +70,7 @@
     <connection>scm:git:git@github.com:jenkinsci/xcode-plugin.git</connection>
     <developerConnection>scm:git:git@github.com:jenkinsci/xcode-plugin.git</developerConnection>
     <url>https://github.com/jenkinsci/xcode-plugin</url>
-    <tag>xcode-plugin-2.0.2</tag>
+    <tag>xcode-plugin-2.0.11</tag>
   </scm>
   <repositories>
     <repository>
@@ -88,7 +88,7 @@
     <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
       <artifactId>credentials</artifactId>
-      <version>1.21</version>
+      <version>2.1.18</version>
     </dependency>
     <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
@@ -98,7 +98,7 @@
     <dependency>
       <groupId>org.jenkins-ci.plugins.workflow</groupId>
       <artifactId>workflow-cps</artifactId>
-      <version>2.0</version>
+      <version>2.16</version>
       <optional>true</optional>
     </dependency>
     <dependency>
@@ -109,7 +109,22 @@
     <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
       <artifactId>structs</artifactId>
-      <version>1.10</version>
+      <version>1.14</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jenkins-ci.plugins</groupId>
+      <artifactId>credentials-binding</artifactId>
+      <version>1.16</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jenkinsci.plugins</groupId>
+      <artifactId>pipeline-model-extensions</artifactId>
+      <version>1.2.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jenkinsci.plugins</groupId>
+      <artifactId>pipeline-model-definition</artifactId>
+      <version>1.2.1</version>
     </dependency>
   </dependencies>
   <properties>
