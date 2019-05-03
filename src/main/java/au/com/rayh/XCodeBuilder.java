@@ -24,6 +24,10 @@
 
 package au.com.rayh;
 
+import com.cloudbees.plugins.credentials.CredentialsMatchers;
+import com.cloudbees.plugins.credentials.CredentialsProvider;
+import com.cloudbees.plugins.credentials.CredentialsScope;
+import com.cloudbees.plugins.credentials.CredentialsStore;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
@@ -34,12 +38,9 @@ import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
 import hudson.Util;
+import hudson.model.*;
+import hudson.security.ACL;
 import hudson.util.FormValidation;
-import hudson.model.AbstractBuild;
-import hudson.model.AbstractProject;
-import hudson.model.BuildListener;
-import hudson.model.Run;
-import hudson.model.TaskListener;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
 import hudson.util.CopyOnWriteList;
@@ -204,8 +205,14 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
     /**
      * @since 1.4
      */
+    @Deprecated
     @CheckForNull
     private String keychainName;
+    /**
+     * @since 2.0.12
+     */
+    @CheckForNull
+    private String keychainId;
     /**
      * @since 1.0
      */
@@ -572,14 +579,26 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 	this.unlockKeychain = unlockKeychain;
     }
 
+    @Deprecated
     @CheckForNull
     public String getKeychainName() {
 	return keychainName;
     }
 
+    @CheckForNull
+    public String getKeychainId() {
+        return keychainId;
+    }
+
+    @Deprecated
     @DataBoundSetter
     public void setKeychainName(String keychainName) {
 	this.keychainName = keychainName;
+    }
+
+    @DataBoundSetter
+    public void setKeychainId(String keychainId) {
+        this.keychainId = keychainId;
     }
 
     @CheckForNull
@@ -1542,14 +1561,29 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 
         if ( BooleanUtils.isTrue(unlockKeychain) ) {
             // Let's unlock the keychain
-            Keychain keychain = getKeychain();
-            if(keychain == null)
-            {
-                listener.fatalError(Messages.XCodeBuilder_keychainNotConfigured());
-                return false;
+            String keychainPath;
+            String keychainPwd;
+
+            // for backward compatibility
+            if (StringUtils.isNotEmpty(keychainName)) {
+                listener.getLogger().println(Messages.XCodeBuilder_UseDeprecatedKeychainInfo());
+                Keychain keychain = getKeychain();
+                if (keychain == null) {
+                    listener.fatalError(Messages.XCodeBuilder_keychainNotConfigured());
+                    return false;
+                }
+                keychainPath = envs.expand(keychain.getKeychainPath());
+                keychainPwd = envs.expand(keychain.getKeychainPassword());
             }
-            String keychainPath = envs.expand(keychain.getKeychainPath());
-            String keychainPwd = envs.expand(keychain.getKeychainPassword());
+            else {
+                KeychainPasswordAndPath keychain = getKeychainPasswordAndPath(build.getParent());
+                if (keychain == null) {
+                    listener.fatalError(Messages.XCodeBuilder_keychainNotConfigured());
+                    return false;
+                }
+                keychainPath = envs.expand(keychain.getKeychainPath());
+                keychainPwd = envs.expand(keychain.getPassword().getPlainText());
+            }
             launcher.launch().envs(envs).cmds("/usr/bin/security", "list-keychains", "-s", keychainPath).stdout(listener).pwd(projectRoot).join();
             launcher.launch().envs(envs).cmds("/usr/bin/security", "default-keychain", "-d", "user", "-s", keychainPath).stdout(listener).pwd(projectRoot).join();
             if (StringUtils.isEmpty(keychainPwd))
@@ -2077,6 +2111,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
         return true;
     }
 
+    @Deprecated
     public Keychain getKeychain() {
         if(!StringUtils.isEmpty(keychainName)) {
             for (Keychain keychain : getGlobalConfiguration().getKeychains()) {
@@ -2090,6 +2125,13 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
         }
 
         return null;
+    }
+
+    public KeychainPasswordAndPath getKeychainPasswordAndPath(Item context) {
+        return (KeychainPasswordAndPath) CredentialsMatchers.firstOrNull(
+                CredentialsProvider.lookupCredentials(KeychainPasswordAndPath.class, context,
+                        ACL.SYSTEM, Collections.EMPTY_LIST),
+                CredentialsMatchers.withId(keychainId));
     }
 
     public Team getDevelopmentTeam() {

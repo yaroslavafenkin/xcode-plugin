@@ -50,17 +50,23 @@
 
         <f:entry>
             <f:optionalBlock inline="true" checked="${instance.importIntoExistingKeychain == true}" field="importIntoExistingKeychain" title="${%Import into existing Keychain}" help="/plugin/xcode-plugin/help/help-importIntoExistingKeychain.html">
-		<j:set var="UUID" value="${descriptor.UUID}" />
+		        <j:if test="${instance.keychainName!=null}">
+                    <div class="alert alert-warning">
+                        ${%The 'Configure System' keychain information is used but this is a deprecated method.}
+                        ${%From now on, please move keychain information to 'Credentials' instead of 'Configure System' and use it.}
+                    </div>
+                </j:if>
+                <j:set var="UUID" value="${descriptor.UUID}" />
+		        <j:invokeStatic var="keychainPasswordAndPaths" className="au.com.rayh.KeychainPasswordAndPathImpl" method="getAllKeycainInfo"/>
                 <f:entry title="${%Target keychain}" description="${%The globally configured keychain to import developer profile.}" field="targetKeychains" help="/plugin/xcode-plugin/help/help-importKeychainName.html">
-                    <select class="setting-input" name="keychainName" foo="${UID}" id="global-keychain-select-${UUID}" onchange="showOrHideAttributeInput('global-keychain-select-', '${UUID}')">
-                        <f:option selected="${instance.keychainName==null}" value="">${%none} (${%specify one below})</f:option>
+                    <select class="setting-input" name="keychainId" foo="${UID}" id="global-keychain-select-${UUID}" onchange="showOrHideAttributeInput('global-keychain-select-', '${UUID}')">
+                        <f:option selected="${instance.keychainId==null}" value="">${%none} (${%specify one below})</f:option>
 
-                        <j:forEach var="keychain" items="${descriptor.globalConfiguration.keychains}">
-                            <j:if test="${keychain.keychainName==instance.keychainName}">
+                        <j:forEach var="keychain" items="${keychainPasswordAndPaths}">
+                            <j:if test="${keychain.getId()==instance.keychainId}">
                                 <j:set var="displayCustomKeychainData" value="none" scope="parent" />
                             </j:if>
-
-                            <f:option selected="${keychain.keychainName==instance.keychainName}">${keychain.keychainName}</f:option>
+                            <f:option selected="${keychain.getId()==instance.keychainId}" value="${keychain.getId()}">${keychain.getDescription()}</f:option>
                         </j:forEach>
                     </select>
                 </f:entry>

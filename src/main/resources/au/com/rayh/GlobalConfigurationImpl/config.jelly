@@ -58,6 +58,12 @@
     </f:entry>
 
     <f:entry title="${%Keychains}" description="${%Saved keychain configurations}">
+      <j:if test="${descriptor.keychains.size()>0}">
+        <div class="alert alert-warning">
+          ${%Although there is keychain information in 'Configure System', this is a deprecated method.}
+          ${%From now on, please move keychain information to 'Credentials' instead of 'Configure System' and use it.}
+        </div>
+      </j:if>
       <f:repeatable var="keychain" items="${descriptor.keychains}">
         <table width="100%">
           <f:entry title="${%Keychain Name}"
