@@ -36,6 +36,7 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import com.cloudbees.plugins.credentials.CredentialsScope;
 import com.cloudbees.plugins.credentials.impl.BaseStandardCredentials;
 
+import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 
@@ -60,7 +61,7 @@ public class KeychainPasswordAndPathImpl extends BaseStandardCredentials impleme
     /**
      * The flag for keychain in search path.
      */
-    @NonNull
+    @Nullable
     private final String inSearchPath;
 
     /**

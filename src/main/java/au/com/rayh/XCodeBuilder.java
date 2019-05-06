@@ -1567,7 +1567,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
             // for backward compatibility
             if (StringUtils.isNotEmpty(keychainName)) {
                 listener.getLogger().println(Messages.XCodeBuilder_UseDeprecatedKeychainInfo());
-                Keychain keychain = getKeychain();
+                Keychain keychain = getKeychain(keychainName);
                 if (keychain == null) {
                     listener.fatalError(Messages.XCodeBuilder_keychainNotConfigured());
                     return false;
@@ -1575,14 +1575,18 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
                 keychainPath = envs.expand(keychain.getKeychainPath());
                 keychainPwd = envs.expand(keychain.getKeychainPassword());
             }
-            else {
-                KeychainPasswordAndPath keychain = getKeychainPasswordAndPath(build.getParent());
+            else if (StringUtils.isNotEmpty(keychainId)) {
+                KeychainPasswordAndPath keychain = getKeychainPasswordAndPath(build.getParent(), keychainId);
                 if (keychain == null) {
                     listener.fatalError(Messages.XCodeBuilder_keychainNotConfigured());
                     return false;
                 }
                 keychainPath = envs.expand(keychain.getKeychainPath());
                 keychainPwd = envs.expand(keychain.getPassword().getPlainText());
+            }
+            else {
+                keychainPath = this.keychainPath;
+                keychainPwd = this.keychainPwd;
             }
             launcher.launch().envs(envs).cmds("/usr/bin/security", "list-keychains", "-s", keychainPath).stdout(listener).pwd(projectRoot).join();
             launcher.launch().envs(envs).cmds("/usr/bin/security", "default-keychain", "-d", "user", "-s", keychainPath).stdout(listener).pwd(projectRoot).join();
@@ -2112,26 +2116,24 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
     }
 
     @Deprecated
-    public Keychain getKeychain() {
+    public Keychain getKeychain(String keychainName) {
         if(!StringUtils.isEmpty(keychainName)) {
             for (Keychain keychain : getGlobalConfiguration().getKeychains()) {
                 if(keychain.getKeychainName().equals(keychainName))
                     return keychain;
             }
         }
-
-        if(!StringUtils.isEmpty(keychainPath)) {
-            return new Keychain("", keychainPath, keychainPwd, false);
-        }
-
         return null;
     }
 
-    public KeychainPasswordAndPath getKeychainPasswordAndPath(Item context) {
-        return (KeychainPasswordAndPath) CredentialsMatchers.firstOrNull(
-                CredentialsProvider.lookupCredentials(KeychainPasswordAndPath.class, context,
-                        ACL.SYSTEM, Collections.EMPTY_LIST),
-                CredentialsMatchers.withId(keychainId));
+    public KeychainPasswordAndPath getKeychainPasswordAndPath(Item context, String keychainId) {
+        if(!StringUtils.isEmpty(keychainId)) {
+            return (KeychainPasswordAndPath) CredentialsMatchers.firstOrNull(
+                    CredentialsProvider.lookupCredentials(KeychainPasswordAndPath.class, context,
+                            ACL.SYSTEM, Collections.EMPTY_LIST),
+                    CredentialsMatchers.withId(keychainId));
+        }
+        return null;
     }
 
     public Team getDevelopmentTeam() {
