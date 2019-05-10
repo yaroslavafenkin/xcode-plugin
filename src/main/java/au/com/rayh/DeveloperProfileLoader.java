@@ -19,6 +19,7 @@ import hudson.tasks.Builder;
 import hudson.util.ArgumentListBuilder;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
+import hudson.util.Secret;
 import jenkins.model.Jenkins;
 import jenkins.security.MasterToSlaveCallable;
 import org.jenkinsci.plugins.tokenmacro.MacroEvaluationException;
@@ -63,8 +64,7 @@ public class DeveloperProfileLoader extends Builder implements SimpleBuildStep {
     @CheckForNull
     private String keychainPath;
     @CheckForNull
-    private String keychainPwd;
-
+    private Secret keychainPwd;
     @CheckForNull
     public String getDeveloperProfileId() {
         return profileId;
@@ -105,12 +105,12 @@ public class DeveloperProfileLoader extends Builder implements SimpleBuildStep {
     }
 
     @CheckForNull
-    public String getKeychainPwd() {
+    public Secret getKeychainPwd() {
         return keychainPwd;
     }
 
     @DataBoundSetter
-    public void setKeychainPwd(String keychainPwd) {
+    public void setKeychainPwd(Secret keychainPwd) {
         this.keychainPwd = keychainPwd;
     }
 
@@ -125,7 +125,7 @@ public class DeveloperProfileLoader extends Builder implements SimpleBuildStep {
 	String _profileId = envs.expand(this.profileId);
 	String _keychainName = envs.expand(this.keychainName);
 	String _keychainPath = envs.expand(this.keychainPath);
-	String _keychainPwd = envs.expand(this.keychainPwd);
+	String _keychainPwd = envs.expand(Secret.toString(this.keychainPwd));
 	Boolean _importIntoExistingKeychain = this.importIntoExistingKeychain;
         DeveloperProfile dp = getProfile(run.getParent(), _profileId);
         if ( dp == null )
@@ -139,7 +139,7 @@ public class DeveloperProfileLoader extends Builder implements SimpleBuildStep {
         }
 	else {
             _keychainPath = envs.expand(keychain.getKeychainPath());
-            _keychainPwd = envs.expand(keychain.getKeychainPassword());
+            _keychainPwd = envs.expand(Secret.toString(keychain.getKeychainPassword()));
 	    _importIntoExistingKeychain = Boolean.valueOf(true);
 	}
 
@@ -262,7 +262,7 @@ public class DeveloperProfileLoader extends Builder implements SimpleBuildStep {
         }
 
         if ( !StringUtils.isEmpty(this.keychainPath) ) {
-            return new Keychain("", this.keychainPath, this.keychainPwd, false);
+            return new Keychain("", this.keychainPath, this.getKeychainPwd(), false);
         }
 
         return null;
@@ -359,18 +359,18 @@ public class DeveloperProfileLoader extends Builder implements SimpleBuildStep {
             return FormValidation.ok();
         }
 
-        public FormValidation doCheckKeychainPath(@QueryParameter String value, @QueryParameter String keychainName, @QueryParameter Boolean importIntoExistingKeychain) {
+        public FormValidation doCheckKeychainPath(@QueryParameter String value, @QueryParameter String keychainPath, @QueryParameter Boolean importIntoExistingKeychain) {
             if ( BooleanUtils.isTrue(importIntoExistingKeychain) ) {
-                if ( StringUtils.isEmpty(keychainName) && StringUtils.isEmpty(value) ) {
+                if ( StringUtils.isEmpty(keychainPath) && StringUtils.isEmpty(value) ) {
                     return FormValidation.error(Messages.DeveloperProfileLoader_MustSpecifyKeychainPath());
                 }
             }
             return FormValidation.ok();
         }
 
-        public FormValidation doCheckKeychainPwd(@QueryParameter String value, @QueryParameter String keychainName, @QueryParameter Boolean importIntoExistingKeychain) {
+        public FormValidation doCheckKeychainPwd(@QueryParameter String value, @QueryParameter Secret keychainPassword, @QueryParameter Boolean importIntoExistingKeychain) {
             if ( BooleanUtils.isTrue(importIntoExistingKeychain) ) {
-                if ( StringUtils.isEmpty(keychainName) && StringUtils.isEmpty(value) ) {
+                if ( StringUtils.isEmpty(Secret.toString(keychainPassword)) && StringUtils.isEmpty(value) ) {
                     return FormValidation.error(Messages.DeveloperProfileLoader_MustSpecifyKeychainPwd());
                 }
             }
