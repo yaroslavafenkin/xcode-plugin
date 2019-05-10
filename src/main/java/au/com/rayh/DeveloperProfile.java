@@ -31,7 +31,6 @@ import jenkins.security.ConfidentialKey;
 import org.apache.commons.fileupload.FileItem;
 import org.kohsuke.stapler.DataBoundConstructor;
 
-import com.cloudbees.plugins.credentials.CredentialsDescriptor;
 import com.cloudbees.plugins.credentials.CredentialsScope;
 import com.cloudbees.plugins.credentials.impl.BaseStandardCredentials;
 
