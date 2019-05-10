@@ -122,7 +122,7 @@ public class DeveloperProfile extends BaseStandardCredentials {
     }
 
     @Extension
-    public static class DescriptorImpl extends CredentialsDescriptor {
+    public static class DescriptorImpl extends BaseStandardCredentialsDescriptor {
         @Override
         public String getDisplayName() {
             return "Apple Developer Profile";
