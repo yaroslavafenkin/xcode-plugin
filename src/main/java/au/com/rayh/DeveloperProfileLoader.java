@@ -21,6 +21,7 @@ import hudson.tasks.Builder;
 import hudson.util.ArgumentListBuilder;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
+import hudson.util.Secret;
 import jenkins.model.Jenkins;
 import jenkins.security.MasterToSlaveCallable;
 import org.jenkinsci.plugins.tokenmacro.MacroEvaluationException;
@@ -69,7 +70,7 @@ public class DeveloperProfileLoader extends Builder implements SimpleBuildStep {
     @CheckForNull
     private String keychainPath;
     @CheckForNull
-    private String keychainPwd;
+    private Secret keychainPwd;
 
     @CheckForNull
     public String getDeveloperProfileId() {
@@ -123,12 +124,12 @@ public class DeveloperProfileLoader extends Builder implements SimpleBuildStep {
     }
 
     @CheckForNull
-    public String getKeychainPwd() {
+    public Secret getKeychainPwd() {
         return keychainPwd;
     }
 
     @DataBoundSetter
-    public void setKeychainPwd(String keychainPwd) {
+    public void setKeychainPwd(Secret keychainPwd) {
         this.keychainPwd = keychainPwd;
     }
 
@@ -160,7 +161,7 @@ public class DeveloperProfileLoader extends Builder implements SimpleBuildStep {
                 }
                 else {
                     _keychainPath = envs.expand(keychain.getKeychainPath());
-                    _keychainPwd = envs.expand(keychain.getKeychainPassword());
+                    _keychainPwd = envs.expand(Secret.toString(keychain.getKeychainPassword()));
                     _importIntoExistingKeychain = Boolean.valueOf(true);
                 }
             }
@@ -176,9 +177,9 @@ public class DeveloperProfileLoader extends Builder implements SimpleBuildStep {
                 }
             }
             else {
-                if (StringUtils.isNotEmpty(this.keychainPath) && StringUtils.isNotEmpty(this.keychainPwd)) {
+                if (StringUtils.isNotEmpty(this.keychainPath) && StringUtils.isNotEmpty(Secret.toString(this.keychainPwd))) {
                     _keychainPath = envs.expand(this.keychainPath);
-                    _keychainPwd = envs.expand(this.keychainPwd);
+                    _keychainPwd = envs.expand(Secret.toString(this.keychainPwd));
                 }
                 else {
                     throw new AbortException(Messages.DeveloperProfileLoader_KeychainPathOrPasswordIsBlank());
