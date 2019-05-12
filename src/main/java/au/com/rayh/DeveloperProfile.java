@@ -31,7 +31,6 @@ import jenkins.security.ConfidentialKey;
 import org.apache.commons.fileupload.FileItem;
 import org.kohsuke.stapler.DataBoundConstructor;
 
-import com.cloudbees.plugins.credentials.CredentialsDescriptor;
 import com.cloudbees.plugins.credentials.CredentialsScope;
 import com.cloudbees.plugins.credentials.impl.BaseStandardCredentials;
 
@@ -122,7 +121,7 @@ public class DeveloperProfile extends BaseStandardCredentials {
     }
 
     @Extension
-    public static class DescriptorImpl extends CredentialsDescriptor {
+    public static class DescriptorImpl extends BaseStandardCredentialsDescriptor {
         @Override
         public String getDisplayName() {
             return "Apple Developer Profile";
