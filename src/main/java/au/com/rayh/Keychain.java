@@ -14,11 +14,12 @@ public class Keychain {
     public Keychain() {
     }
 
+    @Deprecated
     @DataBoundConstructor
-    public Keychain(String keychainName, String keychainPath, Secret keychainPassword, Boolean inSearchPath) {
+    public Keychain(String keychainName, String keychainPath, String keychainPassword, Boolean inSearchPath) {
         this.keychainName = keychainName;
         this.keychainPath = keychainPath;
-        this.keychainPassword = keychainPassword;
+        this.keychainPassword = Secret.fromString(keychainPassword);
         this.inSearchPath = inSearchPath;
     }
 

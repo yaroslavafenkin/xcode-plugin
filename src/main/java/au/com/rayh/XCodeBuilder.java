@@ -2087,7 +2087,9 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
         }
 
         if(!StringUtils.isEmpty(keychainPath)) {
-            return new Keychain("", keychainPath, this.getKeychainPwd(), false);
+            Keychain newKeychain = new Keychain();
+            newKeychain.setKeychainPassword(this.keychainPwd);
+            return newKeychain;
         }
 
         return null;

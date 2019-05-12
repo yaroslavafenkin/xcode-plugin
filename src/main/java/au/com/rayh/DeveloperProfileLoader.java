@@ -262,7 +262,9 @@ public class DeveloperProfileLoader extends Builder implements SimpleBuildStep {
         }
 
         if ( !StringUtils.isEmpty(this.keychainPath) ) {
-            return new Keychain("", this.keychainPath, this.getKeychainPwd(), false);
+            Keychain newKeychain = new Keychain();
+            newKeychain.setKeychainPassword(this.keychainPwd);
+            return newKeychain;
         }
 
         return null;
