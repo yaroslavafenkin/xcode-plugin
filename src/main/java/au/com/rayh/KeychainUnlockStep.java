@@ -129,6 +129,7 @@ public class KeychainUnlockStep extends Builder implements SimpleBuildStep {
 
         if ( !StringUtils.isEmpty(this.keychainPath) ) {
             Keychain newKeychain = new Keychain();
+            newKeychain.setKeychainPath(keychainPath);
             newKeychain.setKeychainPassword(this.keychainPwd);
             return newKeychain;
         }
