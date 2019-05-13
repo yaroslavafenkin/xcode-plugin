@@ -81,11 +81,11 @@ public class KeychainPasswordAndPathImpl extends BaseStandardCredentials impleme
                                        @CheckForNull String id,
                                        @CheckForNull String description,
                                        @CheckForNull String keychainPath,
-                                       @CheckForNull Secret password,
+                                       @CheckForNull String password,
                                        @CheckForNull String inSearchPath) {
         super(scope, id, description);
         this.keychainPath = Util.fixNull(keychainPath);
-        this.password = password;
+        this.password = Secret.fromString(password);
         this.inSearchPath = inSearchPath;
     }
 
