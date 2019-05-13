@@ -26,8 +26,6 @@ package au.com.rayh;
 
 import com.cloudbees.plugins.credentials.CredentialsMatchers;
 import com.cloudbees.plugins.credentials.CredentialsProvider;
-import com.cloudbees.plugins.credentials.CredentialsScope;
-import com.cloudbees.plugins.credentials.CredentialsStore;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
@@ -37,7 +35,6 @@ import hudson.EnvVars;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
-import hudson.Util;
 import hudson.model.*;
 import hudson.security.ACL;
 import hudson.util.FormValidation;
@@ -61,21 +58,14 @@ import jenkins.model.Jenkins;
 
 import javax.inject.Inject;
 import javax.annotation.CheckForNull;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.Path;
 import java.io.ObjectStreamException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.UUID;
@@ -83,11 +73,6 @@ import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 
 import com.dd.plist.NSDictionary;
-import com.dd.plist.NSArray;
-import com.dd.plist.NSNumber;
-import com.dd.plist.NSObject;
-import com.dd.plist.NSString;
-import com.dd.plist.PropertyListFormatException;
 import com.dd.plist.PropertyListParser;
 
 /**

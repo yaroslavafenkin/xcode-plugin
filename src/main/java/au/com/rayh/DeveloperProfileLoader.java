@@ -310,7 +310,10 @@ public class DeveloperProfileLoader extends Builder implements SimpleBuildStep {
         }
 
         if ( !StringUtils.isEmpty(this.keychainPath) ) {
-            return new Keychain("", this.keychainPath, this.keychainPwd, false);
+            Keychain newKeychain = new Keychain();
+            newKeychain.setKeychainPath(this.keychainPath);
+            newKeychain.setKeychainPassword(this.keychainPwd);
+            return newKeychain;
         }
 
         return null;
@@ -418,9 +421,9 @@ public class DeveloperProfileLoader extends Builder implements SimpleBuildStep {
             return FormValidation.ok();
         }
 
-        public FormValidation doCheckKeychainPwd(@QueryParameter String value, @QueryParameter String keychainName, @QueryParameter Boolean importIntoExistingKeychain) {
+        public FormValidation doCheckKeychainPwd(@QueryParameter Secret value, @QueryParameter String keychainName, @QueryParameter Boolean importIntoExistingKeychain) {
             if ( BooleanUtils.isTrue(importIntoExistingKeychain) ) {
-                if ( StringUtils.isEmpty(keychainName) && StringUtils.isEmpty(value) ) {
+                if ( StringUtils.isEmpty(keychainName) && StringUtils.isEmpty(Secret.toString(value)) ) {
                     return FormValidation.error(Messages.DeveloperProfileLoader_MustSpecifyKeychainPwd());
                 }
             }

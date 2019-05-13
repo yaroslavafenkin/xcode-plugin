@@ -35,6 +35,7 @@ import hudson.util.Secret;
 import org.kohsuke.stapler.DataBoundConstructor;
 import com.cloudbees.plugins.credentials.CredentialsScope;
 import com.cloudbees.plugins.credentials.impl.BaseStandardCredentials;
+import org.kohsuke.stapler.DataBoundSetter;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -50,19 +51,19 @@ public class KeychainPasswordAndPathImpl extends BaseStandardCredentials impleme
      * The Keychain path.
      */
     @NonNull
-    private final String keychainPath;
+    private String keychainPath;
 
     /**
      * The password.
      */
     @NonNull
-    private final Secret password;
+    private Secret password;
 
     /**
      * The flag for keychain in search path.
      */
     @Nullable
-    private final String inSearchPath;
+    private String inSearchPath;
 
     /**
      * Constructor.
@@ -80,20 +81,24 @@ public class KeychainPasswordAndPathImpl extends BaseStandardCredentials impleme
                                        @CheckForNull String id,
                                        @CheckForNull String description,
                                        @CheckForNull String keychainPath,
-                                       @CheckForNull String password,
+                                       @CheckForNull Secret password,
                                        @CheckForNull String inSearchPath) {
         super(scope, id, description);
         this.keychainPath = Util.fixNull(keychainPath);
-        this.password = Secret.fromString(password);
+        this.password = password;
         this.inSearchPath = inSearchPath;
     }
 
     /**
      * {@inheritDoc}
      */
-    @NonNull
     public Secret getPassword() {
         return password;
+    }
+
+    @DataBoundSetter
+    public void setPassword(Secret password) {
+        this.password = password;
     }
 
     /**
@@ -105,6 +110,11 @@ public class KeychainPasswordAndPathImpl extends BaseStandardCredentials impleme
         return keychainPath;
     }
 
+    @DataBoundSetter
+    public void setKeychainPath(String keychainPath) {
+        this.keychainPath = keychainPath;
+    }
+
     /**
      * Add keychain to search path.
      * @return inSearchPath by String.
@@ -113,8 +123,13 @@ public class KeychainPasswordAndPathImpl extends BaseStandardCredentials impleme
         return inSearchPath;
     }
 
+    @DataBoundSetter
+    public void setInSearchPath(String inSearchPath) {
+        this.inSearchPath = inSearchPath;
+    }
+
     /**
-     * Add keychain to search path.
+     * Add keyc hain to search path.
      * @return check is inSearchPath equals "true".
      */
     public boolean isInSearchPath() {
@@ -125,7 +140,7 @@ public class KeychainPasswordAndPathImpl extends BaseStandardCredentials impleme
      * {@inheritDoc}
      */
     @Extension
-    public static class DescriptorImpl extends CredentialsDescriptor {
+    public static class DescriptorImpl extends BaseStandardCredentialsDescriptor {
 
         /**
          * {@inheritDoc}

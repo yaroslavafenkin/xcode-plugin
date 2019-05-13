@@ -51,7 +51,7 @@ public class DeveloperProfile extends BaseStandardCredentials {
     public DeveloperProfile(@CheckForNull CredentialsScope scope, @CheckForNull String id, @CheckForNull String description,
             Secret password, FileItem image) throws IOException {
         super(scope, id, description);
-        this.password= password;
+        this.password = password;
 
         if (image!=null) {
             // for added secrecy, store this in the confidential store
