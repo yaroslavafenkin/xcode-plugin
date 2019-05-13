@@ -174,20 +174,16 @@ public class KeychainUnlockStep extends Builder implements SimpleBuildStep {
             return "" + UUID.randomUUID().getMostSignificantBits();
         }
 
-        public FormValidation doCheckKeychainPath(@QueryParameter String value, @QueryParameter String keychainName, @QueryParameter Boolean importIntoExistingKeychain) {
-            if ( BooleanUtils.isTrue(importIntoExistingKeychain) ) {
-                if ( StringUtils.isEmpty(keychainName) && StringUtils.isEmpty(value) ) {
-                    return FormValidation.error(Messages.DeveloperProfileLoader_MustSpecifyKeychainPath());
-                }
+        public FormValidation doCheckKeychainPath(@QueryParameter String value, @QueryParameter String keychainName) {
+            if ( StringUtils.isEmpty(keychainName) && StringUtils.isEmpty(value) ) {
+                return FormValidation.error(Messages.DeveloperProfileLoader_MustSpecifyKeychainPath());
             }
             return FormValidation.ok();
         }
 
-        public FormValidation doCheckKeychainPwd(@QueryParameter String value, @QueryParameter Secret keychainPwd, @QueryParameter Boolean importIntoExistingKeychain) {
-            if ( BooleanUtils.isTrue(importIntoExistingKeychain) ) {
-                if ( StringUtils.isEmpty(Secret.toString(keychainPwd)) && StringUtils.isEmpty(value) ) {
-                    return FormValidation.error(Messages.DeveloperProfileLoader_MustSpecifyKeychainPwd());
-                }
+        public FormValidation doCheckKeychainPwd(@QueryParameter Secret value, @QueryParameter String keychainName) {
+            if ( StringUtils.isEmpty(keychainName) && StringUtils.isEmpty(Secret.toString(value)) ) {
+                return FormValidation.error(Messages.DeveloperProfileLoader_MustSpecifyKeychainPwd());
             }
             return FormValidation.ok();
         }

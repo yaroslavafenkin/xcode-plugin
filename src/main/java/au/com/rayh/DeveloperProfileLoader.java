@@ -361,18 +361,18 @@ public class DeveloperProfileLoader extends Builder implements SimpleBuildStep {
             return FormValidation.ok();
         }
 
-        public FormValidation doCheckKeychainPath(@QueryParameter String value, @QueryParameter String keychainPath, @QueryParameter Boolean importIntoExistingKeychain) {
+        public FormValidation doCheckKeychainPath(@QueryParameter String value, @QueryParameter String keychainName, @QueryParameter Boolean importIntoExistingKeychain) {
             if ( BooleanUtils.isTrue(importIntoExistingKeychain) ) {
-                if ( StringUtils.isEmpty(keychainPath) && StringUtils.isEmpty(value) ) {
+                if ( StringUtils.isEmpty(keychainName) && StringUtils.isEmpty(value) ) {
                     return FormValidation.error(Messages.DeveloperProfileLoader_MustSpecifyKeychainPath());
                 }
             }
             return FormValidation.ok();
         }
 
-        public FormValidation doCheckKeychainPwd(@QueryParameter String value, @QueryParameter Secret keychainPassword, @QueryParameter Boolean importIntoExistingKeychain) {
+        public FormValidation doCheckKeychainPwd(@QueryParameter Secret value, @QueryParameter String keychainName, @QueryParameter Boolean importIntoExistingKeychain) {
             if ( BooleanUtils.isTrue(importIntoExistingKeychain) ) {
-                if ( StringUtils.isEmpty(Secret.toString(keychainPassword)) && StringUtils.isEmpty(value) ) {
+                if ( StringUtils.isEmpty(keychainName) && StringUtils.isEmpty(Secret.toString(value)) ) {
                     return FormValidation.error(Messages.DeveloperProfileLoader_MustSpecifyKeychainPwd());
                 }
             }
