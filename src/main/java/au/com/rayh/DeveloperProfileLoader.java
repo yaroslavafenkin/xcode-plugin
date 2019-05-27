@@ -71,7 +71,6 @@ public class DeveloperProfileLoader extends Builder implements SimpleBuildStep {
     private String keychainPath;
     @CheckForNull
     private Secret keychainPwd;
-
     @CheckForNull
     public String getDeveloperProfileId() {
         return profileId;
@@ -143,7 +142,7 @@ public class DeveloperProfileLoader extends Builder implements SimpleBuildStep {
 	EnvVars envs = run.getEnvironment(listener);
 	String _profileId = envs.expand(this.profileId);
         String _keychainId = envs.expand(this.keychainId);
-        String _keychainName = envs.expand(this.keychainName);
+	String _keychainName = envs.expand(this.keychainName);
 	Boolean _importIntoExistingKeychain = this.importIntoExistingKeychain;
         DeveloperProfile dp = getProfile(run.getParent(), _profileId);
         if ( dp == null )
@@ -152,7 +151,7 @@ public class DeveloperProfileLoader extends Builder implements SimpleBuildStep {
         String _keychainPath;
         String _keychainPwd;
         if ( BooleanUtils.isTrue(_importIntoExistingKeychain)) {
-            if (StringUtils.isNotEmpty(_keychainName)) {
+            if ( StringUtils.isNotEmpty(_keychainName) ) {
                 // for backward compatibility
                 listener.getLogger().println(Messages.XCodeBuilder_UseDeprecatedKeychainInfo());
                 Keychain keychain = getKeychain(_keychainName);
@@ -165,9 +164,9 @@ public class DeveloperProfileLoader extends Builder implements SimpleBuildStep {
                     _importIntoExistingKeychain = Boolean.valueOf(true);
                 }
             }
-            else if (StringUtils.isNotEmpty(_keychainId)) {
+            else if ( StringUtils.isNotEmpty(_keychainId) ) {
                 KeychainPasswordAndPath keychain = getKeychainPasswordAndPath(run.getParent(), _keychainId);
-                if (keychain == null) {
+                if ( keychain == null ) {
                     throw new AbortException(Messages.DeveloperProfileLoader_NoKeychainInfoConfigured());
                 }
                 else {
@@ -177,7 +176,7 @@ public class DeveloperProfileLoader extends Builder implements SimpleBuildStep {
                 }
             }
             else {
-                if (StringUtils.isNotEmpty(this.keychainPath) && StringUtils.isNotEmpty(Secret.toString(this.keychainPwd))) {
+                if ( StringUtils.isNotEmpty(this.keychainPath) && StringUtils.isNotEmpty(Secret.toString(this.keychainPwd)) ) {
                     _keychainPath = envs.expand(this.keychainPath);
                     _keychainPwd = envs.expand(Secret.toString(this.keychainPwd));
                 }
@@ -187,10 +186,12 @@ public class DeveloperProfileLoader extends Builder implements SimpleBuildStep {
             }
         }
         else {
+            // Use temporary keychain with random UUID nasme.
             _keychainPath = "jenkins-" + run.getParent().getFullName().replace('/', '-');
 	    _keychainPwd = UUID.randomUUID().toString();
 	    _importIntoExistingKeychain = Boolean.valueOf(false);
         }
+
         // Note: keychain are usualy suffixed with .keychain. If we change we should probably clean up the ones we created
 
         ArgumentListBuilder args;

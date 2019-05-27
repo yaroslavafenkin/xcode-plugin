@@ -1574,6 +1574,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
                 keychainPath = this.keychainPath;
                 keychainPwd = Secret.toString(this.keychainPwd);
             }
+
             launcher.launch().envs(envs).cmds("/usr/bin/security", "list-keychains", "-s", keychainPath).stdout(listener).pwd(projectRoot).join();
             launcher.launch().envs(envs).cmds("/usr/bin/security", "default-keychain", "-d", "user", "-s", keychainPath).stdout(listener).pwd(projectRoot).join();
             if (StringUtils.isEmpty(keychainPwd))

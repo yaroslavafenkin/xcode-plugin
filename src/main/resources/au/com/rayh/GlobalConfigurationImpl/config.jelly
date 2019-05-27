@@ -80,7 +80,7 @@
           <f:entry title="${%Keychain password}"
                    description="${%The password to use to unlock the keychain.}"
                    field="keychainPwd">
-            <f:password name="keychain.keychainPassword" value="${keychain.keychainPassword}" />
+          <f:password name="keychain.keychainPassword" value="${keychain.keychainPassword}" />
           </f:entry>
           <f:entry title="${%Add to keychain search path after build}"
                    description="${%The keychain will be added to the keychain search path. This means it shows up in Keychain Access.app}"

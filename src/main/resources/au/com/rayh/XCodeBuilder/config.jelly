@@ -272,13 +272,13 @@
             <f:entry>
                 <f:optionalBlock inline="true" checked="${instance.unlockKeychain == true}" name="unlockKeychain" title="${%Unlock Keychain?}" field="unlockKeychain" help="/plugin/xcode-plugin/help/help-unlockKeychain.html">
                     <j:if test="${instance.keychainName!=null}">
-                      <div class="alert alert-warning">
-                        ${%The 'Configure System' keychain information is used but this is a deprecated method.}
-                        ${%From now on, please move keychain information to 'Credentials' instead of 'Configure System' and use it.}
-                      </div>
+                        <div class="alert alert-warning">
+                            ${%The 'Configure System' keychain information is used but this is a deprecated method.}
+                            ${%From now on, please move keychain information to 'Credentials' instead of 'Configure System' and use it.}
+                        </div>
                     </j:if>
 		            <j:set var="UUID" value="${descriptor.UUID}" />
-                    <f:entry title="${%Keychain}" description="${%The globally configured keychain to unlock for this build.}" field="globalKeychainName" help="/plugin/xcode-plugin/help/help-credentialKeychainId.html">
+                    <f:entry title="${%Keychain}" description="${%The combination of path and password defined in 'Credentials' for unlocking the keychain used in this build.}" field="credentialKeychainId" help="/plugin/xcode-plugin/help/help-credentialKeychainId.html">
                         <j:invokeStatic var="keychainPasswordAndPaths" className="au.com.rayh.KeychainPasswordAndPathImpl" method="getAllKeycainInfo"/>
                         <select class="setting-input" name="keychainId" foo="${UID}" id="credential-keychain-select-${UUID}" onchange="showOrHideAttributeInput('credential-keychain-select-', '${UUID}')">
                             <f:option selected="${instance.keychainId==null}" value="">${%none} (${%specify one below})</f:option>
