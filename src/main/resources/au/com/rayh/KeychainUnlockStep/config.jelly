@@ -1,0 +1,72 @@
+<?jelly escape-by-default='true'?>
+<!--
+  ~ The MIT License
+  ~
+  ~ Copyright (c) 2011 Ray Yamamoto Hilton
+  ~
+  ~ Permission is hereby granted, free of charge, to any person obtaining a copy
+  ~ of this software and associated documentation files (the "Software"), to deal
+  ~ in the Software without restriction, including without limitation the rights
+  ~ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  ~ copies of the Software, and to permit persons to whom the Software is
+  ~ furnished to do so, subject to the following conditions:
+  ~
+  ~ The above copyright notice and this permission notice shall be included in
+  ~ all copies or substantial portions of the Software.
+  ~
+  ~ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  ~ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  ~ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  ~ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  ~ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  ~ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+  ~ THE SOFTWARE.
+  -->
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:html="jelly:html">
+    <![CDATA[
+		<script type="text/javascript">
+		<!--
+			var showOrHideAttributeInput = function(prefix, uuid) {
+				var defaultChosen = (document.getElementById(prefix + uuid).selectedIndex == 0);
+
+				document.getElementById("" + uuid).style.display = defaultChosen ? "block" : "none";
+			};
+		-->
+		</script>
+	]]>
+
+    <!-- General build settings -->
+    <f:entry>
+        <j:set var="UUID" value="${descriptor.UUID}" />
+        <f:entry title="${%Keychain}" description="${%The globally configured keychain to unlock for this build.}" field="globalKeychainName" help="/plugin/xcode-plugin/help/help-globalKeychainName.html">
+            <select class="setting-input" name="keychainName" foo="${UID}" id="global-keychain-select-${UUID}" onchange="showOrHideAttributeInput('global-keychain-select-', '${UUID}')">
+                <f:option selected="${instance.keychainName==null}" value="">${%none} (${%specify one below})</f:option>
+
+                <j:forEach var="keychain" items="${descriptor.globalConfiguration.keychains}">
+                    <j:if test="${keychain.keychainName==instance.keychainName}">
+                        <j:set var="displayCustomKeychainData" value="none" scope="parent" />
+                    </j:if>
+
+                    <f:option selected="${keychain.keychainName==instance.keychainName}">${keychain.keychainName}</f:option>
+                </j:forEach>
+            </select>
+        </f:entry>
+
+        <f:nested>
+            <j:if test="${displayCustomKeychainData==null}">
+                <j:set var="displayCustomKeychainData" value="block" />
+            </j:if>
+
+            <table id="${UUID}" style="display: ${displayCustomKeychainData}">
+                <f:entry title="${%Keychain path}" field="keychainPath" description="${%The path of the keychain to use to sign the IPA.}">
+                    <f:textbox />
+                </f:entry>
+
+                <f:entry title="${%Keychain password}" field="keychainPwd" description="${%The password to use to unlock the keychain.}">
+                    <f:password />
+                </f:entry>
+            </table>
+        </f:nested>
+    </f:entry>
+
+</j:jelly>

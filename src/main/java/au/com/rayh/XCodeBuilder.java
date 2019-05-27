@@ -45,6 +45,7 @@ import hudson.tasks.Builder;
 import hudson.util.CopyOnWriteList;
 import hudson.util.QuotedStringTokenizer;
 import hudson.plugins.xcode.XcodeInstallation;
+import hudson.util.Secret;
 import jenkins.tasks.SimpleBuildStep;
 import org.jenkinsci.Symbol;
 import org.apache.commons.lang.ArrayUtils;
@@ -215,7 +216,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
      * @since 1.0
      */
     @CheckForNull
-    private String keychainPwd;
+    private Secret keychainPwd;
     /**
      * @since 1.4.12
      */
@@ -593,12 +594,12 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
     }
 
     @CheckForNull
-    public String getKeychainPwd() {
+    public Secret getKeychainPwd() {
 	return keychainPwd;
     }
 
     @DataBoundSetter
-    public void setKeychainPwd(String keychainPwd) {
+    public void setKeychainPwd(Secret keychainPwd) {
 	this.keychainPwd = keychainPwd;
     }
 
@@ -935,7 +936,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
         this.cfBundleShortVersionStringValue = cfBundleShortVersionStringValue;
         this.unlockKeychain = unlockKeychain;
         this.keychainPath = keychainPath;
-        this.keychainPwd = keychainPwd;
+        this.keychainPwd = Secret.fromString(keychainPwd);
         this.symRoot = symRoot;
         this.buildDir = buildDir;
         this.allowFailingBuildResults = allowFailingBuildResults;
@@ -1549,7 +1550,7 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
                 return false;
             }
             String keychainPath = envs.expand(keychain.getKeychainPath());
-            String keychainPwd = envs.expand(keychain.getKeychainPassword());
+            String keychainPwd = envs.expand(Secret.toString(keychain.getKeychainPassword()));
             launcher.launch().envs(envs).cmds("/usr/bin/security", "list-keychains", "-s", keychainPath).stdout(listener).pwd(projectRoot).join();
             launcher.launch().envs(envs).cmds("/usr/bin/security", "default-keychain", "-d", "user", "-s", keychainPath).stdout(listener).pwd(projectRoot).join();
             if (StringUtils.isEmpty(keychainPwd))
@@ -2085,8 +2086,11 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
             }
         }
 
-        if(!StringUtils.isEmpty(keychainPath)) {
-            return new Keychain("", keychainPath, keychainPwd, false);
+        if(!StringUtils.isEmpty(this.keychainPath)) {
+            Keychain newKeychain = new Keychain();
+            newKeychain.setKeychainPath(this.keychainPath);
+            newKeychain.setKeychainPassword(this.keychainPwd);
+            return newKeychain;
         }
 
         return null;
