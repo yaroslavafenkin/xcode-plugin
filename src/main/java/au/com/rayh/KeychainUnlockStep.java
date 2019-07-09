@@ -109,6 +109,7 @@ public class KeychainUnlockStep extends Builder implements SimpleBuildStep {
         String _keychainPwd;
         if ( StringUtils.isNotEmpty(_keychainName) ) {
             // for backward compatibility
+            listener.getLogger().println(Messages.XCodeBuilder_UseDeprecatedKeychainInfo());
             Keychain keychain = getKeychain(_keychainName);
             if ( keychain == null ) {
                 throw new AbortException(Messages.DeveloperProfileLoader_NoKeychainInfoConfigured());
