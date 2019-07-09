@@ -119,7 +119,7 @@ public class KeychainPasswordAndPathBinding extends MultiBinding<KeychainPasswor
         }
 
         @Override public String getDisplayName() {
-            return "macOS Keychain Password and Path";
+            return Messages.KeychainPasswordAndPath_DisplayName();
         }
     }
 
