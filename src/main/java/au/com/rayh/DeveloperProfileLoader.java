@@ -1,5 +1,6 @@
 package au.com.rayh;
 
+import com.cloudbees.plugins.credentials.CredentialsMatchers;
 import com.cloudbees.plugins.credentials.CredentialsProvider;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.AbortException;
@@ -14,6 +15,7 @@ import hudson.model.Item;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.remoting.VirtualChannel;
+import hudson.security.ACL;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
 import hudson.util.ArgumentListBuilder;
@@ -42,6 +44,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -59,6 +62,9 @@ public class DeveloperProfileLoader extends Builder implements SimpleBuildStep {
     private String profileId;
     @CheckForNull
     private Boolean importIntoExistingKeychain;
+    @CheckForNull
+    private String keychainId;
+    @Deprecated
     @CheckForNull
     private String keychainName;
     @CheckForNull
@@ -85,10 +91,22 @@ public class DeveloperProfileLoader extends Builder implements SimpleBuildStep {
     }
 
     @CheckForNull
+    public String getKeychainId() {
+        return keychainId;
+    }
+
+    @Deprecated
+    @CheckForNull
     public String getKeychainName() {
         return keychainName;
     }
 
+    @DataBoundSetter
+    public void setKeychainId(String keychainId) {
+        this.keychainId = keychainId;
+    }
+
+    @Deprecated
     @DataBoundSetter
     public void setKeychainName(String keychainName) {
         this.keychainName = keychainName;
@@ -123,25 +141,56 @@ public class DeveloperProfileLoader extends Builder implements SimpleBuildStep {
     public void perform(@Nonnull Run<?, ?> run, @Nonnull FilePath workspace, @Nonnull Launcher launcher, @Nonnull TaskListener listener) throws InterruptedException, IOException {
 	EnvVars envs = run.getEnvironment(listener);
 	String _profileId = envs.expand(this.profileId);
+        String _keychainId = envs.expand(this.keychainId);
 	String _keychainName = envs.expand(this.keychainName);
-	String _keychainPath = envs.expand(this.keychainPath);
-	String _keychainPwd = envs.expand(Secret.toString(this.keychainPwd));
 	Boolean _importIntoExistingKeychain = this.importIntoExistingKeychain;
         DeveloperProfile dp = getProfile(run.getParent(), _profileId);
         if ( dp == null )
             throw new AbortException(Messages.DeveloperProfile_NoDeveloperProfileConfigured());
 
-        Keychain keychain = getKeychain(_keychainName);
-        if ( BooleanUtils.isNotTrue(_importIntoExistingKeychain) || keychain == null ) {
+        String _keychainPath;
+        String _keychainPwd;
+        if ( BooleanUtils.isTrue(_importIntoExistingKeychain)) {
+            if ( StringUtils.isNotEmpty(_keychainName) ) {
+                // for backward compatibility
+                listener.getLogger().println(Messages.XCodeBuilder_UseDeprecatedKeychainInfo());
+                Keychain keychain = getKeychain(_keychainName);
+                if (keychain == null) {
+                    throw new AbortException(Messages.DeveloperProfileLoader_NoKeychainInfoConfigured());
+                }
+                else {
+                    _keychainPath = envs.expand(keychain.getKeychainPath());
+                    _keychainPwd = envs.expand(Secret.toString(keychain.getKeychainPassword()));
+                    _importIntoExistingKeychain = Boolean.valueOf(true);
+                }
+            }
+            else if ( StringUtils.isNotEmpty(_keychainId) ) {
+                KeychainPasswordAndPath keychain = getKeychainPasswordAndPath(run.getParent(), _keychainId);
+                if ( keychain == null ) {
+                    throw new AbortException(Messages.DeveloperProfileLoader_NoKeychainInfoConfigured());
+                }
+                else {
+                    _keychainPath = envs.expand(keychain.getKeychainPath());
+                    _keychainPwd = envs.expand(keychain.getPassword().getPlainText());
+                    _importIntoExistingKeychain = Boolean.valueOf(true);
+                }
+            }
+            else {
+                if ( StringUtils.isNotEmpty(this.keychainPath) && StringUtils.isNotEmpty(Secret.toString(this.keychainPwd)) ) {
+                    _keychainPath = envs.expand(this.keychainPath);
+                    _keychainPwd = envs.expand(Secret.toString(this.keychainPwd));
+                }
+                else {
+                    throw new AbortException(Messages.DeveloperProfileLoader_KeychainPathOrPasswordIsBlank());
+                }
+            }
+        }
+        else {
+            // Use temporary keychain with random UUID nasme.
             _keychainPath = "jenkins-" + run.getParent().getFullName().replace('/', '-');
 	    _keychainPwd = UUID.randomUUID().toString();
 	    _importIntoExistingKeychain = Boolean.valueOf(false);
         }
-	else {
-            _keychainPath = envs.expand(keychain.getKeychainPath());
-            _keychainPwd = envs.expand(Secret.toString(keychain.getKeychainPassword()));
-	    _importIntoExistingKeychain = Boolean.valueOf(true);
-	}
 
         // Note: keychain are usualy suffixed with .keychain. If we change we should probably clean up the ones we created
 
@@ -271,6 +320,13 @@ public class DeveloperProfileLoader extends Builder implements SimpleBuildStep {
         return null;
     }
 
+    public KeychainPasswordAndPath getKeychainPasswordAndPath(Item context, String keychainId) {
+        return (KeychainPasswordAndPath)CredentialsMatchers.firstOrNull(
+                CredentialsProvider.lookupCredentials(KeychainPasswordAndPath.class, context,
+                        ACL.SYSTEM, Collections.EMPTY_LIST),
+                CredentialsMatchers.withId(keychainId));
+    }
+
     public void importAppleCert(Launcher launcher, TaskListener listener, FilePath workspace, String keychainPath) throws IOException, InterruptedException {
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
 	FilePath homeFolder = workspace.getHomeDirectory(workspace.getChannel());
@@ -301,15 +357,10 @@ public class DeveloperProfileLoader extends Builder implements SimpleBuildStep {
     }
 
     public DeveloperProfile getProfile(Item context, String profileId) {
-        List<DeveloperProfile> profiles = CredentialsProvider
-                .lookupCredentials(DeveloperProfile.class, context, Jenkins.getAuthentication());
-        for ( DeveloperProfile c : profiles ) {
-            if ( c.getId().equals(profileId) ) {
-                return c;
-            }
-        }
-        // if there's no match, just go with something in the hope that it'll do
-        return !profiles.isEmpty() ? profiles.get(0) : null;
+        return (DeveloperProfile)CredentialsMatchers.firstOrNull(
+                CredentialsProvider.lookupCredentials(DeveloperProfile.class, context,
+                        ACL.SYSTEM, Collections.EMPTY_LIST),
+                CredentialsMatchers.withId(profileId));
     }
 
     public String getProfileId() {

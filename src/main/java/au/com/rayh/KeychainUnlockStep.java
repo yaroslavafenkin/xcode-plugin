@@ -1,16 +1,15 @@
 package au.com.rayh;
 
+import com.cloudbees.plugins.credentials.CredentialsMatchers;
+import com.cloudbees.plugins.credentials.CredentialsProvider;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.AbortException;
 import hudson.EnvVars;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
-import hudson.model.AbstractBuild;
-import hudson.model.AbstractProject;
-import hudson.model.BuildListener;
-import hudson.model.Run;
-import hudson.model.TaskListener;
+import hudson.model.*;
+import hudson.security.ACL;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
 import hudson.util.ArgumentListBuilder;
@@ -30,6 +29,7 @@ import javax.annotation.CheckForNull;
 import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.UUID;
 
 /**
@@ -42,21 +42,36 @@ import java.util.UUID;
  */
 @SuppressFBWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")
 public class KeychainUnlockStep extends Builder implements SimpleBuildStep {
+    @Deprecated
     @CheckForNull
     private String keychainName;
+    @CheckForNull
+    private String keychainId;
     @CheckForNull
     private String keychainPath;
     @CheckForNull
     private Secret keychainPwd;
 
+    @Deprecated
     @CheckForNull
     public String getKeychainName() {
         return keychainName;
     }
 
+    @CheckForNull
+    public String getKeychainId() {
+        return keychainId;
+    }
+
+    @Deprecated
     @DataBoundSetter
     public void setKeychainName(String keychainName) {
         this.keychainName = keychainName;
+    }
+
+    @DataBoundSetter
+    public void setKeychainId(String keychainId) {
+        this.keychainId = keychainId;
     }
 
     @CheckForNull
@@ -87,13 +102,38 @@ public class KeychainUnlockStep extends Builder implements SimpleBuildStep {
     @Override
     public void perform(@Nonnull Run<?, ?> run, @Nonnull FilePath workspace, @Nonnull Launcher launcher, @Nonnull TaskListener listener) throws InterruptedException, IOException {
 	EnvVars envs = run.getEnvironment(listener);
-	String _keychainName = envs.expand(this.keychainName);
-	String _keychainPath = envs.expand(this.keychainPath);
-	String _keychainPwd = envs.expand(Secret.toString(this.keychainPwd));
+	String _keychainId = envs.expand(this.keychainId);
+        String _keychainName = envs.expand(this.keychainName);
 
-        Keychain keychain = getKeychain(_keychainName);
-        _keychainPath = envs.expand(keychain.getKeychainPath());
-        _keychainPwd = envs.expand(Secret.toString(keychain.getKeychainPassword()));
+        String _keychainPath;
+        String _keychainPwd;
+        if ( StringUtils.isNotEmpty(_keychainName) ) {
+            // for backward compatibility
+            listener.getLogger().println(Messages.XCodeBuilder_UseDeprecatedKeychainInfo());
+            Keychain keychain = getKeychain(_keychainName);
+            if ( keychain == null ) {
+                throw new AbortException(Messages.DeveloperProfileLoader_NoKeychainInfoConfigured());
+            }
+            else {
+                _keychainPath = envs.expand(keychain.getKeychainPath());
+                _keychainPwd = envs.expand(Secret.toString(keychain.getKeychainPassword()));
+            }
+        }
+        else if ( StringUtils.isNotEmpty(_keychainId) ) {
+            // for backward compatibility
+            KeychainPasswordAndPath keychain = getKeychainPasswordAndPath(run.getParent(), _keychainId);
+            if ( keychain == null ) {
+                throw new AbortException(Messages.DeveloperProfileLoader_NoKeychainInfoConfigured());
+            }
+            else {
+                _keychainPath = envs.expand(keychain.getKeychainPath());
+                _keychainPwd = envs.expand(keychain.getPassword().getPlainText());
+            }
+        }
+        else {
+            _keychainPath = envs.expand(this.keychainPath);
+            _keychainPwd = envs.expand(Secret.toString(this.keychainPwd));
+        }
 
         ArgumentListBuilder args;
 
@@ -135,6 +175,13 @@ public class KeychainUnlockStep extends Builder implements SimpleBuildStep {
         }
 
         return null;
+    }
+
+    public KeychainPasswordAndPath getKeychainPasswordAndPath(Item context, String keychainId) {
+        return (KeychainPasswordAndPath) CredentialsMatchers.firstOrNull(
+                CredentialsProvider.lookupCredentials(KeychainPasswordAndPath.class, context,
+                        ACL.SYSTEM, Collections.EMPTY_LIST),
+                CredentialsMatchers.withId(keychainId));
     }
 
     private ByteArrayOutputStream invoke(Launcher launcher, TaskListener listener, ArgumentListBuilder args, String errorMessage) throws IOException, InterruptedException {

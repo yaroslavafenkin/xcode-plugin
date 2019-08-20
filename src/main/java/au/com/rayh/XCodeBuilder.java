@@ -24,6 +24,8 @@
 
 package au.com.rayh;
 
+import com.cloudbees.plugins.credentials.CredentialsMatchers;
+import com.cloudbees.plugins.credentials.CredentialsProvider;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
@@ -33,13 +35,9 @@ import hudson.EnvVars;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
-import hudson.Util;
+import hudson.model.*;
+import hudson.security.ACL;
 import hudson.util.FormValidation;
-import hudson.model.AbstractBuild;
-import hudson.model.AbstractProject;
-import hudson.model.BuildListener;
-import hudson.model.Run;
-import hudson.model.TaskListener;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
 import hudson.util.CopyOnWriteList;
@@ -60,21 +58,14 @@ import jenkins.model.Jenkins;
 
 import javax.inject.Inject;
 import javax.annotation.CheckForNull;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.Path;
 import java.io.ObjectStreamException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.UUID;
@@ -82,11 +73,6 @@ import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 
 import com.dd.plist.NSDictionary;
-import com.dd.plist.NSArray;
-import com.dd.plist.NSNumber;
-import com.dd.plist.NSObject;
-import com.dd.plist.NSString;
-import com.dd.plist.PropertyListFormatException;
 import com.dd.plist.PropertyListParser;
 
 /**
@@ -205,8 +191,14 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
     /**
      * @since 1.4
      */
+    @Deprecated
     @CheckForNull
     private String keychainName;
+    /**
+     * @since 2.0.12
+     */
+    @CheckForNull
+    private String keychainId;
     /**
      * @since 1.0
      */
@@ -573,14 +565,26 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 	this.unlockKeychain = unlockKeychain;
     }
 
+    @Deprecated
     @CheckForNull
     public String getKeychainName() {
 	return keychainName;
     }
 
+    @CheckForNull
+    public String getKeychainId() {
+        return keychainId;
+    }
+
+    @Deprecated
     @DataBoundSetter
     public void setKeychainName(String keychainName) {
 	this.keychainName = keychainName;
+    }
+
+    @DataBoundSetter
+    public void setKeychainId(String keychainId) {
+        this.keychainId = keychainId;
     }
 
     @CheckForNull
@@ -1543,14 +1547,34 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 
         if ( BooleanUtils.isTrue(unlockKeychain) ) {
             // Let's unlock the keychain
-            Keychain keychain = getKeychain();
-            if(keychain == null)
-            {
-                listener.fatalError(Messages.XCodeBuilder_keychainNotConfigured());
-                return false;
+            String keychainPath;
+            String keychainPwd;
+
+            // for backward compatibility
+            if (StringUtils.isNotEmpty(keychainName)) {
+                listener.getLogger().println(Messages.XCodeBuilder_UseDeprecatedKeychainInfo());
+                Keychain keychain = getKeychain(keychainName);
+                if (keychain == null) {
+                    listener.fatalError(Messages.XCodeBuilder_keychainNotConfigured());
+                    return false;
+                }
+                keychainPath = envs.expand(keychain.getKeychainPath());
+                keychainPwd = envs.expand(Secret.toString(keychain.getKeychainPassword()));
             }
-            String keychainPath = envs.expand(keychain.getKeychainPath());
-            String keychainPwd = envs.expand(Secret.toString(keychain.getKeychainPassword()));
+            else if (StringUtils.isNotEmpty(keychainId)) {
+                KeychainPasswordAndPath keychain = getKeychainPasswordAndPath(build.getParent(), keychainId);
+                if (keychain == null) {
+                    listener.fatalError(Messages.XCodeBuilder_keychainNotConfigured());
+                    return false;
+                }
+                keychainPath = envs.expand(keychain.getKeychainPath());
+                keychainPwd = envs.expand(keychain.getPassword().getPlainText());
+            }
+            else {
+                keychainPath = this.keychainPath;
+                keychainPwd = Secret.toString(this.keychainPwd);
+            }
+
             launcher.launch().envs(envs).cmds("/usr/bin/security", "list-keychains", "-s", keychainPath).stdout(listener).pwd(projectRoot).join();
             launcher.launch().envs(envs).cmds("/usr/bin/security", "default-keychain", "-d", "user", "-s", keychainPath).stdout(listener).pwd(projectRoot).join();
             if (StringUtils.isEmpty(keychainPwd))
@@ -2078,21 +2102,24 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
         return true;
     }
 
-    public Keychain getKeychain() {
+    @Deprecated
+    public Keychain getKeychain(String keychainName) {
         if(!StringUtils.isEmpty(keychainName)) {
             for (Keychain keychain : getGlobalConfiguration().getKeychains()) {
                 if(keychain.getKeychainName().equals(keychainName))
                     return keychain;
             }
         }
+        return null;
+    }
 
-        if(!StringUtils.isEmpty(this.keychainPath)) {
-            Keychain newKeychain = new Keychain();
-            newKeychain.setKeychainPath(this.keychainPath);
-            newKeychain.setKeychainPassword(this.keychainPwd);
-            return newKeychain;
+    public KeychainPasswordAndPath getKeychainPasswordAndPath(Item context, String keychainId) {
+        if(!StringUtils.isEmpty(keychainId)) {
+            return (KeychainPasswordAndPath) CredentialsMatchers.firstOrNull(
+                    CredentialsProvider.lookupCredentials(KeychainPasswordAndPath.class, context,
+                            ACL.SYSTEM, Collections.EMPTY_LIST),
+                    CredentialsMatchers.withId(keychainId));
         }
-
         return null;
     }
 
