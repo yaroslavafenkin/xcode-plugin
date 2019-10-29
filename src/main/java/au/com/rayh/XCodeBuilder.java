@@ -1289,7 +1289,17 @@ public class XCodeBuilder extends Builder implements SimpleBuildStep {
 		else if ( projectList.size() > 0 && xcodeSchema != null && !StringUtils.isEmpty(xcodeSchema) ) {
 		    for ( String location : projectList ) {
 			HashMap<String, ProjectScheme> xcodeSchemes = XcodeProjectParser.listXcodeSchemes(projectRoot.child(location));
+			// JENKINS-59523, JENKINS-59609
+			if ( xcodeSchemes == null ) {
+			    listener.getLogger().println("Skipping empty or invalid scheme file: " + location);
+			    continue;
+			}
 			ProjectScheme projectScheme = xcodeSchemes.get(xcodeSchema);
+			// JENKINS-59523, JENKINS-59609
+			if ( projectScheme == null ) {
+			    listener.getLogger().println("Skipping undefined schema: " + xcodeSchema);
+			    continue;
+			}
 			String referencedContainerLocation = projectScheme.referencedContainer.replaceAll("^container:", "");
 			projectLocation = projectRoot.child(referencedContainerLocation);
 			target = projectScheme.blueprintName;
