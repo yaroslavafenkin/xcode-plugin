@@ -7,6 +7,7 @@ import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
 import hudson.util.ArgumentListBuilder;
 import hudson.util.FormValidation;
+import hudson.util.Secret;
 import jenkins.tasks.SimpleBuildStep;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.BooleanUtils;
@@ -34,12 +35,13 @@ public class ExportIpa extends Builder implements SimpleBuildStep {
     private String xcodeProjectFile;
     @CheckForNull
     private Boolean unlockKeychain;
+    @Deprecated
     @CheckForNull
     private String keychainName;
     @CheckForNull
     private String keychainPath;
     @CheckForNull
-    private String keychainPwd;
+    private Secret keychainPwd;
     @CheckForNull
     private String symRoot;
     @CheckForNull
@@ -100,6 +102,11 @@ public class ExportIpa extends Builder implements SimpleBuildStep {
      */
     @CheckForNull
     private Boolean copyProvisioningProfile;
+    /*
+     * @since 2.0.13
+     */
+    @CheckForNull
+    private String keychainId;
 
     @CheckForNull
     public String getXcodeProjectPath() {
@@ -146,12 +153,12 @@ public class ExportIpa extends Builder implements SimpleBuildStep {
     }
 
     @CheckForNull
-    public String getKeychainPwd() {
+    public Secret getKeychainPwd() {
 	return keychainPwd;
     }
 
     @DataBoundSetter
-    public void setKeychainPwd(String keychainPwd) {
+    public void setKeychainPwd(Secret keychainPwd) {
 	this.keychainPwd = keychainPwd;
     }
 
@@ -400,6 +407,16 @@ public class ExportIpa extends Builder implements SimpleBuildStep {
 	this.copyProvisioningProfile = copyProvisioningProfile;
     }
 
+    @CheckForNull
+    public String getKeychainId() {
+	return keychainId;
+    }
+
+    @DataBoundSetter
+    public void setKeychainId(String keychainId) {
+	this.keychainId = keychainId;
+    }
+
     @DataBoundConstructor
     public ExportIpa() {
     }
@@ -425,7 +442,7 @@ public class ExportIpa extends Builder implements SimpleBuildStep {
         this.developmentTeamID = developmentTeamID;
         this.unlockKeychain = unlockKeychain;
         this.keychainPath = keychainPath;
-        this.keychainPwd = keychainPwd;
+        this.keychainPwd = Secret.fromString(keychainPwd);
         this.symRoot = symRoot;
         this.archiveDir = archiveDir;
         this.ipaName = ipaName;
@@ -457,7 +474,7 @@ public class ExportIpa extends Builder implements SimpleBuildStep {
 	XCodeBuilder builder = new XCodeBuilder(true, false, true, null, false, false, null,
                 null, null, xcodeProjectPath, xcodeProjectFile, null,
                 null, null, unlockKeychain,
-                keychainName, keychainPath, keychainPwd, symRoot, xcodeWorkspaceFile,
+                keychainName, keychainPath, Secret.toString(keychainPwd), symRoot, xcodeWorkspaceFile,
                 xcodeSchema, archiveDir, developmentTeamName, developmentTeamID, false,
                 ipaName, false, ipaOutputDirectory, false, null,
                 null, false, ipaExportMethod, signingMethod, provisioningProfiles, xcodeName,
@@ -468,6 +485,7 @@ public class ExportIpa extends Builder implements SimpleBuildStep {
 	builder.setCopyProvisioningProfile(copyProvisioningProfile);
 		
 	builder.setSkipBuildStep(true);
+	builder.setKeychainId(keychainId);
 	builder.perform(build, filePath, launcher, listener);
 	return true;
     }
