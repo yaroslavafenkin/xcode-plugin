@@ -95,7 +95,12 @@ public class KeychainUnlockStep extends Builder implements SimpleBuildStep {
     }
 
     @DataBoundConstructor
+    public KeychainUnlockStep() {
+    }
+
+    @Deprecated
     public KeychainUnlockStep(String keychainName) {
+	this();
 	this.keychainName = keychainName;
     }
 
