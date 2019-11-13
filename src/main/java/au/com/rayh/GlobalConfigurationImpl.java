@@ -118,9 +118,8 @@ public final class GlobalConfigurationImpl extends GlobalConfiguration {
     }
 
     @Deprecated
-    @CheckForNull
     public ArrayList<Keychain> getKeychains() {
-        return keychains;
+	return keychains == null ? keychains : new ArrayList<Keychain>();
     }
 
     @Deprecated
