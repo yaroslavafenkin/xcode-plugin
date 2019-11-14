@@ -133,7 +133,12 @@ public class DeveloperProfileLoader extends Builder implements SimpleBuildStep {
     }
 
     @DataBoundConstructor
+    public DeveloperProfileLoader() {
+    }
+
+    @Deprecated
     public DeveloperProfileLoader(String profileId) {
+        this();
 	this.profileId = profileId;
     }
 

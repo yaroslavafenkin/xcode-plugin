@@ -99,7 +99,8 @@
         </table>
       </f:repeatable>
     </f:entry>
-    
+   
+    <!-- Useless method that doesn't make sense.
     <j:if test="${descriptor.keychains.size()>0}">
         <f:entry title="${%Default keychain}"
                  description="${%This will be the system default keychain}"
@@ -107,6 +108,7 @@
             <f:textbox />
         </f:entry>
     </j:if>
+    -->
 
   </f:section>
 </j:jelly>

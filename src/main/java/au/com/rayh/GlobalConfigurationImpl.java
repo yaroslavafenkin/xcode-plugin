@@ -27,6 +27,7 @@ import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 
@@ -40,6 +41,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
+import javax.annotation.CheckForNull;
 import javax.servlet.ServletException;
 
 /**
@@ -50,22 +52,97 @@ import javax.servlet.ServletException;
 @Extension
 public final class GlobalConfigurationImpl extends GlobalConfiguration {
     private static final Logger LOGGER = Logger.getLogger(GlobalConfigurationImpl.class.getName());
+    @CheckForNull
     private String xcodebuildPath = "/usr/bin/xcodebuild";
+    @CheckForNull
     private String xcrunPath = "/usr/bin/xcrun";
+    @CheckForNull
     private String agvtoolPath = "/usr/bin/agvtool";
+    // No one uses defaultKeychain.
+    @Deprecated
+    @CheckForNull
     private String defaultKeychain = "";
+    @Deprecated
+    @CheckForNull
     private ArrayList<Keychain> keychains = new ArrayList<>();
+    @Deprecated
+    @CheckForNull
     private ArrayList<Team> teams = new ArrayList<>();
 
-    public GlobalConfigurationImpl() {
-        load();
-        LOGGER.fine("[Xcode] Default constructor: " + getKeychains().size());
+    @DataBoundSetter
+    public void setXcodebuildPath(String xcodebuildPath) {
+        this.xcodebuildPath = xcodebuildPath;
+    }
+
+    @CheckForNull
+    public String getXcodebuildPath() {
+        return xcodebuildPath;
+    }
+
+    @DataBoundSetter
+    public void setXcrunPath(String xcrunPath) {
+        this.xcrunPath = xcrunPath;
+    }
+
+    @CheckForNull
+    public String getXcrunPath() {
+        return xcrunPath;
+    }
+
+    @DataBoundSetter
+    public void setAgvtoolPath(String agvtoolPath) {
+        this.agvtoolPath = agvtoolPath;
+    }
+
+    @CheckForNull
+    public String getAgvtoolPath() {
+        return agvtoolPath;
+    }
+
+    @Deprecated
+    @DataBoundSetter
+    public void setDefaultKeychain(String defaultKeychain) {
+        this.defaultKeychain = defaultKeychain;
+    }
+
+    @Deprecated
+    @CheckForNull
+    public String getDefaultKeychain() {
+        return defaultKeychain;
+    }
+
+    @Deprecated
+    @DataBoundSetter
+    public void setKeychains(ArrayList<Keychain> keychains) {
+        this.keychains = keychains;
+    }
+
+    @Deprecated
+    public ArrayList<Keychain> getKeychains() {
+	return keychains == null ? keychains : new ArrayList<Keychain>();
+    }
+
+    @Deprecated
+    @DataBoundSetter
+    public void setTeams(ArrayList<Team> teams) {
+        this.teams = teams;
+    }
+
+    @Deprecated
+    public ArrayList<Team> getTeams() {
+        return teams;
     }
 
     @DataBoundConstructor
-    public GlobalConfigurationImpl(String xcodebuildPath, String xcrunPath, String agvtoolPath, String defaultKeychain, ArrayList<Keychain> keychains, ArrayList<Team> teams) {
+    public GlobalConfigurationImpl() {
         super();
         load();
+	LOGGER.fine("[Xcode] Default constructor: " + getKeychains().size());
+    }
+
+    @Deprecated
+    public GlobalConfigurationImpl(String xcodebuildPath, String xcrunPath, String agvtoolPath, String defaultKeychain, ArrayList<Keychain> keychains, ArrayList<Team> teams) {
+        this();
 
         this.setXcodebuildPath(xcodebuildPath);
         this.setXcrunPath(xcrunPath);
@@ -112,6 +189,7 @@ public final class GlobalConfigurationImpl extends GlobalConfiguration {
         return FormValidation.ok();
     }
 
+    /* Useless method that doesn't make sense.
     public FormValidation doCheckDefaultKeychain(@QueryParameter String value) throws IOException, ServletException {
         if (!StringUtils.isEmpty(value)) {
             Boolean foundKeychain = false;
@@ -129,6 +207,7 @@ public final class GlobalConfigurationImpl extends GlobalConfiguration {
 
         return FormValidation.ok();
     }
+     */
 
     public AutoCompletionCandidates doAutoCompleteDefaultKeychain(@QueryParameter String value) {
         AutoCompletionCandidates c = new AutoCompletionCandidates();
@@ -158,53 +237,5 @@ public final class GlobalConfigurationImpl extends GlobalConfiguration {
         save();
 
         return super.configure(req, formData);
-    }
-
-    public String getXcodebuildPath() {
-        return xcodebuildPath;
-    }
-
-    public void setXcodebuildPath(String xcodebuildPath) {
-        this.xcodebuildPath = xcodebuildPath;
-    }
-
-    public String getXcrunPath() {
-        return xcrunPath;
-    }
-
-    public void setXcrunPath(String xcrunPath) {
-        this.xcrunPath = xcrunPath;
-    }
-
-    public String getAgvtoolPath() {
-        return agvtoolPath;
-    }
-
-    public void setAgvtoolPath(String agvtoolPath) {
-        this.agvtoolPath = agvtoolPath;
-    }
-
-    public ArrayList<Keychain> getKeychains() {
-        return keychains;
-    }
-
-    public void setKeychains(ArrayList<Keychain> keychains) {
-        this.keychains = keychains;
-    }
-
-    public String getDefaultKeychain() {
-        return defaultKeychain;
-    }
-
-    public void setDefaultKeychain(String defaultKeychain) {
-        this.defaultKeychain = defaultKeychain;
-    }
-
-    public ArrayList<Team> getTeams() {
-        return teams;
-    }
-
-    public void setTeams(ArrayList<Team> teams) {
-        this.teams = teams;
     }
 }
