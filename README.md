@@ -2,8 +2,7 @@ Xcode plugin
 ------------
 
 This plugin adds the ability to call Xcode command line tools to automate build and packaging iOS applications (iPhone, iPad, ...).
-*  More documentation about how to use it : https://wiki.jenkins-ci.org/display/JENKINS/Xcode+Plugin
-*  Report all issues or features requests in Jira : https://issues.jenkins-ci.org/browse/JENKINS/component/16124
+*  Report all issues or features requests in Jira : https://issues.jenkins-ci.org/issues/?jql=component%20%3D%20xcode-plugin
 
 Contact the Jenkins Community by [mail](http://jenkins-ci.org/content/mailing-lists) or [irc](http://jenkins-ci.org/content/chat) to have support.
 
