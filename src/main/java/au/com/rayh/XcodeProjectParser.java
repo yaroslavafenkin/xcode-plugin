@@ -67,9 +67,6 @@ public class XcodeProjectParser {
 	for ( FilePath schemeFilesDir : schemeFilesDirList ) {
 	    try {
 		List<FilePath> files = schemeFilesDir.list(new XcodeSchemeFileFilter());
-		if ( files == null ) {
-		    return null;
-		}
 		for ( FilePath file : files ) {
 		    ProjectScheme scheme = parseXcodeScheme(file);
 		    String schemeName = file.getBaseName().replaceAll(".xcscheme$", "");
