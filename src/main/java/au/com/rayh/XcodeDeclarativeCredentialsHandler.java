@@ -40,16 +40,6 @@ public class XcodeDeclarativeCredentialsHandler extends CredentialsBindingHandle
 
     @Nonnull
     @Override
-    public List<MultiBinding<KeychainPasswordAndPath>> toBindings(String varName, String credentialsId) {
-        return Collections.singletonList((MultiBinding<KeychainPasswordAndPath>)new KeychainPasswordAndPathBinding(
-                varName,
-                null,
-                null,
-                credentialsId));
-    }
-
-    @Nonnull
-    @Override
     public Class<? extends StandardCredentials> type() {
         return KeychainPasswordAndPath.class;
     }
