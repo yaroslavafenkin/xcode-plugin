@@ -134,6 +134,7 @@
       <groupId>org.bouncycastle</groupId>
       <artifactId>bcpkix-jdk15on</artifactId>
       <version>1.69</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>io.jenkins.plugins</groupId>
