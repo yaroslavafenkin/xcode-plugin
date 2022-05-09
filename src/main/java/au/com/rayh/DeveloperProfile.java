@@ -20,8 +20,8 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.CheckForNull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
@@ -82,7 +82,7 @@ public class DeveloperProfile extends BaseStandardCredentials {
      * @throws IOException file I/O
      * @throws GeneralSecurityException Certificate error
      */
-    public @Nonnull List<X509Certificate> getCertificates() throws IOException, GeneralSecurityException {
+    public @NonNull List<X509Certificate> getCertificates() throws IOException, GeneralSecurityException {
         try (ZipInputStream zip = new ZipInputStream(new ByteArrayInputStream(getImage()))) {
             List<X509Certificate> r = new ArrayList<>();
 

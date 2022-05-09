@@ -8,8 +8,7 @@ import hudson.security.ACL;
 import hudson.util.ListBoxModel;
 import org.apache.commons.lang.StringUtils;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+import edu.umd.cs.findbugs.annotations.CheckForNull;
 import java.util.Collections;
 
 /**
@@ -20,7 +19,7 @@ public class XcodeCredentialsHelper {
     private XcodeCredentialsHelper() {}
 
     @CheckForNull
-    public static KeychainPasswordAndPath getCredentials(@Nullable String credentialsId, ItemGroup context) {
+    public static KeychainPasswordAndPath getCredentials(String credentialsId, ItemGroup context) {
         if (StringUtils.isBlank(credentialsId)) {
             return null;
         }
