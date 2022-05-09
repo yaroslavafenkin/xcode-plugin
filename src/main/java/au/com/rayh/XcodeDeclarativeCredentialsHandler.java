@@ -27,7 +27,6 @@ package au.com.rayh;
 import com.cloudbees.plugins.credentials.common.StandardCredentials;
 import hudson.Extension;
 import org.jenkinsci.plugins.pipeline.modeldefinition.model.CredentialsBindingHandler;
-import org.jenkinsci.plugins.credentialsbinding.MultiBinding;
 
 import javax.annotation.Nonnull;
 import java.util.Collections;
