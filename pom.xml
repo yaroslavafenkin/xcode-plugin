@@ -88,8 +88,8 @@
     <dependencies>
       <dependency>
         <groupId>io.jenkins.tools.bom</groupId>
-        <artifactId>bom-2.289.x</artifactId>
-        <version>1008.vb9e22885c9cf</version>
+        <artifactId>bom-2.319.x</artifactId>
+        <version>1362.v59f2f3db_80ee </version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -145,7 +145,7 @@
     <revision>2.0.16</revision>
     <changelist>-SNAPSHOT</changelist>
     <gitHubRepo>jenkinsci/xcode-plugin</gitHubRepo>
-    <jenkins.version>2.289.1</jenkins.version>
+    <jenkins.version>2.319.1</jenkins.version>
   </properties>
   <build>
     <plugins>
