@@ -28,7 +28,7 @@ import com.cloudbees.plugins.credentials.common.StandardCredentials;
 import hudson.Extension;
 import org.jenkinsci.plugins.pipeline.modeldefinition.model.CredentialsBindingHandler;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -37,13 +37,13 @@ import java.util.Map;
 @Extension
 public class XcodeDeclarativeCredentialsHandler extends CredentialsBindingHandler<KeychainPasswordAndPath> {
 
-    @Nonnull
+    @NonNull
     @Override
     public Class<? extends StandardCredentials> type() {
         return KeychainPasswordAndPath.class;
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public List<Map<String, Object>> getWithCredentialsParameters(String credentialsId) {
         Map<String, Object> map = new HashMap<>();

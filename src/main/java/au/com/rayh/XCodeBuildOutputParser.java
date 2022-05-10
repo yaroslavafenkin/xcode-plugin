@@ -242,7 +242,7 @@ public class XCodeBuildOutputParser {
         if(m.matches()) {
             requireTestSuite(m.group(1));
             requireTestCase(m.group(2));
-            currentTestCase.setTime(Float.valueOf(m.group(3)));
+            currentTestCase.setTime(Float.parseFloat(m.group(3)));
             currentTestSuite.getTestCases().add(currentTestCase);
             currentTestSuite.addTest();
 	    // Actually, I think that the test case should be closed and deleted here.
@@ -302,7 +302,7 @@ public class XCodeBuildOutputParser {
             requireTestCase(m.group(2));
             currentTestSuite.addTest();
             currentTestSuite.addFailure();
-            currentTestCase.setTime(Float.valueOf(m.group(3)));
+            currentTestCase.setTime(Float.parseFloat(m.group(3)));
             currentTestSuite.getTestCases().add(currentTestCase);
 	    //currentTestSuite.getTestCasesHash().remove(m.group(2));
 	    currentTestCase = null;

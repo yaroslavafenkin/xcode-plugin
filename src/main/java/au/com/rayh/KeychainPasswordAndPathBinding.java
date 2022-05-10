@@ -37,7 +37,7 @@ import org.jenkinsci.plugins.credentialsbinding.BindingDescriptor;
 import org.jenkinsci.plugins.credentialsbinding.MultiBinding;
 import org.kohsuke.stapler.DataBoundConstructor;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -97,7 +97,7 @@ public class KeychainPasswordAndPathBinding extends MultiBinding<KeychainPasswor
     }
 
     @Override
-    public MultiEnvironment bind(@Nonnull Run<?, ?> build, FilePath workspace, Launcher launcher, TaskListener listener) throws IOException, InterruptedException {
+    public MultiEnvironment bind(@NonNull Run<?, ?> build, FilePath workspace, Launcher launcher, TaskListener listener) throws IOException, InterruptedException {
         KeychainPasswordAndPath credential = getCredentials(build);
         Map<String,String> m = new HashMap<String,String>();
         m.put(keychainPathVariable, credential.getKeychainPath());

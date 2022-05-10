@@ -57,7 +57,7 @@ import org.kohsuke.stapler.QueryParameter;
 import jenkins.model.Jenkins;
 
 import javax.inject.Inject;
-import javax.annotation.CheckForNull;
+import edu.umd.cs.findbugs.annotations.CheckForNull;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectStreamException;

@@ -24,8 +24,8 @@ import org.kohsuke.stapler.QueryParameter;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 
-import javax.annotation.Nonnull;
-import javax.annotation.CheckForNull;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.CheckForNull;
 import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -105,7 +105,7 @@ public class KeychainUnlockStep extends Builder implements SimpleBuildStep {
     }
 
     @Override
-    public void perform(@Nonnull Run<?, ?> run, @Nonnull FilePath workspace, @Nonnull Launcher launcher, @Nonnull TaskListener listener) throws InterruptedException, IOException {
+    public void perform(@NonNull Run<?, ?> run, @NonNull FilePath workspace, @NonNull Launcher launcher, @NonNull TaskListener listener) throws InterruptedException, IOException {
 	EnvVars envs = run.getEnvironment(listener);
 	String _keychainId = envs.expand(this.keychainId);
         String _keychainName = envs.expand(this.keychainName);
