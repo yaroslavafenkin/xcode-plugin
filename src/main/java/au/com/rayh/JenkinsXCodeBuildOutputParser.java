@@ -30,6 +30,7 @@
 package au.com.rayh;
 
 import hudson.FilePath;
+import hudson.Functions;
 import hudson.model.TaskListener;
 
 import java.io.BufferedOutputStream;
@@ -113,7 +114,7 @@ public class JenkinsXCodeBuildOutputParser extends XCodeBuildOutputParser {
                         handleLine(buffer.toString());
                         buffer = new StringBuilder();
                     } catch(Exception e) {  // Very fugly
-                        buildListener.fatalError(e.getMessage(), e);
+                        Functions.printStackTrace(e, buildListener.fatalError(e.getMessage()));
                         throw new IOException(e);
                     }
                 } else {

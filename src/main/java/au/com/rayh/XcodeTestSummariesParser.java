@@ -41,7 +41,15 @@ public class XcodeTestSummariesParser {
     private void writeTestReport(TestSuite currentTestSuite) throws IOException, InterruptedException,
             JAXBException {
         try (OutputStream testReportOutputStream = outputForSuite(currentTestSuite)) {
-            JAXBContext jaxbContext = JAXBContext.newInstance(TestSuite.class);
+            JAXBContext jaxbContext;
+            Thread t = Thread.currentThread();
+            ClassLoader orig = t.getContextClassLoader();
+            t.setContextClassLoader(XcodeTestSummariesParser.class.getClassLoader());
+            try {
+                jaxbContext = JAXBContext.newInstance(TestSuite.class);
+            } finally {
+                t.setContextClassLoader(orig);
+            }
             Marshaller marshaller = jaxbContext.createMarshaller();
             marshaller.marshal(currentTestSuite, testReportOutputStream);
         }

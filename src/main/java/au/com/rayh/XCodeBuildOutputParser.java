@@ -177,7 +177,15 @@ public class XCodeBuildOutputParser {
     private void writeTestReport() throws IOException, InterruptedException,
             JAXBException {
         try (OutputStream testReportOutputStream = outputForSuite()) {
-            JAXBContext jaxbContext = JAXBContext.newInstance(TestSuite.class);
+            JAXBContext jaxbContext;
+            Thread t = Thread.currentThread();
+            ClassLoader orig = t.getContextClassLoader();
+            t.setContextClassLoader(XCodeBuildOutputParser.class.getClassLoader());
+            try {
+                jaxbContext = JAXBContext.newInstance(TestSuite.class);
+            } finally {
+                t.setContextClassLoader(orig);
+            }
             Marshaller marshaller = jaxbContext.createMarshaller();
             marshaller.marshal(currentTestSuite, testReportOutputStream);
         }
